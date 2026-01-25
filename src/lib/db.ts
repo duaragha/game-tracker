@@ -1,8 +1,11 @@
 import { Pool } from 'pg';
 
+// Railway internal connections don't use SSL
+const isRailwayInternal = process.env.DATABASE_URL?.includes('.railway.internal');
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: isRailwayInternal ? false : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
 });
 
 // Initialize the progress table
