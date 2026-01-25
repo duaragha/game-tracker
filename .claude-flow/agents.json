@@ -1,0 +1,121 @@
+{
+  "agents": {
+    "kingdom-researcher-1769093099777-xeen": {
+      "agentId": "kingdom-researcher-1769093099777-xeen",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-59nc": {
+      "agentId": "kingdom-researcher-1769093099777-59nc",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-c03j": {
+      "agentId": "kingdom-researcher-1769093099777-c03j",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-gdsw": {
+      "agentId": "kingdom-researcher-1769093099777-gdsw",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-6340": {
+      "agentId": "kingdom-researcher-1769093099777-6340",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-7meq": {
+      "agentId": "kingdom-researcher-1769093099777-7meq",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-vi4u": {
+      "agentId": "kingdom-researcher-1769093099777-vi4u",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-7jhw": {
+      "agentId": "kingdom-researcher-1769093099777-7jhw",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    },
+    "kingdom-researcher-1769093099777-gkh7": {
+      "agentId": "kingdom-researcher-1769093099777-gkh7",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "worker",
+        "hiveRole": "worker"
+      },
+      "createdAt": "2026-01-22T14:44:59.777Z",
+      "domain": "hive-mind"
+    }
+  }
+}
