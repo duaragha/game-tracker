@@ -1,15 +1,13 @@
 'use client';
 
-import { Sidebar, FilterBar, CollectibleList, ProgressStats, InteractiveMap, MarioKartTracker } from '@/components';
+import { Sidebar, FilterBar, CollectibleList, ProgressStats, MarioKartTracker } from '@/components';
 import { MarioKartStats } from '@/components/MarioKartStats';
 import { PokemonTracker } from '@/components/PokemonTracker';
 import { PokemonStats } from '@/components/PokemonStats';
 import { useGameStore, useCurrentKingdom } from '@/store/game-store';
 import { isMarioKartGame, isPokemonGame } from '@/data';
-import { Download, Upload, RotateCcw, List, Map, Cloud, CloudOff, Loader2 } from 'lucide-react';
+import { Download, Upload, RotateCcw, Cloud, CloudOff, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
-
-type ViewTab = 'list' | 'map';
 
 export default function Home() {
   const currentGame = useGameStore((s) => s.currentGame);
@@ -23,7 +21,6 @@ export default function Home() {
   const progress = useGameStore((s) => s.progress);
 
   const setSidebarOpen = useGameStore((s) => s.setSidebarOpen);
-  const [activeTab, setActiveTab] = useState<ViewTab>('list');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -211,34 +208,6 @@ export default function Home() {
               )}
             </div>
 
-            {/* View Tabs - Only for SMO games */}
-            {!isMK && !isPKMN && (
-              <div className="flex bg-zinc-800 rounded-lg p-0.5 mr-2">
-                <button
-                  onClick={() => setActiveTab('list')}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors text-sm ${
-                    activeTab === 'list'
-                      ? 'bg-zinc-700 text-white'
-                      : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <List className="w-3.5 h-3.5" />
-                  <span>List</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('map')}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors text-sm ${
-                    activeTab === 'map'
-                      ? 'bg-zinc-700 text-white'
-                      : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <Map className="w-3.5 h-3.5" />
-                  <span>Map</span>
-                </button>
-              </div>
-            )}
-
             <button
               onClick={handleExport}
               className="flex items-center gap-1.5 px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm"
@@ -291,19 +260,12 @@ export default function Home() {
         ) : isPKMN && currentGame ? (
           /* Pokemon Tracker */
           <PokemonTracker gameId={currentGame} />
-        ) : activeTab === 'list' ? (
+        ) : (
           <>
             {/* Filter Bar */}
             <FilterBar />
             {/* Collectible List */}
             <CollectibleList />
-          </>
-        ) : (
-          <>
-            {/* Interactive Map View */}
-            <div className="flex-1 overflow-hidden">
-              <InteractiveMap />
-            </div>
           </>
         )}
       </main>
