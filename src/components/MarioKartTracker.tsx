@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useGameStore, useCurrentMarioKartSection, useFilters } from '@/store/game-store';
+import { useGameStore, useCurrentMarioKartSection, useFilters, useActiveMKModes } from '@/store/game-store';
 import { getMarioKartGame } from '@/data';
 import { MarioKartGame, Cup, EngineClass, createCupCompletionId } from '@/types/mario-kart';
-import { Trophy, Timer, Crown, ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { Trophy, Timer, Crown, ChevronDown, ChevronRight, Check, Eye, EyeOff } from 'lucide-react';
 import { useCompletionFilter } from './CompletionFilter';
 import {
   TrackerLayout,
@@ -18,10 +18,13 @@ interface MarioKartTrackerProps {
   gameId: string;
 }
 
+import { MKModeFilter } from '@/types';
+
 export function MarioKartTracker({ gameId }: MarioKartTrackerProps) {
   const game = getMarioKartGame(gameId);
   const currentSection = useCurrentMarioKartSection();
   const [expandedCups, setExpandedCups] = useState<Set<string>>(new Set());
+  const activeModes = useActiveMKModes();
 
   if (!game) return null;
 
@@ -43,9 +46,8 @@ export function MarioKartTracker({ gameId }: MarioKartTrackerProps) {
   const section = currentSection || 'all-items';
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden">
-        {section === 'all-items' && <AllItemsView gameId={gameId} game={game} />}
+    <div className="flex-1 flex flex-col min-h-0">
+        {section === 'all-items' && <AllItemsView gameId={gameId} game={game} activeModes={activeModes} />}
         {section === 'grand-prix' && (
           <CupGrid
             gameId={gameId}
@@ -66,7 +68,6 @@ export function MarioKartTracker({ gameId }: MarioKartTrackerProps) {
           />
         )}
         {section === 'time-trials' && <TimeTrialsView gameId={gameId} game={game} />}
-      </div>
     </div>
   );
 }
@@ -237,7 +238,8 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
   const [collapsedCups, setCollapsedCups] = useState<Record<string, boolean>>({});
 
   const collected = progress?.collected ?? new Set<string>();
-  const TIME_TRIAL_CLASSES = ['150cc'] as const;
+  // MK World only has 150cc time trials, MK8 has both 150cc and 200cc
+  const TIME_TRIAL_CLASSES = gameId === 'mkworld' ? ['150cc'] as const : ['150cc', '200cc'] as const;
 
   const allTracks = game.cups.flatMap((c) => c.tracks);
   const totalCompletions = allTracks.length * TIME_TRIAL_CLASSES.length;
@@ -356,9 +358,10 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
 interface AllItemsViewProps {
   gameId: string;
   game: MarioKartGame;
+  activeModes: Set<MKModeFilter>;
 }
 
-function AllItemsView({ gameId, game }: AllItemsViewProps) {
+function AllItemsView({ gameId, game, activeModes }: AllItemsViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
@@ -368,7 +371,8 @@ function AllItemsView({ gameId, game }: AllItemsViewProps) {
   const collected = progress?.collected ?? new Set<string>();
   const collectedSize = collected.size;
 
-  const TIME_TRIAL_CLASSES = ['150cc'] as const;
+  // MK World only has 150cc time trials, MK8 has both 150cc and 200cc
+  const TIME_TRIAL_CLASSES = gameId === 'mkworld' ? ['150cc'] as const : ['150cc', '200cc'] as const;
   const hasKnockout = game.knockoutRallies && game.knockoutRallies.length > 0;
 
   // Stats
@@ -547,36 +551,46 @@ function AllItemsView({ gameId, game }: AllItemsViewProps) {
   const koHasExplicitState = 'ko' in collapsedSections;
   const koCollapsed = koHasExplicitState ? collapsedSections['ko'] : koIsComplete;
 
+  // Check if any items are visible based on active modes
+  const gpVisible = activeModes.has('gp') && filteredCups.length > 0;
+  const ttVisible = activeModes.has('tt') && filteredTracks.length > 0;
+  const koVisible = activeModes.has('ko') && hasKnockout && filteredKnockout.length > 0;
+  const anyVisible = gpVisible || ttVisible || koVisible;
+
   return (
     <TrackerLayout title="All Items" totalItems={totalItems} completedItems={totalCompleted}>
       {/* Grand Prix Section */}
-      <TrackerSection
-        icon={<Trophy className="w-4 h-4" />}
-        iconColor="text-yellow-400"
-        label="Grand Prix"
-        completedCount={gpCompleted}
-        totalCount={gpTotal}
-        isCollapsed={gpCollapsed}
-        onToggle={() => toggleSection('gp', gpCollapsed)}
-      >
-        {filteredCups.map((cup) => renderCupItem(cup, game.engineClasses))}
-      </TrackerSection>
+      {activeModes.has('gp') && (
+        <TrackerSection
+          icon={<Trophy className="w-4 h-4" />}
+          iconColor="text-yellow-400"
+          label="Grand Prix"
+          completedCount={gpCompleted}
+          totalCount={gpTotal}
+          isCollapsed={gpCollapsed}
+          onToggle={() => toggleSection('gp', gpCollapsed)}
+        >
+          {filteredCups.map((cup) => renderCupItem(cup, game.engineClasses))}
+        </TrackerSection>
+      )}
 
       {/* Time Trials Section */}
-      <TrackerSection
-        icon={<Timer className="w-4 h-4" />}
-        iconColor="text-blue-400"
-        label="Time Trials"
-        completedCount={ttCompleted}
-        totalCount={ttTotal}
-        isCollapsed={ttCollapsed}
-        onToggle={() => toggleSection('tt', ttCollapsed)}
-      >
-        {filteredTracks.map((track) => renderTrackItem(track))}
-      </TrackerSection>
+      {activeModes.has('tt') && (
+        <TrackerSection
+          icon={<Timer className="w-4 h-4" />}
+          iconColor="text-blue-400"
+          label="Time Trials"
+          completedCount={ttCompleted}
+          totalCount={ttTotal}
+          isCollapsed={ttCollapsed}
+          onToggle={() => toggleSection('tt', ttCollapsed)}
+        >
+          {filteredTracks.map((track) => renderTrackItem(track))}
+        </TrackerSection>
+      )}
 
       {/* Knockout Section */}
-      {hasKnockout && (
+      {activeModes.has('ko') && hasKnockout && (
         <TrackerSection
           icon={<Crown className="w-4 h-4" />}
           iconColor="text-purple-400"
@@ -591,7 +605,7 @@ function AllItemsView({ gameId, game }: AllItemsViewProps) {
       )}
 
       {/* Empty State */}
-      {filteredCups.length === 0 && filteredTracks.length === 0 && filteredKnockout.length === 0 && (
+      {!anyVisible && (
         <TrackerEmptyState />
       )}
     </TrackerLayout>

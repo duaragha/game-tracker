@@ -80,6 +80,12 @@ export type PokemonSection =
 // Mario Kart section types for sidebar navigation
 export type MarioKartSection = 'grand-prix' | 'time-trials' | 'knockout' | null;
 
+// Mario Kart mode filter types
+export type MKModeFilter = 'gp' | 'tt' | 'ko';
+
+// Pokemon section filter types
+export type PKMNSectionFilter = 'story' | 'legendaries' | 'pokedex' | 'raids' | 'post-game' | 'dlc' | 'collectibles' | 'recipes' | 'cosmetics' | 'sights' | 'marks';
+
 export interface AppState {
   // Current selection
   currentGame: string | null;
@@ -94,6 +100,8 @@ export interface AppState {
   filters: FilterState;
   selectedCollectible: string | null;
   sidebarOpen: boolean;
+  activeMKModes: Set<MKModeFilter>;
+  activePKMNSections: Set<PKMNSectionFilter>;
 
   // Actions
   setCurrentGame: (gameId: string | null) => void;
@@ -105,6 +113,8 @@ export interface AppState {
   setFilters: (filters: Partial<FilterState>) => void;
   setSelectedCollectible: (id: string | null) => void;
   setSidebarOpen: (open: boolean) => void;
+  toggleMKMode: (mode: MKModeFilter) => void;
+  togglePKMNSection: (section: PKMNSectionFilter) => void;
   resetProgress: (gameId: string) => void;
   exportProgress: () => string;
   importProgress: (data: string) => boolean;

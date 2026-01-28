@@ -1,9 +1,7 @@
 'use client';
 
-import { Sidebar, FilterBar, CollectibleList, ProgressStats, MarioKartTracker } from '@/components';
-import { MarioKartStats } from '@/components/MarioKartStats';
+import { Sidebar, SuperMarioOdysseyTracker, MarioKartTracker, GameHeader } from '@/components';
 import { PokemonTracker } from '@/components/PokemonTracker';
-import { PokemonStats } from '@/components/PokemonStats';
 import { useGameStore, useCurrentKingdom } from '@/store/game-store';
 import { isMarioKartGame, isPokemonGame } from '@/data';
 import { Download, Upload, RotateCcw, Cloud, CloudOff, Loader2 } from 'lucide-react';
@@ -244,14 +242,8 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Stats */}
-        {isMK && currentGame ? (
-          <MarioKartStats gameId={currentGame} />
-        ) : isPKMN && currentGame ? (
-          <PokemonStats gameId={currentGame} />
-        ) : (
-          <ProgressStats />
-        )}
+        {/* Unified Game Header (Stats + Filters) */}
+        {currentGame && <GameHeader gameId={currentGame} />}
 
         {/* Tab Content */}
         {isMK && currentGame ? (
@@ -261,12 +253,8 @@ export default function Home() {
           /* Pokemon Tracker */
           <PokemonTracker gameId={currentGame} />
         ) : (
-          <>
-            {/* Filter Bar */}
-            <FilterBar />
-            {/* Collectible List */}
-            <CollectibleList />
-          </>
+          /* SMO Tracker */
+          <SuperMarioOdysseyTracker />
         )}
       </main>
     </div>

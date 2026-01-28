@@ -13,7 +13,7 @@ import {
   createLeagueOfficialId, createMiniGameId, createPokedexId, createShinyId, createHiddenAbilityId,
 } from '@/types/pokemon';
 import { allPokedexEntries } from '@/data';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen } from 'lucide-react';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe } from 'lucide-react';
 
 export function Sidebar() {
   const currentGame = useCurrentGame();
@@ -291,12 +291,13 @@ export function Sidebar() {
                 setCurrentGame(g.id);
                 setCurrentKingdom(null);
               }}
-              className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors ${
+              className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
                 currentGame === g.id
                   ? 'bg-yellow-500/20 text-yellow-400 font-medium'
                   : 'hover:bg-zinc-800 text-zinc-300'
               }`}
             >
+              <Globe className="w-3 h-3" />
               {g.name}
             </button>
           ))}

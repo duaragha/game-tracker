@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AppState, FilterState, UserProgress, CollectibleType, CollectibleCategory, Collectible, PokemonSection, MarioKartSection } from '@/types';
+import { AppState, FilterState, UserProgress, CollectibleType, CollectibleCategory, Collectible, PokemonSection, MarioKartSection, MKModeFilter, PKMNSectionFilter } from '@/types';
 
 // Cloud sync functions
 async function loadFromCloud(): Promise<Record<string, { collected: string[]; notes: Record<string, string>; lastUpdated: string }> | null> {
@@ -70,6 +70,8 @@ export const useGameStore = create<AppState>()(
       filters: defaultFilters,
       selectedCollectible: null,
       sidebarOpen: true,
+      activeMKModes: new Set<MKModeFilter>(['gp', 'tt', 'ko']),
+      activePKMNSections: new Set<PKMNSectionFilter>(['story', 'legendaries', 'pokedex', 'raids', 'post-game', 'dlc', 'collectibles', 'recipes', 'cosmetics', 'sights', 'marks']),
 
       // Actions
       setCurrentGame: (gameId) => set({ currentGame: gameId, currentKingdom: null, currentPokemonSection: null, currentMarioKartSection: null }),
@@ -144,6 +146,28 @@ export const useGameStore = create<AppState>()(
       setSelectedCollectible: (id) => set({ selectedCollectible: id }),
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
+
+      toggleMKMode: (mode) =>
+        set((state) => {
+          const newModes = new Set(state.activeMKModes);
+          if (newModes.has(mode)) {
+            newModes.delete(mode);
+          } else {
+            newModes.add(mode);
+          }
+          return { activeMKModes: newModes };
+        }),
+
+      togglePKMNSection: (section) =>
+        set((state) => {
+          const newSections = new Set(state.activePKMNSections);
+          if (newSections.has(section)) {
+            newSections.delete(section);
+          } else {
+            newSections.add(section);
+          }
+          return { activePKMNSections: newSections };
+        }),
 
       resetProgress: (gameId) =>
         set((state) => {
@@ -282,6 +306,8 @@ export const useCurrentMarioKartSection = () => useGameStore((s) => s.currentMar
 export const useFilters = () => useGameStore((s) => s.filters);
 export const useSelectedCollectible = () => useGameStore((s) => s.selectedCollectible);
 export const useSidebarOpen = () => useGameStore((s) => s.sidebarOpen);
+export const useActiveMKModes = () => useGameStore((s) => s.activeMKModes);
+export const useActivePKMNSections = () => useGameStore((s) => s.activePKMNSections);
 
 export const useProgress = (gameId: string): UserProgress => {
   const progress = useGameStore((s) => s.progress[gameId]);

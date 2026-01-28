@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, ReactNode } from 'react';
-import { useGameStore, useCurrentPokemonSection, useFilters } from '@/store/game-store';
+import { useGameStore, useCurrentPokemonSection, useFilters, useActivePKMNSections } from '@/store/game-store';
 import { useCompletionFilter } from './CompletionFilter';
 import {
   TrackerLayout,
@@ -66,6 +66,7 @@ import {
   createShinyId,
   createHiddenAbilityId,
 } from '@/types/pokemon';
+import { PKMNSectionFilter } from '@/types';
 import {
   Trophy,
   Swords,
@@ -88,6 +89,7 @@ import {
   UtensilsCrossed,
   Smartphone,
   Eye,
+  EyeOff,
   Medal,
   Disc,
   Ribbon,
@@ -102,14 +104,15 @@ interface PokemonTrackerProps {
 export function PokemonTracker({ gameId }: PokemonTrackerProps) {
   const game = getPokemonGame(gameId);
   const currentSection = useCurrentPokemonSection();
+  const activeSections = useActivePKMNSections();
 
   if (!game) return null;
 
   const section = currentSection || 'all-items';
 
   return (
-    <div className="flex flex-col h-full">
-      {section === 'all-items' && <AllItemsView gameId={gameId} game={game} />}
+    <div className="flex-1 flex flex-col min-h-0">
+      {section === 'all-items' && <AllItemsView gameId={gameId} game={game} activeSections={activeSections} />}
       {section === 'story' && <StoryView gameId={gameId} checkpoints={game.storyCheckpoints} />}
       {section === 'legendaries' && <LegendariesView gameId={gameId} legendaries={game.legendaries} />}
       {section === 'post-game' && <PostGameView gameId={gameId} items={game.postGame} />}
@@ -154,9 +157,10 @@ function TypeBadge({ type }: { type: string }) {
 interface AllItemsViewProps {
   gameId: string;
   game: ReturnType<typeof getPokemonGame>;
+  activeSections: Set<PKMNSectionFilter>;
 }
 
-function AllItemsView({ gameId, game }: AllItemsViewProps) {
+function AllItemsView({ gameId, game, activeSections }: AllItemsViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const { showCollected, showUncollected } = useCompletionFilter();
@@ -304,108 +308,132 @@ function AllItemsView({ gameId, game }: AllItemsViewProps) {
     filteredCollectibles.centers.length === 0 &&
     filteredCollectibles.ditto.length === 0;
 
+  // Check if any items visible based on active sections
+  const collectiblesHasItems = filteredCollectibles.stakes.length > 0 ||
+    filteredCollectibles.towers.length > 0 ||
+    filteredCollectibles.tera.length > 0 ||
+    filteredCollectibles.taxi.length > 0 ||
+    filteredCollectibles.centers.length > 0 ||
+    filteredCollectibles.ditto.length > 0;
+
+  const storyVisible = activeSections.has('story') && filteredStory.length > 0;
+  const legendariesVisible = activeSections.has('legendaries') && filteredLegendaries.length > 0;
+  const postGameVisible = activeSections.has('post-game') && filteredPostGame.length > 0;
+  const dlcVisible = activeSections.has('dlc') && filteredDLC.length > 0;
+  const collectiblesVisible = activeSections.has('collectibles') && collectiblesHasItems;
+  const anyVisible = storyVisible || legendariesVisible || postGameVisible || dlcVisible || collectiblesVisible;
+
   return (
     <TrackerLayout title="All Items" totalItems={totalAll} completedItems={completedAll}>
       {/* Story Section */}
-      <TrackerSection
-        icon={<Gamepad2 className="w-4 h-4" />}
-        iconColor="text-violet-400"
-        label="Main Story"
-        completedCount={storyCompleted}
-        totalCount={totalStory}
-        isCollapsed={storyCollapsed}
-        onToggle={() => toggleSection('story', storyCollapsed)}
-      >
-        {filteredStory.map((checkpoint) => (
-          <SimpleTrackerItem
-            key={createStoryId(checkpoint.id)}
-            name={checkpoint.name}
-            isComplete={collected.has(createStoryId(checkpoint.id))}
-            onToggle={() => toggleCollected(gameId, createStoryId(checkpoint.id))}
-            badge={checkpoint.level && (
-              <span className="text-[10px] text-zinc-500">Lv. {checkpoint.level}</span>
-            )}
-          />
-        ))}
-      </TrackerSection>
+      {activeSections.has('story') && (
+        <TrackerSection
+          icon={<Gamepad2 className="w-4 h-4" />}
+          iconColor="text-violet-400"
+          label="Main Story"
+          completedCount={storyCompleted}
+          totalCount={totalStory}
+          isCollapsed={storyCollapsed}
+          onToggle={() => toggleSection('story', storyCollapsed)}
+        >
+          {filteredStory.map((checkpoint) => (
+            <SimpleTrackerItem
+              key={createStoryId(checkpoint.id)}
+              name={checkpoint.name}
+              isComplete={collected.has(createStoryId(checkpoint.id))}
+              onToggle={() => toggleCollected(gameId, createStoryId(checkpoint.id))}
+              badge={checkpoint.level && (
+                <span className="text-[10px] text-zinc-500">Lv. {checkpoint.level}</span>
+              )}
+            />
+          ))}
+        </TrackerSection>
+      )}
 
       {/* Legendaries Section */}
-      <TrackerSection
-        icon={<Crown className="w-4 h-4" />}
-        iconColor="text-yellow-400"
-        label="Legendaries"
-        completedCount={legendariesCompleted}
-        totalCount={totalLegendaries}
-        isCollapsed={legendariesCollapsed}
-        onToggle={() => toggleSection('legendaries', legendariesCollapsed)}
-      >
-        {filteredLegendaries.map((legendary) => (
-          <SimpleTrackerItem
-            key={createLegendaryId(legendary.id)}
-            name={legendary.name}
-            isComplete={collected.has(createLegendaryId(legendary.id))}
-            onToggle={() => toggleCollected(gameId, createLegendaryId(legendary.id))}
-            badge={
-              <div className="flex gap-0.5">
-                {legendary.types.map((type) => (
-                  <TypeBadge key={type} type={type} />
-                ))}
-              </div>
-            }
-          />
-        ))}
-      </TrackerSection>
+      {activeSections.has('legendaries') && (
+        <TrackerSection
+          icon={<Crown className="w-4 h-4" />}
+          iconColor="text-yellow-400"
+          label="Legendaries"
+          completedCount={legendariesCompleted}
+          totalCount={totalLegendaries}
+          isCollapsed={legendariesCollapsed}
+          onToggle={() => toggleSection('legendaries', legendariesCollapsed)}
+        >
+          {filteredLegendaries.map((legendary) => (
+            <SimpleTrackerItem
+              key={createLegendaryId(legendary.id)}
+              name={legendary.name}
+              isComplete={collected.has(createLegendaryId(legendary.id))}
+              onToggle={() => toggleCollected(gameId, createLegendaryId(legendary.id))}
+              badge={
+                <div className="flex gap-0.5">
+                  {legendary.types.map((type) => (
+                    <TypeBadge key={type} type={type} />
+                  ))}
+                </div>
+              }
+            />
+          ))}
+        </TrackerSection>
+      )}
 
       {/* Post-Game Section */}
-      <TrackerSection
-        icon={<Trophy className="w-4 h-4" />}
-        iconColor="text-orange-400"
-        label="Post-Game"
-        completedCount={postGameCompleted}
-        totalCount={totalPostGame}
-        isCollapsed={postGameCollapsed}
-        onToggle={() => toggleSection('post-game', postGameCollapsed)}
-      >
-        {filteredPostGame.map((item) => (
-          <SimpleTrackerItem
-            key={createPostGameId(item.id)}
-            name={item.name}
-            isComplete={collected.has(createPostGameId(item.id))}
-            onToggle={() => toggleCollected(gameId, createPostGameId(item.id))}
-          />
-        ))}
-      </TrackerSection>
+      {activeSections.has('post-game') && (
+        <TrackerSection
+          icon={<Trophy className="w-4 h-4" />}
+          iconColor="text-orange-400"
+          label="Post-Game"
+          completedCount={postGameCompleted}
+          totalCount={totalPostGame}
+          isCollapsed={postGameCollapsed}
+          onToggle={() => toggleSection('post-game', postGameCollapsed)}
+        >
+          {filteredPostGame.map((item) => (
+            <SimpleTrackerItem
+              key={createPostGameId(item.id)}
+              name={item.name}
+              isComplete={collected.has(createPostGameId(item.id))}
+              onToggle={() => toggleCollected(gameId, createPostGameId(item.id))}
+            />
+          ))}
+        </TrackerSection>
+      )}
 
       {/* DLC Section */}
-      <TrackerSection
-        icon={<Gift className="w-4 h-4" />}
-        iconColor="text-teal-400"
-        label="DLC Content"
-        completedCount={dlcCompleted}
-        totalCount={totalDLC}
-        isCollapsed={dlcCollapsed}
-        onToggle={() => toggleSection('dlc', dlcCollapsed)}
-      >
-        {filteredDLC.map((content) => (
-          <SimpleTrackerItem
-            key={createDLCId(content.id)}
-            name={content.name}
-            isComplete={collected.has(createDLCId(content.id))}
-            onToggle={() => toggleCollected(gameId, createDLCId(content.id))}
-          />
-        ))}
-      </TrackerSection>
+      {activeSections.has('dlc') && (
+        <TrackerSection
+          icon={<Gift className="w-4 h-4" />}
+          iconColor="text-teal-400"
+          label="DLC Content"
+          completedCount={dlcCompleted}
+          totalCount={totalDLC}
+          isCollapsed={dlcCollapsed}
+          onToggle={() => toggleSection('dlc', dlcCollapsed)}
+        >
+          {filteredDLC.map((content) => (
+            <SimpleTrackerItem
+              key={createDLCId(content.id)}
+              name={content.name}
+              isComplete={collected.has(createDLCId(content.id))}
+              onToggle={() => toggleCollected(gameId, createDLCId(content.id))}
+            />
+          ))}
+        </TrackerSection>
+      )}
 
       {/* Collectibles Section */}
-      <TrackerSection
-        icon={<MapPin className="w-4 h-4" />}
-        iconColor="text-blue-400"
-        label="Collectibles"
-        completedCount={collectiblesCompleted}
-        totalCount={totalCollectibles}
-        isCollapsed={collectiblesCollapsed}
-        onToggle={() => toggleSection('collectibles', collectiblesCollapsed)}
-      >
+      {activeSections.has('collectibles') && (
+        <TrackerSection
+          icon={<MapPin className="w-4 h-4" />}
+          iconColor="text-blue-400"
+          label="Collectibles"
+          completedCount={collectiblesCompleted}
+          totalCount={totalCollectibles}
+          isCollapsed={collectiblesCollapsed}
+          onToggle={() => toggleSection('collectibles', collectiblesCollapsed)}
+        >
         {/* Stakes */}
         {filteredCollectibles.stakes.map((stake) => (
           <SimpleTrackerItem
@@ -471,9 +499,10 @@ function AllItemsView({ gameId, game }: AllItemsViewProps) {
             badge={<span className="text-[10px] text-zinc-500">{spawn.area}</span>}
           />
         ))}
-      </TrackerSection>
+        </TrackerSection>
+      )}
 
-      {hasNoItems && <TrackerEmptyState />}
+      {!anyVisible && <TrackerEmptyState />}
     </TrackerLayout>
   );
 }
