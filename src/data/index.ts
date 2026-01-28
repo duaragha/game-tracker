@@ -73,12 +73,6 @@ export const getCollectiblesForKingdom = (gameId: string, kingdomId: string) => 
   return game.collectibles.filter((c) => c.kingdom === kingdomId);
 };
 
-export const getCollectiblesByType = (gameId: string, type: string) => {
-  const game = getGame(gameId);
-  if (!game) return [];
-  return game.collectibles.filter((c) => c.type === type);
-};
-
 // Stats
 export const getGameStats = (gameId: string) => {
   const game = getGame(gameId);

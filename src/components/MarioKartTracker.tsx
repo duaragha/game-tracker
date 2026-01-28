@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useGameStore, useCurrentMarioKartSection, useFilters, useActiveMKModes } from '@/store/game-store';
 import { getMarioKartGame } from '@/data';
 import { MarioKartGame, Cup, EngineClass, createCupCompletionId } from '@/types/mario-kart';
-import { Trophy, Timer, Crown, ChevronDown, ChevronRight, Check, Eye, EyeOff } from 'lucide-react';
+import { Trophy, Timer, Crown, ChevronDown, ChevronRight } from 'lucide-react';
 import { useCompletionFilter } from './CompletionFilter';
 import {
   TrackerLayout,

@@ -40,19 +40,6 @@ export interface CupCompletion {
   stars?: number; // 0-3 stars for ranking (optional)
 }
 
-export interface TimeTrialCompletion {
-  trackId: string;
-  completed: boolean;
-  personalBest?: string; // Time as string like "1:45.123"
-}
-
-export interface MarioKartProgress {
-  gameId: MarioKartGameId;
-  cupCompletions: Set<string>; // Set of "cupId-engineClass" strings
-  timeTrials: Set<string>; // Set of trackId strings for completed time trials
-  lastUpdated: Date;
-}
-
 // Helper function to create cup completion ID
 export const createCupCompletionId = (cupId: string, engineClass: EngineClass): string => {
   return `${cupId}-${engineClass}`;

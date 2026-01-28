@@ -145,13 +145,6 @@ export interface SixStarRaid {
   region: PokemonRegion;
 }
 
-// Technical Machine (TM)
-export interface TechnicalMachine {
-  id: string;
-  number: number;
-  name?: string;
-}
-
 // Sandwich Recipe
 export interface SandwichRecipe {
   id: string;
@@ -299,9 +292,7 @@ export const createCenterId = (centerId: string): string => `center-${centerId}`
 export const createDittoId = (dittoId: string): string => `ditto-${dittoId}`;
 
 // New ID creators for 100% completion
-export const createTrainerId = (trainerId: string): string => `trainer-${trainerId}`;
 export const createRaidId = (raidId: string): string => `raid-${raidId}`;
-export const createTMId = (tmNumber: number): string => `tm-${tmNumber}`;
 export const createRecipeId = (recipeNumber: number): string => `recipe-${recipeNumber}`;
 export const createCaseId = (caseId: string): string => `case-${caseId}`;
 export const createEmoteId = (emoteId: string): string => `emote-${emoteId}`;
@@ -310,7 +301,6 @@ export const createSightId = (sightId: string): string => `sight-${sightId}`;
 export const createWonderId = (wonderId: string): string => `wonder-${wonderId}`;
 export const createMarkId = (markId: string): string => `mark-${markId}`;
 export const createRibbonId = (ribbonId: string): string => `ribbon-${ribbonId}`;
-export const createAcademyId = (classId: string): string => `academy-${classId}`;
 export const createLeagueOfficialId = (officialId: string): string => `official-${officialId}`;
 export const createMiniGameId = (gameId: string): string => `minigame-${gameId}`;
 export const createPokedexId = (entryId: string): string => `dex-${entryId}`;

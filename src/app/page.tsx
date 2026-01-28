@@ -2,14 +2,13 @@
 
 import { Sidebar, SuperMarioOdysseyTracker, MarioKartTracker, GameHeader } from '@/components';
 import { PokemonTracker } from '@/components/PokemonTracker';
-import { useGameStore, useCurrentKingdom } from '@/store/game-store';
+import { useGameStore } from '@/store/game-store';
 import { isMarioKartGame, isPokemonGame } from '@/data';
 import { Download, Upload, RotateCcw, Cloud, CloudOff, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 export default function Home() {
   const currentGame = useGameStore((s) => s.currentGame);
-  const currentKingdom = useCurrentKingdom();
   const exportProgress = useGameStore((s) => s.exportProgress);
   const importProgress = useGameStore((s) => s.importProgress);
   const resetProgress = useGameStore((s) => s.resetProgress);
@@ -20,7 +19,6 @@ export default function Home() {
 
   const setSidebarOpen = useGameStore((s) => s.setSidebarOpen);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasInitialSynced = useRef(false);
   const initialSyncComplete = useRef(false);
@@ -65,7 +63,6 @@ export default function Home() {
         const success = await syncFromCloud();
         if (success) {
           setSyncStatus('synced');
-          setLastSyncTime(new Date());
         } else {
           setSyncStatus('idle');
         }
@@ -91,7 +88,6 @@ export default function Home() {
       const success = await syncToCloud();
       if (success) {
         setSyncStatus('synced');
-        setLastSyncTime(new Date());
       } else {
         setSyncStatus('error');
       }

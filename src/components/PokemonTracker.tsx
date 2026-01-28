@@ -1,4 +1,3 @@
-'use client';
 
 import { useState, useMemo, ReactNode } from 'react';
 import { useGameStore, useCurrentPokemonSection, useFilters, useActivePKMNSections } from '@/store/game-store';
@@ -89,7 +88,6 @@ import {
   UtensilsCrossed,
   Smartphone,
   Eye,
-  EyeOff,
   Medal,
   Disc,
   Ribbon,

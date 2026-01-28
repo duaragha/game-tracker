@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AppState, FilterState, UserProgress, CollectibleType, CollectibleCategory, Collectible, PokemonSection, MarioKartSection, MKModeFilter, PKMNSectionFilter } from '@/types';
+import { AppState, FilterState, UserProgress, Collectible, PokemonSection, MarioKartSection, MKModeFilter, PKMNSectionFilter } from '@/types';
 
 // Cloud sync functions
 async function loadFromCloud(): Promise<Record<string, { collected: string[]; notes: Record<string, string>; lastUpdated: string }> | null> {
@@ -304,35 +304,12 @@ export const useCurrentKingdom = () => useGameStore((s) => s.currentKingdom);
 export const useCurrentPokemonSection = () => useGameStore((s) => s.currentPokemonSection);
 export const useCurrentMarioKartSection = () => useGameStore((s) => s.currentMarioKartSection);
 export const useFilters = () => useGameStore((s) => s.filters);
-export const useSelectedCollectible = () => useGameStore((s) => s.selectedCollectible);
-export const useSidebarOpen = () => useGameStore((s) => s.sidebarOpen);
 export const useActiveMKModes = () => useGameStore((s) => s.activeMKModes);
 export const useActivePKMNSections = () => useGameStore((s) => s.activePKMNSections);
 
 export const useProgress = (gameId: string): UserProgress => {
   const progress = useGameStore((s) => s.progress[gameId]);
   return progress ?? getDefaultProgress(gameId);
-};
-
-export const useIsCollected = (gameId: string, collectibleId: string) =>
-  useGameStore((s) => s.progress[gameId]?.collected.has(collectibleId) ?? false);
-
-export const useNote = (gameId: string, collectibleId: string) =>
-  useGameStore((s) => s.progress[gameId]?.notes[collectibleId] ?? '');
-
-export const useCollectedCount = (gameId: string, kingdomId?: string, type?: CollectibleType) => {
-  return useGameStore((s) => {
-    const progress = s.progress[gameId];
-    if (!progress) return 0;
-
-    let count = 0;
-    progress.collected.forEach((id) => {
-      const matchesKingdom = !kingdomId || id.startsWith(kingdomId);
-      const matchesType = !type || id.includes(type);
-      if (matchesKingdom && matchesType) count++;
-    });
-    return count;
-  });
 };
 
 // Calculate collected value considering Multi Moon values (value: 3)

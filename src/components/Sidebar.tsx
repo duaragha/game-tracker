@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useGameStore, useCurrentGame, useCurrentKingdom, useCurrentPokemonSection, useCurrentMarioKartSection, useProgress, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
 import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
-import { Kingdom, PokemonSection, MarioKartSection } from '@/types';
-import { MarioKartGame, createCupCompletionId } from '@/types/mario-kart';
+import { Kingdom } from '@/types';
+import { createCupCompletionId } from '@/types/mario-kart';
 import {
   createStoryId, createLegendaryId, createPostGameId, createDLCId, createStakeId,
   createTowerId, createTeraId, createTaxiId, createCenterId, createDittoId,
