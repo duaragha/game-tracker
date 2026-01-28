@@ -70,8 +70,12 @@ export interface FilterState {
   searchQuery: string;
 }
 
-// Pokemon section types for sidebar navigation
-export type PokemonSection = 'story' | 'legendaries' | 'post-game' | 'dlc' | 'collectibles' | null;
+// Pokemon section types for sidebar navigation (expanded for 100% completion)
+export type PokemonSection =
+  | 'story' | 'legendaries' | 'post-game' | 'dlc' | 'collectibles'
+  | 'trainers' | 'raids' | 'tms' | 'recipes' | 'cosmetics' | 'sightseeing'
+  | 'marks-ribbons' | 'academy' | 'pokedex'
+  | null;
 
 // Mario Kart section types for sidebar navigation
 export type MarioKartSection = 'grand-prix' | 'time-trials' | 'knockout' | null;

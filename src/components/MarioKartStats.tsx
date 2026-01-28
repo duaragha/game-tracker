@@ -36,8 +36,8 @@ export function MarioKartStats({ gameId }: MarioKartStatsProps) {
     koPercentage = koTotalCompletions > 0 ? Math.round((koCompleted / koTotalCompletions) * 100) : 0;
   }
 
-  // Calculate Time Trials stats (150cc and 200cc for each track)
-  const TIME_TRIAL_CLASSES = ['150cc', '200cc'] as const;
+  // Calculate Time Trials stats (150cc for each track)
+  const TIME_TRIAL_CLASSES = ['150cc'] as const;
   const allTracks = game.cups.flatMap((c) => c.tracks);
   const ttTotal = allTracks.length * TIME_TRIAL_CLASSES.length;
   const ttCompleted = allTracks.reduce((sum, t) => {

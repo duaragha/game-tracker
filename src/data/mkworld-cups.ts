@@ -247,8 +247,8 @@ export const mkwKnockoutRallies: Cup[] = [
 // Engine classes for Grand Prix
 export const mkwGPEngineClasses: EngineClass[] = ['50cc', '100cc', '150cc', 'mirror'];
 
-// Engine classes for Knockout Tour (no Mirror mode)
-export const mkwKnockoutEngineClasses: EngineClass[] = ['50cc', '100cc', '150cc'];
+// Engine classes for Knockout Tour
+export const mkwKnockoutEngineClasses: EngineClass[] = ['50cc', '100cc', '150cc', 'mirror'];
 
 // Full game definition
 export const marioKartWorld: MarioKartGame = {

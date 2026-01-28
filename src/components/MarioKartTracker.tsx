@@ -237,7 +237,7 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
   const [collapsedCups, setCollapsedCups] = useState<Record<string, boolean>>({});
 
   const collected = progress?.collected ?? new Set<string>();
-  const TIME_TRIAL_CLASSES = ['150cc', '200cc'] as const;
+  const TIME_TRIAL_CLASSES = ['150cc'] as const;
 
   const allTracks = game.cups.flatMap((c) => c.tracks);
   const totalCompletions = allTracks.length * TIME_TRIAL_CLASSES.length;
@@ -368,7 +368,7 @@ function AllItemsView({ gameId, game }: AllItemsViewProps) {
   const collected = progress?.collected ?? new Set<string>();
   const collectedSize = collected.size;
 
-  const TIME_TRIAL_CLASSES = ['150cc', '200cc'] as const;
+  const TIME_TRIAL_CLASSES = ['150cc'] as const;
   const hasKnockout = game.knockoutRallies && game.knockoutRallies.length > 0;
 
   // Stats

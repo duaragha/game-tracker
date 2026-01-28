@@ -15,6 +15,27 @@ import { marioKartWorld } from './mkworld-cups';
 import { allPokemonAreas } from './pokemon-regions';
 import { allStoryCheckpoints, postGameContent, allDLCContent } from './pokemon-story';
 import { allLegendaries } from './pokemon-legendaries';
+import {
+  allSixStarRaids,
+  sandwichRecipes,
+  rotomPhoneCases,
+  emotes,
+  tablecloths,
+  paldeaSights,
+  kitakamiWonders,
+  pokemonMarks,
+  pokemonRibbons,
+  leagueOfficials,
+  miniGames,
+} from './pokemon-100-completion';
+import {
+  paldeaPokedex,
+  kitakamiPokedex,
+  blueberryPokedex,
+  nationalPokedex,
+  allPokedexEntries,
+  pokedexCounts as pokedexEntryCounts,
+} from './pokemon-pokedex';
 
 export const superMarioOdyssey: GameData = {
   id: 'smo',
@@ -115,7 +136,7 @@ export const getMarioKartGame = (gameId: string): MarioKartGame | undefined =>
 export const isMarioKartGame = (gameId: string): boolean =>
   marioKartGames.some((g) => g.id === gameId);
 
-// Pokemon Violet game definition
+// Pokemon Violet game definition (expanded for 100% completion)
 export const pokemonViolet: PokemonGame = {
   id: 'pokemon-violet',
   name: 'Pokémon Violet',
@@ -125,11 +146,19 @@ export const pokemonViolet: PokemonGame = {
   legendaries: allLegendaries,
   postGame: postGameContent,
   dlcContent: allDLCContent,
-  pokedexCounts: {
-    paldea: 400,
-    kitakami: 200,
-    blueberry: 243,
-  },
+  pokedexCounts: pokedexEntryCounts,
+  // 100% Completion data
+  sixStarRaids: allSixStarRaids,
+  sandwichRecipes: sandwichRecipes,
+  rotomCases: rotomPhoneCases,
+  emotes: emotes,
+  tablecloths: tablecloths,
+  paldeaSights: paldeaSights,
+  kitakamiWonders: kitakamiWonders,
+  marks: pokemonMarks,
+  ribbons: pokemonRibbons,
+  leagueOfficials: leagueOfficials,
+  miniGames: miniGames,
 };
 
 // All Pokemon games
@@ -176,3 +205,32 @@ export {
   dittoSpawns,
   collectibleCounts,
 } from './pokemon-collectibles';
+
+// 100% Completion exports
+export {
+  allSixStarRaids,
+  paldeaRaids,
+  kitakamiRaids,
+  blueberryRaids,
+  sandwichRecipes,
+  rotomPhoneCases,
+  emotes,
+  tablecloths,
+  paldeaSights,
+  kitakamiWonders,
+  pokemonMarks,
+  pokemonRibbons,
+  leagueOfficials,
+  miniGames,
+  completionCounts,
+} from './pokemon-100-completion';
+
+// Pokedex exports
+export {
+  paldeaPokedex,
+  kitakamiPokedex,
+  blueberryPokedex,
+  nationalPokedex,
+  allPokedexEntries,
+  pokedexCounts as pokedexEntryCounts,
+} from './pokemon-pokedex';

@@ -9,6 +9,18 @@ import {
   flyingTaxiPoints,
   pokemonCenters,
   dittoSpawns,
+  allSixStarRaids,
+  sandwichRecipes,
+  rotomPhoneCases,
+  emotes,
+  tablecloths,
+  paldeaSights,
+  kitakamiWonders,
+  pokemonMarks,
+  pokemonRibbons,
+  leagueOfficials,
+  miniGames,
+  allPokedexEntries,
 } from '@/data';
 import {
   createStoryId,
@@ -21,8 +33,20 @@ import {
   createTaxiId,
   createCenterId,
   createDittoId,
+  createRaidId,
+  createRecipeId,
+  createCaseId,
+  createEmoteId,
+  createTableclothId,
+  createSightId,
+  createWonderId,
+  createMarkId,
+  createRibbonId,
+  createLeagueOfficialId,
+  createMiniGameId,
+  createPokedexId,
 } from '@/types/pokemon';
-import { Target, Swords, Crown, Star, Gift, Milestone } from 'lucide-react';
+import { Target, Swords, Crown, Star, Gift, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Eye, Medal } from 'lucide-react';
 
 interface PokemonStatsProps {
   gameId: string;
@@ -39,22 +63,21 @@ export function PokemonStats({ gameId }: PokemonStatsProps) {
   // Calculate Story stats
   const storyTotal = game.storyCheckpoints.length;
   const storyCompleted = game.storyCheckpoints.filter((c) => collected.has(createStoryId(c.id))).length;
-  const storyPercentage = storyTotal > 0 ? Math.round((storyCompleted / storyTotal) * 100) : 0;
 
   // Calculate Legendary stats
   const legendaryTotal = game.legendaries.length;
   const legendaryCaught = game.legendaries.filter((l) => collected.has(createLegendaryId(l.id))).length;
-  const legendaryPercentage = legendaryTotal > 0 ? Math.round((legendaryCaught / legendaryTotal) * 100) : 0;
 
-  // Calculate Post-Game stats
-  const postGameTotal = game.postGame.length;
-  const postGameCompleted = game.postGame.filter((i) => collected.has(createPostGameId(i.id))).length;
-  const postGamePercentage = postGameTotal > 0 ? Math.round((postGameCompleted / postGameTotal) * 100) : 0;
+  // Calculate Post-Game stats (including officials and mini-games)
+  const postGameBase = game.postGame.filter((i) => collected.has(createPostGameId(i.id))).length;
+  const officialsCompleted = leagueOfficials.filter((o) => collected.has(createLeagueOfficialId(o.id))).length;
+  const miniGamesCompleted = miniGames.filter((g) => collected.has(createMiniGameId(g.id))).length;
+  const postGameTotal = game.postGame.length + leagueOfficials.length + miniGames.length;
+  const postGameCompleted = postGameBase + officialsCompleted + miniGamesCompleted;
 
   // Calculate DLC stats
   const dlcTotal = game.dlcContent.length;
   const dlcCompleted = game.dlcContent.filter((c) => collected.has(createDLCId(c.id))).length;
-  const dlcPercentage = dlcTotal > 0 ? Math.round((dlcCompleted / dlcTotal) * 100) : 0;
 
   // Calculate Collectibles stats
   const collectiblesTotal = allStakes.length + gimmighoulTowers.length + wildTeraPokemon.length +
@@ -66,74 +89,89 @@ export function PokemonStats({ gameId }: PokemonStatsProps) {
     flyingTaxiPoints.filter((t) => collected.has(createTaxiId(t.id))).length +
     pokemonCenters.filter((c) => collected.has(createCenterId(c.id))).length +
     dittoSpawns.filter((d) => collected.has(createDittoId(d.id))).length;
-  const collectiblesPercentage = collectiblesTotal > 0 ? Math.round((collectiblesCompleted / collectiblesTotal) * 100) : 0;
+
+  // Calculate Pokedex stats
+  const pokedexTotal = allPokedexEntries.length;
+  const pokedexCompleted = allPokedexEntries.filter((p) => collected.has(createPokedexId(p.id))).length;
+
+  // Calculate Raids stats
+  const raidsTotal = allSixStarRaids.length;
+  const raidsCompleted = allSixStarRaids.filter((r) => collected.has(createRaidId(r.id))).length;
+
+  // Calculate Recipes stats
+  const recipesTotal = sandwichRecipes.length;
+  const recipesCompleted = sandwichRecipes.filter((r) => collected.has(createRecipeId(r.number))).length;
+
+  // Calculate Cosmetics stats
+  const cosmeticsTotal = rotomPhoneCases.length + emotes.length + tablecloths.length;
+  const cosmeticsCompleted =
+    rotomPhoneCases.filter((c) => collected.has(createCaseId(c.id))).length +
+    emotes.filter((e) => collected.has(createEmoteId(e.id))).length +
+    tablecloths.filter((t) => collected.has(createTableclothId(t.id))).length;
+
+  // Calculate Sightseeing stats
+  const sightseeingTotal = paldeaSights.length + kitakamiWonders.length;
+  const sightseeingCompleted =
+    paldeaSights.filter((s) => collected.has(createSightId(s.id))).length +
+    kitakamiWonders.filter((w) => collected.has(createWonderId(w.id))).length;
+
+  // Calculate Marks & Ribbons stats
+  const marksRibbonsTotal = pokemonMarks.length + pokemonRibbons.length;
+  const marksRibbonsCompleted =
+    pokemonMarks.filter((m) => collected.has(createMarkId(m.id))).length +
+    pokemonRibbons.filter((r) => collected.has(createRibbonId(r.id))).length;
 
   // Overall percentage
-  const totalItems = storyTotal + legendaryTotal + postGameTotal + dlcTotal + collectiblesTotal;
-  const totalCompleted = storyCompleted + legendaryCaught + postGameCompleted + dlcCompleted + collectiblesCompleted;
+  const totalItems = storyTotal + legendaryTotal + postGameTotal + dlcTotal + collectiblesTotal +
+    pokedexTotal + raidsTotal + recipesTotal + cosmeticsTotal + sightseeingTotal + marksRibbonsTotal;
+  const totalCompleted = storyCompleted + legendaryCaught + postGameCompleted + dlcCompleted + collectiblesCompleted +
+    pokedexCompleted + raidsCompleted + recipesCompleted + cosmeticsCompleted + sightseeingCompleted + marksRibbonsCompleted;
   const overallPercentage = totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0;
 
+  // Stats array for easier rendering
+  const stats = [
+    { icon: Swords, color: 'text-violet-400', label: 'Story', completed: storyCompleted, total: storyTotal },
+    { icon: Crown, color: 'text-yellow-400', label: 'Legendaries', completed: legendaryCaught, total: legendaryTotal },
+    { icon: BookOpen, color: 'text-blue-400', label: 'Pokedex', completed: pokedexCompleted, total: pokedexTotal },
+    { icon: Zap, color: 'text-red-400', label: 'Raids', completed: raidsCompleted, total: raidsTotal },
+    { icon: Star, color: 'text-orange-400', label: 'Post-Game', completed: postGameCompleted, total: postGameTotal },
+    { icon: Gift, color: 'text-teal-400', label: 'DLC', completed: dlcCompleted, total: dlcTotal },
+    { icon: Milestone, color: 'text-emerald-400', label: 'Collectibles', completed: collectiblesCompleted, total: collectiblesTotal },
+    { icon: UtensilsCrossed, color: 'text-amber-400', label: 'Recipes', completed: recipesCompleted, total: recipesTotal },
+    { icon: Smartphone, color: 'text-pink-400', label: 'Cosmetics', completed: cosmeticsCompleted, total: cosmeticsTotal },
+    { icon: Eye, color: 'text-cyan-400', label: 'Sights', completed: sightseeingCompleted, total: sightseeingTotal },
+    { icon: Medal, color: 'text-indigo-400', label: 'Marks', completed: marksRibbonsCompleted, total: marksRibbonsTotal },
+  ];
+
   return (
-    <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-3">
-      <div className="flex flex-wrap items-center gap-4">
+    <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+      <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-zinc-700">
         {/* Overall Progress */}
-        <div className="flex items-center gap-3 pr-4 border-r border-zinc-700">
-          <Target className="w-5 h-5 text-violet-500" />
-          <div>
-            <div className="text-xs text-zinc-500">Overall</div>
-            <div className="font-bold text-violet-400">{overallPercentage}%</div>
+        <div className="flex items-center gap-2 pr-3 border-r border-zinc-700 shrink-0">
+          <Target className="w-4 h-4 text-violet-500" />
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-zinc-500">Overall</span>
+            <span className="font-bold text-violet-400">{overallPercentage}%</span>
           </div>
         </div>
 
-        {/* Story */}
-        <div className="flex items-center gap-2">
-          <Swords className="w-4 h-4 text-violet-400" />
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-400">Story:</span>
-            <span className="font-medium">{storyCompleted}/{storyTotal}</span>
-            <span className="text-xs text-zinc-500">({storyPercentage}%)</span>
-          </div>
-        </div>
+        {/* All Stats */}
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          const percentage = stat.total > 0 ? Math.round((stat.completed / stat.total) * 100) : 0;
+          const isComplete = stat.completed === stat.total && stat.total > 0;
 
-        {/* Legendaries */}
-        <div className="flex items-center gap-2">
-          <Crown className="w-4 h-4 text-yellow-400" />
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-400">Legendaries:</span>
-            <span className="font-medium">{legendaryCaught}/{legendaryTotal}</span>
-            <span className="text-xs text-zinc-500">({legendaryPercentage}%)</span>
-          </div>
-        </div>
-
-        {/* Post-Game */}
-        <div className="flex items-center gap-2">
-          <Star className="w-4 h-4 text-orange-400" />
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-400">Post-Game:</span>
-            <span className="font-medium">{postGameCompleted}/{postGameTotal}</span>
-            <span className="text-xs text-zinc-500">({postGamePercentage}%)</span>
-          </div>
-        </div>
-
-        {/* DLC */}
-        <div className="flex items-center gap-2">
-          <Gift className="w-4 h-4 text-teal-400" />
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-400">DLC:</span>
-            <span className="font-medium">{dlcCompleted}/{dlcTotal}</span>
-            <span className="text-xs text-zinc-500">({dlcPercentage}%)</span>
-          </div>
-        </div>
-
-        {/* Collectibles */}
-        <div className="flex items-center gap-2">
-          <Milestone className="w-4 h-4 text-emerald-400" />
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-zinc-400">Collectibles:</span>
-            <span className="font-medium">{collectiblesCompleted}/{collectiblesTotal}</span>
-            <span className="text-xs text-zinc-500">({collectiblesPercentage}%)</span>
-          </div>
-        </div>
+          return (
+            <div key={stat.label} className="flex items-center gap-1.5 shrink-0">
+              <Icon className={`w-3.5 h-3.5 ${stat.color}`} />
+              <span className="text-xs text-zinc-500">{stat.label}:</span>
+              <span className={`text-xs font-medium ${isComplete ? 'text-green-400' : ''}`}>
+                {stat.completed}/{stat.total}
+              </span>
+              <span className="text-[10px] text-zinc-600">({percentage}%)</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

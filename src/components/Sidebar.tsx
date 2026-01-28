@@ -5,8 +5,15 @@ import { useGameStore, useCurrentGame, useCurrentKingdom, useCurrentPokemonSecti
 import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
 import { Kingdom, PokemonSection, MarioKartSection } from '@/types';
 import { MarioKartGame, createCupCompletionId } from '@/types/mario-kart';
-import { createStoryId, createLegendaryId, createPostGameId, createDLCId, createStakeId, createTowerId, createTeraId, createTaxiId, createCenterId, createDittoId } from '@/types/pokemon';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer } from 'lucide-react';
+import {
+  createStoryId, createLegendaryId, createPostGameId, createDLCId, createStakeId,
+  createTowerId, createTeraId, createTaxiId, createCenterId, createDittoId,
+  createRaidId, createRecipeId, createCaseId, createEmoteId,
+  createTableclothId, createSightId, createWonderId, createMarkId, createRibbonId,
+  createLeagueOfficialId, createMiniGameId, createPokedexId, createShinyId, createHiddenAbilityId,
+} from '@/types/pokemon';
+import { allPokedexEntries } from '@/data';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen } from 'lucide-react';
 
 export function Sidebar() {
   const currentGame = useCurrentGame();
@@ -76,9 +83,23 @@ export function Sidebar() {
     };
   })();
 
-  // Calculate Pokemon stats (with collectibles breakdown)
+  // Calculate Pokemon stats (with all 100% completion sections)
   const pkmnStats = (() => {
-    if (!pkmnGame) return { collected: 0, total: 0, percentage: 0, story: { completed: 0, total: 0 }, legendaries: { completed: 0, total: 0 }, postGame: { completed: 0, total: 0 }, dlc: { completed: 0, total: 0 }, collectibles: { completed: 0, total: 0 } };
+    const defaultStats = {
+      collected: 0, total: 0, percentage: 0,
+      story: { completed: 0, total: 0 },
+      legendaries: { completed: 0, total: 0 },
+      postGame: { completed: 0, total: 0 },
+      dlc: { completed: 0, total: 0 },
+      collectibles: { completed: 0, total: 0 },
+      raids: { completed: 0, total: 0 },
+      recipes: { completed: 0, total: 0 },
+      cosmetics: { completed: 0, total: 0 },
+      sightseeing: { completed: 0, total: 0 },
+      marksRibbons: { completed: 0, total: 0 },
+      pokedex: { completed: 0, total: 0 },
+    };
+    if (!pkmnGame) return defaultStats;
 
     const col = progress.collected;
 
@@ -98,7 +119,7 @@ export function Sidebar() {
     const dlcTotal = pkmnGame.dlcContent.length;
     const dlcCompleted = pkmnGame.dlcContent.filter((c) => col.has(createDLCId(c.id))).length;
 
-    // Collectibles
+    // Collectibles (Stakes, Towers, Tera, Taxi, Centers, Ditto)
     const collectiblesTotal = allStakes.length + gimmighoulTowers.length + wildTeraPokemon.length +
       flyingTaxiPoints.length + pokemonCenters.length + dittoSpawns.length;
     const collectiblesCompleted =
@@ -109,8 +130,49 @@ export function Sidebar() {
       pokemonCenters.filter((c) => col.has(createCenterId(c.id))).length +
       dittoSpawns.filter((d) => col.has(createDittoId(d.id))).length;
 
-    const total = storyTotal + legendaryTotal + postGameTotal + dlcTotal + collectiblesTotal;
-    const completedTotal = storyCompleted + legendaryCaught + postGameCompleted + dlcCompleted + collectiblesCompleted;
+    // 6-Star Raids
+    const raidsTotal = pkmnGame.sixStarRaids?.length ?? 0;
+    const raidsCompleted = pkmnGame.sixStarRaids?.filter((r) => col.has(createRaidId(r.id))).length ?? 0;
+
+    // Recipes
+    const recipesTotal = pkmnGame.sandwichRecipes?.length ?? 0;
+    const recipesCompleted = pkmnGame.sandwichRecipes?.filter((r) => col.has(createRecipeId(r.number))).length ?? 0;
+
+    // Cosmetics (Cases, Emotes, Tablecloths)
+    const cosmeticsTotal = (pkmnGame.rotomCases?.length ?? 0) + (pkmnGame.emotes?.length ?? 0) + (pkmnGame.tablecloths?.length ?? 0);
+    const cosmeticsCompleted =
+      (pkmnGame.rotomCases?.filter((c) => col.has(createCaseId(c.id))).length ?? 0) +
+      (pkmnGame.emotes?.filter((e) => col.has(createEmoteId(e.id))).length ?? 0) +
+      (pkmnGame.tablecloths?.filter((t) => col.has(createTableclothId(t.id))).length ?? 0);
+
+    // Sightseeing (Paldea Sights + Kitakami Wonders)
+    const sightseeingTotal = (pkmnGame.paldeaSights?.length ?? 0) + (pkmnGame.kitakamiWonders?.length ?? 0);
+    const sightseeingCompleted =
+      (pkmnGame.paldeaSights?.filter((s) => col.has(createSightId(s.id))).length ?? 0) +
+      (pkmnGame.kitakamiWonders?.filter((w) => col.has(createWonderId(w.id))).length ?? 0);
+
+    // Marks & Ribbons
+    const marksRibbonsTotal = (pkmnGame.marks?.length ?? 0) + (pkmnGame.ribbons?.length ?? 0);
+    const marksRibbonsCompleted =
+      (pkmnGame.marks?.filter((m) => col.has(createMarkId(m.id))).length ?? 0) +
+      (pkmnGame.ribbons?.filter((r) => col.has(createRibbonId(r.id))).length ?? 0);
+
+    // League Officials + Mini-games (added to post-game for overall count)
+    const officialsTotal = pkmnGame.leagueOfficials?.length ?? 0;
+    const officialsCompleted = pkmnGame.leagueOfficials?.filter((o) => col.has(createLeagueOfficialId(o.id))).length ?? 0;
+    const miniGamesTotal = pkmnGame.miniGames?.length ?? 0;
+    const miniGamesCompleted = pkmnGame.miniGames?.filter((g) => col.has(createMiniGameId(g.id))).length ?? 0;
+
+    // Pokedex (Standard catches only for main count - shiny/HA are optional extras)
+    const pokedexTotal = allPokedexEntries.length;
+    const pokedexCompleted = allPokedexEntries.filter((p) => col.has(createPokedexId(p.id))).length;
+
+    const total = storyTotal + legendaryTotal + postGameTotal + dlcTotal + collectiblesTotal +
+      raidsTotal + recipesTotal + cosmeticsTotal + sightseeingTotal + marksRibbonsTotal +
+      officialsTotal + miniGamesTotal + pokedexTotal;
+    const completedTotal = storyCompleted + legendaryCaught + postGameCompleted + dlcCompleted + collectiblesCompleted +
+      raidsCompleted + recipesCompleted + cosmeticsCompleted + sightseeingCompleted + marksRibbonsCompleted +
+      officialsCompleted + miniGamesCompleted + pokedexCompleted;
     const percentage = total > 0 ? Math.round((completedTotal / total) * 100) : 0;
 
     return {
@@ -119,9 +181,15 @@ export function Sidebar() {
       percentage,
       story: { completed: storyCompleted, total: storyTotal },
       legendaries: { completed: legendaryCaught, total: legendaryTotal },
-      postGame: { completed: postGameCompleted, total: postGameTotal },
+      postGame: { completed: postGameCompleted + officialsCompleted + miniGamesCompleted, total: postGameTotal + officialsTotal + miniGamesTotal },
       dlc: { completed: dlcCompleted, total: dlcTotal },
       collectibles: { completed: collectiblesCompleted, total: collectiblesTotal },
+      raids: { completed: raidsCompleted, total: raidsTotal },
+      recipes: { completed: recipesCompleted, total: recipesTotal },
+      cosmetics: { completed: cosmeticsCompleted, total: cosmeticsTotal },
+      sightseeing: { completed: sightseeingCompleted, total: sightseeingTotal },
+      marksRibbons: { completed: marksRibbonsCompleted, total: marksRibbonsTotal },
+      pokedex: { completed: pokedexCompleted, total: pokedexTotal },
     };
   })();
 
@@ -634,6 +702,144 @@ export function Sidebar() {
                     </div>
                   </div>
                   {pkmnStats.collectibles.completed === pkmnStats.collectibles.total && pkmnStats.collectibles.total > 0 && (
+                    <span className="text-green-400 text-[10px]">100%</span>
+                  )}
+                </button>
+
+                {/* 6-Star Raids */}
+                <button
+                  onClick={() => setCurrentPokemonSection('raids')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentPokemonSection === 'raids'
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-red-500/40 flex items-center justify-center">
+                    <Zap className="w-3 h-3 text-red-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">6-Star Raids</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {pkmnStats.raids.completed}/{pkmnStats.raids.total}
+                    </div>
+                  </div>
+                  {pkmnStats.raids.completed === pkmnStats.raids.total && pkmnStats.raids.total > 0 && (
+                    <span className="text-green-400 text-[10px]">100%</span>
+                  )}
+                </button>
+
+                {/* Pokedex */}
+                <button
+                  onClick={() => setCurrentPokemonSection('pokedex')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentPokemonSection === 'pokedex'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-blue-500/40 flex items-center justify-center">
+                    <BookOpen className="w-3 h-3 text-blue-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Pokedex</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {pkmnStats.pokedex.completed}/{pkmnStats.pokedex.total}
+                    </div>
+                  </div>
+                  {pkmnStats.pokedex.completed === pkmnStats.pokedex.total && pkmnStats.pokedex.total > 0 && (
+                    <span className="text-green-400 text-[10px]">100%</span>
+                  )}
+                </button>
+
+                {/* Recipes */}
+                <button
+                  onClick={() => setCurrentPokemonSection('recipes')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentPokemonSection === 'recipes'
+                      ? 'bg-amber-500/20 text-amber-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-amber-500/40 flex items-center justify-center">
+                    <UtensilsCrossed className="w-3 h-3 text-amber-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Recipes</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {pkmnStats.recipes.completed}/{pkmnStats.recipes.total}
+                    </div>
+                  </div>
+                  {pkmnStats.recipes.completed === pkmnStats.recipes.total && pkmnStats.recipes.total > 0 && (
+                    <span className="text-green-400 text-[10px]">100%</span>
+                  )}
+                </button>
+
+                {/* Cosmetics */}
+                <button
+                  onClick={() => setCurrentPokemonSection('cosmetics')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentPokemonSection === 'cosmetics'
+                      ? 'bg-pink-500/20 text-pink-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-pink-500/40 flex items-center justify-center">
+                    <Smartphone className="w-3 h-3 text-pink-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Cosmetics</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {pkmnStats.cosmetics.completed}/{pkmnStats.cosmetics.total}
+                    </div>
+                  </div>
+                  {pkmnStats.cosmetics.completed === pkmnStats.cosmetics.total && pkmnStats.cosmetics.total > 0 && (
+                    <span className="text-green-400 text-[10px]">100%</span>
+                  )}
+                </button>
+
+                {/* Sightseeing */}
+                <button
+                  onClick={() => setCurrentPokemonSection('sightseeing')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentPokemonSection === 'sightseeing'
+                      ? 'bg-cyan-500/20 text-cyan-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-cyan-500/40 flex items-center justify-center">
+                    <Eye className="w-3 h-3 text-cyan-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Sightseeing</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {pkmnStats.sightseeing.completed}/{pkmnStats.sightseeing.total}
+                    </div>
+                  </div>
+                  {pkmnStats.sightseeing.completed === pkmnStats.sightseeing.total && pkmnStats.sightseeing.total > 0 && (
+                    <span className="text-green-400 text-[10px]">100%</span>
+                  )}
+                </button>
+
+                {/* Marks & Ribbons */}
+                <button
+                  onClick={() => setCurrentPokemonSection('marks-ribbons')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentPokemonSection === 'marks-ribbons'
+                      ? 'bg-indigo-500/20 text-indigo-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-indigo-500/40 flex items-center justify-center">
+                    <Medal className="w-3 h-3 text-indigo-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Marks & Ribbons</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {pkmnStats.marksRibbons.completed}/{pkmnStats.marksRibbons.total}
+                    </div>
+                  </div>
+                  {pkmnStats.marksRibbons.completed === pkmnStats.marksRibbons.total && pkmnStats.marksRibbons.total > 0 && (
                     <span className="text-green-400 text-[10px]">100%</span>
                   )}
                 </button>

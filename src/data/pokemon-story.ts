@@ -48,24 +48,46 @@ export const theWayHomeCheckpoints: StoryCheckpoint[] = [
   { id: 'credits', name: 'Main Story Complete', path: 'the-way-home', order: 8, location: 'Credits', reward: 'Post-game unlocked' },
 ];
 
+// Gym Rematches (expanded story checkpoints)
+export const gymRematchCheckpoints: StoryCheckpoint[] = [
+  { id: 'rematch-cortondo', name: 'Cortondo Gym Rematch', path: 'gym-rematch', order: 1, location: 'Cortondo' },
+  { id: 'rematch-artazon', name: 'Artazon Gym Rematch', path: 'gym-rematch', order: 2, location: 'Artazon' },
+  { id: 'rematch-levincia', name: 'Levincia Gym Rematch', path: 'gym-rematch', order: 3, location: 'Levincia' },
+  { id: 'rematch-cascarrafa', name: 'Cascarrafa Gym Rematch', path: 'gym-rematch', order: 4, location: 'Cascarrafa' },
+  { id: 'rematch-medali', name: 'Medali Gym Rematch', path: 'gym-rematch', order: 5, location: 'Medali' },
+  { id: 'rematch-montenevera', name: 'Montenevera Gym Rematch', path: 'gym-rematch', order: 6, location: 'Montenevera' },
+  { id: 'rematch-alfornada', name: 'Alfornada Gym Rematch', path: 'gym-rematch', order: 7, location: 'Alfornada' },
+  { id: 'rematch-glaseado', name: 'Glaseado Gym Rematch', path: 'gym-rematch', order: 8, location: 'Glaseado' },
+  { id: 'rematch-ace-tournament', name: 'Academy Ace Tournament', path: 'gym-rematch', order: 9, location: 'Academy' },
+];
+
+// Gym Test Repeats
+export const gymTestRepeatCheckpoints: StoryCheckpoint[] = [
+  { id: 'test-repeat-cortondo', name: 'Cortondo Gym Test Repeat', path: 'gym-test-repeat', order: 1, location: 'Cortondo' },
+  { id: 'test-repeat-artazon', name: 'Artazon Gym Test Repeat', path: 'gym-test-repeat', order: 2, location: 'Artazon' },
+  { id: 'test-repeat-alfornada', name: 'Alfornada Gym Test Repeat', path: 'gym-test-repeat', order: 3, location: 'Alfornada' },
+  { id: 'test-repeat-glaseado', name: 'Glaseado Gym Test Repeat', path: 'gym-test-repeat', order: 4, location: 'Glaseado' },
+];
+
+// Team Star Rematches
+export const teamStarRematchCheckpoints: StoryCheckpoint[] = [
+  { id: 'star-rematch-giacomo', name: 'Team Star Rematch: Giacomo', path: 'starfall-street', order: 7, location: 'West Province', isRematch: true },
+  { id: 'star-rematch-mela', name: 'Team Star Rematch: Mela', path: 'starfall-street', order: 8, location: 'East Province Area 1', isRematch: true },
+  { id: 'star-rematch-atticus', name: 'Team Star Rematch: Atticus', path: 'starfall-street', order: 9, location: 'Tagtree Thicket', isRematch: true },
+  { id: 'star-rematch-ortega', name: 'Team Star Rematch: Ortega', path: 'starfall-street', order: 10, location: 'North Province Area 3', isRematch: true },
+  { id: 'star-rematch-eri', name: 'Team Star Rematch: Eri', path: 'starfall-street', order: 11, location: 'North Province Area 1', isRematch: true },
+];
+
 // Post-Game Content
 export const postGameContent: PostGameItem[] = [
-  // Gym Rematches
-  { id: 'rematch-katy', name: 'Gym Rematch: Katy', category: 'rematch', description: 'Level 65' },
-  { id: 'rematch-brassius', name: 'Gym Rematch: Brassius', category: 'rematch', description: 'Level 65' },
-  { id: 'rematch-iono', name: 'Gym Rematch: Iono', category: 'rematch', description: 'Level 65' },
-  { id: 'rematch-kofu', name: 'Gym Rematch: Kofu', category: 'rematch', description: 'Level 65' },
-  { id: 'rematch-larry', name: 'Gym Rematch: Larry', category: 'rematch', description: 'Level 65' },
-  { id: 'rematch-ryme', name: 'Gym Rematch: Ryme', category: 'rematch', description: 'Level 66' },
-  { id: 'rematch-tulip', name: 'Gym Rematch: Tulip', category: 'rematch', description: 'Level 66' },
-  { id: 'rematch-grusha', name: 'Gym Rematch: Grusha', category: 'rematch', description: 'Level 66' },
   // Tournament & Raids
-  { id: 'ace-tournament', name: 'Academy Ace Tournament', category: 'tournament', description: 'Complete at least once', requirement: 'All 8 Gym Rematches' },
   { id: 'raid-5star', name: '5-Star Tera Raids Unlocked', category: 'raid', requirement: 'Complete main story' },
   { id: 'raid-6star', name: '6-Star Tera Raids Unlocked', category: 'raid', requirement: 'Beat Academy Ace Tournament + 10x 4/5-star raids' },
   { id: 'raid-7star', name: '7-Star Event Raid Completed', category: 'raid', description: 'Time-limited event' },
   // Special Catches
   { id: 'catch-miraidon-2', name: 'Second Miraidon Caught', category: 'catch', description: 'Level 72 behind Zero Lab', requirement: 'Post-game' },
+  // Academy Interactions
+  { id: 'academy-interactions', name: 'Naranja Academy Interactions', category: 'quest', description: 'Post-credits NPC interactions' },
 ];
 
 // DLC Content - Teal Mask
@@ -102,12 +124,15 @@ export const mochiMayhemContent: DLCContent[] = [
   { id: 'mm-pecharunt', name: 'Catch Pecharunt', dlc: 'mochi-mayhem', category: 'story', description: 'Mythical Pokemon' },
 ];
 
-// All story checkpoints combined
+// All story checkpoints combined (expanded for 100% completion)
 export const allStoryCheckpoints: StoryCheckpoint[] = [
   ...victoryRoadCheckpoints,
   ...pathOfLegendsCheckpoints,
   ...starfallStreetCheckpoints,
   ...theWayHomeCheckpoints,
+  ...gymRematchCheckpoints,
+  ...gymTestRepeatCheckpoints,
+  ...teamStarRematchCheckpoints,
 ];
 
 // All DLC content combined

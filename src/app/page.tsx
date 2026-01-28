@@ -22,11 +22,42 @@ export default function Home() {
   const syncToCloud = useGameStore((s) => s.syncToCloud);
   const progress = useGameStore((s) => s.progress);
 
+  const setSidebarOpen = useGameStore((s) => s.setSidebarOpen);
   const [activeTab, setActiveTab] = useState<ViewTab>('list');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasInitialSynced = useRef(false);
+  const initialSyncComplete = useRef(false);
+  const lastProgressHash = useRef<string>('');
+
+  // Close sidebar on mobile for first-time visitors
+  useEffect(() => {
+    const hasVisitedKey = 'game-tracker-has-visited';
+    const hasVisited = localStorage.getItem(hasVisitedKey);
+
+    if (!hasVisited) {
+      // First visit - check if mobile
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        setSidebarOpen(false);
+      }
+      localStorage.setItem(hasVisitedKey, 'true');
+    }
+  }, [setSidebarOpen]);
+
+  // Helper to serialize progress with Sets properly for comparison
+  const serializeProgress = useCallback((prog: typeof progress) => {
+    return JSON.stringify(prog, (key, value) => {
+      if (value instanceof Set) {
+        return Array.from(value).sort();
+      }
+      if (value instanceof Date) {
+        return value.toISOString();
+      }
+      return value;
+    });
+  }, []);
 
   // Load from cloud on initial mount
   useEffect(() => {
@@ -45,11 +76,18 @@ export default function Home() {
         }
       } catch {
         setSyncStatus('error');
+      } finally {
+        // Mark initial sync as complete AFTER async operation finishes
+        initialSyncComplete.current = true;
+        // Set initial hash to prevent immediate re-save of cloud data
+        // Get current progress from store directly to avoid stale closure
+        const currentProgress = useGameStore.getState().progress;
+        lastProgressHash.current = serializeProgress(currentProgress);
       }
     };
 
     loadFromCloud();
-  }, [syncFromCloud]);
+  }, [syncFromCloud, serializeProgress]);
 
   // Auto-save to cloud when progress changes (debounced)
   const saveToCloud = useCallback(async () => {
@@ -68,10 +106,15 @@ export default function Home() {
   }, [syncToCloud]);
 
   useEffect(() => {
-    // Skip if we haven't done initial sync yet
-    if (!hasInitialSynced.current) return;
+    // Skip if initial cloud sync hasn't completed yet
+    if (!initialSyncComplete.current) return;
     // Skip if no progress data
     if (Object.keys(progress).length === 0) return;
+
+    // Skip if progress hasn't actually changed (prevents re-saving cloud data)
+    const currentHash = serializeProgress(progress);
+    if (currentHash === lastProgressHash.current) return;
+    lastProgressHash.current = currentHash;
 
     // Debounce saves to cloud
     if (syncTimeoutRef.current) {
@@ -86,7 +129,7 @@ export default function Home() {
         clearTimeout(syncTimeoutRef.current);
       }
     };
-  }, [progress, saveToCloud]);
+  }, [progress, saveToCloud, serializeProgress]);
 
   const isMK = currentGame ? isMarioKartGame(currentGame) : false;
   const isPKMN = currentGame ? isPokemonGame(currentGame) : false;

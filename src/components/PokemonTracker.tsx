@@ -17,6 +17,21 @@ import {
   flyingTaxiPoints,
   pokemonCenters,
   dittoSpawns,
+  allSixStarRaids,
+  sandwichRecipes,
+  rotomPhoneCases,
+  emotes,
+  tablecloths,
+  paldeaSights,
+  kitakamiWonders,
+  pokemonMarks,
+  pokemonRibbons,
+  leagueOfficials,
+  miniGames,
+  paldeaPokedex,
+  kitakamiPokedex,
+  blueberryPokedex,
+  nationalPokedex,
 } from '@/data';
 import {
   StoryCheckpoint,
@@ -25,6 +40,7 @@ import {
   DLCContent,
   StoryPath,
   StakeColor,
+  PokedexEntry,
   createStoryId,
   createLegendaryId,
   createPostGameId,
@@ -35,6 +51,20 @@ import {
   createTaxiId,
   createCenterId,
   createDittoId,
+  createRaidId,
+  createRecipeId,
+  createCaseId,
+  createEmoteId,
+  createTableclothId,
+  createSightId,
+  createWonderId,
+  createMarkId,
+  createRibbonId,
+  createLeagueOfficialId,
+  createMiniGameId,
+  createPokedexId,
+  createShinyId,
+  createHiddenAbilityId,
 } from '@/types/pokemon';
 import {
   Trophy,
@@ -55,6 +85,14 @@ import {
   Plane,
   Building2,
   Copy,
+  UtensilsCrossed,
+  Smartphone,
+  Eye,
+  Medal,
+  Disc,
+  Ribbon,
+  Gamepad,
+  BookOpen,
 } from 'lucide-react';
 
 interface PokemonTrackerProps {
@@ -77,6 +115,12 @@ export function PokemonTracker({ gameId }: PokemonTrackerProps) {
       {section === 'post-game' && <PostGameView gameId={gameId} items={game.postGame} />}
       {section === 'dlc' && <DLCView gameId={gameId} content={game.dlcContent} />}
       {section === 'collectibles' && <CollectiblesView gameId={gameId} />}
+      {section === 'raids' && <RaidsView gameId={gameId} />}
+      {section === 'pokedex' && <PokedexView gameId={gameId} />}
+      {section === 'recipes' && <RecipesView gameId={gameId} />}
+      {section === 'cosmetics' && <CosmeticsView gameId={gameId} />}
+      {section === 'sightseeing' && <SightseeingView gameId={gameId} />}
+      {section === 'marks-ribbons' && <MarksRibbonsView gameId={gameId} />}
     </div>
   );
 }
@@ -455,9 +499,14 @@ function StoryView({ gameId, checkpoints }: StoryViewProps) {
     'path-of-legends': { name: 'Path of Legends', icon: <Sparkles className="w-4 h-4" />, color: 'text-orange-400' },
     'starfall-street': { name: 'Starfall Street', icon: <Skull className="w-4 h-4" />, color: 'text-purple-400' },
     'the-way-home': { name: 'The Way Home', icon: <Star className="w-4 h-4" />, color: 'text-blue-400' },
+    'teal-mask': { name: 'The Teal Mask', icon: <Gift className="w-4 h-4" />, color: 'text-teal-400' },
+    'indigo-disk': { name: 'The Indigo Disk', icon: <Gift className="w-4 h-4" />, color: 'text-indigo-400' },
+    'epilogue': { name: 'Mochi Mayhem', icon: <Gift className="w-4 h-4" />, color: 'text-pink-400' },
+    'gym-rematch': { name: 'Gym Rematches', icon: <Swords className="w-4 h-4" />, color: 'text-red-400' },
+    'gym-test-repeat': { name: 'Gym Test Repeats', icon: <Gamepad2 className="w-4 h-4" />, color: 'text-cyan-400' },
   };
 
-  const paths: StoryPath[] = ['victory-road', 'path-of-legends', 'starfall-street', 'the-way-home'];
+  const paths: StoryPath[] = ['victory-road', 'path-of-legends', 'starfall-street', 'the-way-home', 'gym-rematch', 'gym-test-repeat'];
 
   const togglePath = (path: StoryPath, isCollapsed: boolean) => {
     setCollapsedPaths((prev) => {
@@ -968,6 +1017,503 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
           </div>
         </>
       )}
+    </TrackerLayout>
+  );
+}
+
+/* ============================================
+   6-STAR RAIDS VIEW
+   ============================================ */
+
+function RaidsView({ gameId }: { gameId: string }) {
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const toggleCollected = useGameStore((s) => s.toggleCollected);
+  const [collapsedRegions, setCollapsedRegions] = useState<Set<string>>(new Set());
+
+  const collected = progress?.collected ?? new Set<string>();
+
+  const regions = ['paldea', 'kitakami', 'blueberry'] as const;
+  const regionNames: Record<string, string> = {
+    paldea: 'Paldea',
+    kitakami: 'Kitakami',
+    blueberry: 'Blueberry Academy',
+  };
+
+  const toggleRegion = (region: string, isCollapsed: boolean) => {
+    setCollapsedRegions((prev) => {
+      const next = new Set(prev);
+      if (isCollapsed) next.delete(region);
+      else next.add(region);
+      return next;
+    });
+  };
+
+  const totalRaids = allSixStarRaids.length;
+  const completedCount = allSixStarRaids.filter((r) => collected.has(createRaidId(r.id))).length;
+
+  return (
+    <TrackerLayout title="6-Star Tera Raids" totalItems={totalRaids} completedItems={completedCount}>
+      <p className="text-xs text-zinc-500 mb-3">
+        Beat each 6-Star Tera Raid at least once. These raids become available after post-game.
+      </p>
+      {regions.map((region) => {
+        const regionRaids = allSixStarRaids.filter((r) => r.region === region);
+        if (regionRaids.length === 0) return null;
+
+        const regionCompleted = regionRaids.filter((r) => collected.has(createRaidId(r.id))).length;
+        const isCollapsed = collapsedRegions.has(region);
+
+        return (
+          <TrackerSection
+            key={region}
+            icon={<Zap className="w-4 h-4" />}
+            iconColor="text-red-400"
+            label={regionNames[region]}
+            completedCount={regionCompleted}
+            totalCount={regionRaids.length}
+            isCollapsed={isCollapsed}
+            onToggle={() => toggleRegion(region, isCollapsed)}
+          >
+            {regionRaids.map((raid) => (
+              <SimpleTrackerItem
+                key={createRaidId(raid.id)}
+                name={raid.pokemon}
+                isComplete={collected.has(createRaidId(raid.id))}
+                onToggle={() => toggleCollected(gameId, createRaidId(raid.id))}
+              />
+            ))}
+          </TrackerSection>
+        );
+      })}
+    </TrackerLayout>
+  );
+}
+
+/* ============================================
+   POKEDEX VIEW
+   ============================================ */
+
+type PokedexSubTab = 'paldea' | 'kitakami' | 'blueberry' | 'national';
+
+function PokedexView({ gameId }: { gameId: string }) {
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const toggleCollected = useGameStore((s) => s.toggleCollected);
+  const [activeSubTab, setActiveSubTab] = useState<PokedexSubTab>('paldea');
+  const filters = useFilters();
+
+  const collected = progress?.collected ?? new Set<string>();
+
+  const pokedexData: Record<PokedexSubTab, PokedexEntry[]> = {
+    paldea: paldeaPokedex,
+    kitakami: kitakamiPokedex,
+    blueberry: blueberryPokedex,
+    national: nationalPokedex,
+  };
+
+  const regionNames: Record<PokedexSubTab, string> = {
+    paldea: 'Paldea',
+    kitakami: 'Kitakami',
+    blueberry: 'Blueberry',
+    national: 'National',
+  };
+
+  const getCollectedCount = (region: PokedexSubTab): number => {
+    return pokedexData[region].filter((p) => collected.has(createPokedexId(p.id))).length;
+  };
+
+  const totalAll = paldeaPokedex.length + kitakamiPokedex.length + blueberryPokedex.length + nationalPokedex.length;
+  const completedAll = getCollectedCount('paldea') + getCollectedCount('kitakami') + getCollectedCount('blueberry') + getCollectedCount('national');
+
+  const currentPokedex = pokedexData[activeSubTab];
+  const filteredPokedex = useMemo(() => {
+    if (!filters.searchQuery) return currentPokedex;
+    const query = filters.searchQuery.toLowerCase();
+    return currentPokedex.filter((p) =>
+      p.name.toLowerCase().includes(query) ||
+      p.dexNumber.toString().includes(query)
+    );
+  }, [currentPokedex, filters.searchQuery]);
+
+  const subTabs: { id: PokedexSubTab; name: string; count: number }[] = [
+    { id: 'paldea', name: 'Paldea', count: paldeaPokedex.length },
+    { id: 'kitakami', name: 'Kitakami', count: kitakamiPokedex.length },
+    { id: 'blueberry', name: 'Blueberry', count: blueberryPokedex.length },
+    { id: 'national', name: 'National', count: nationalPokedex.length },
+  ];
+
+  return (
+    <TrackerLayout title="Pokedex Completion" totalItems={totalAll} completedItems={completedAll}>
+      <p className="text-xs text-zinc-500 mb-3">
+        Track your living dex! Each Pokemon can be tracked as caught (standard), with Hidden Ability, and Shiny.
+      </p>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-1 mb-3 overflow-x-auto pb-2 -mx-3 px-3">
+        {subTabs.map((tab) => {
+          const tabCollected = getCollectedCount(tab.id);
+          const isComplete = tabCollected === tab.count;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSubTab(tab.id)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap ${
+                activeSubTab === tab.id
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50'
+                  : isComplete
+                  ? 'bg-green-500/10 text-green-400 border border-green-500/30'
+                  : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>{tab.name}</span>
+              <span className="text-xs opacity-70">{tabCollected}/{tab.count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Pokemon Grid */}
+      <div className="bg-zinc-800/50 rounded-lg p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+          {filteredPokedex.map((pokemon) => {
+            const isStandard = collected.has(createPokedexId(pokemon.id));
+            const isShiny = collected.has(createShinyId(pokemon.id));
+            const isHA = collected.has(createHiddenAbilityId(pokemon.id));
+
+            return (
+              <div
+                key={pokemon.id}
+                className={`p-2 rounded-lg border transition-all ${
+                  isStandard
+                    ? 'bg-green-500/10 border-green-500/30'
+                    : 'bg-zinc-700/30 border-zinc-700 hover:border-zinc-600'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] text-zinc-500 font-mono">#{pokemon.dexNumber}</span>
+                  <span className="text-sm font-medium truncate flex-1">{pokemon.name}</span>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => toggleCollected(gameId, createPokedexId(pokemon.id))}
+                    className={`flex-1 px-2 py-1 rounded text-[10px] font-medium transition-all ${
+                      isStandard
+                        ? 'bg-green-500/30 text-green-400 border border-green-500/50'
+                        : 'bg-zinc-700/50 text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                  >
+                    Caught
+                  </button>
+                  <button
+                    onClick={() => toggleCollected(gameId, createHiddenAbilityId(pokemon.id))}
+                    className={`px-2 py-1 rounded text-[10px] font-medium transition-all ${
+                      isHA
+                        ? 'bg-purple-500/30 text-purple-400 border border-purple-500/50'
+                        : 'bg-zinc-700/50 text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                    title="Hidden Ability"
+                  >
+                    HA
+                  </button>
+                  <button
+                    onClick={() => toggleCollected(gameId, createShinyId(pokemon.id))}
+                    className={`px-2 py-1 rounded text-[10px] font-medium transition-all ${
+                      isShiny
+                        ? 'bg-yellow-500/30 text-yellow-400 border border-yellow-500/50'
+                        : 'bg-zinc-700/50 text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                    title="Shiny"
+                  >
+                    ★
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {filteredPokedex.length === 0 && (
+          <p className="text-center text-zinc-500 py-8">No Pokemon match your search</p>
+        )}
+      </div>
+    </TrackerLayout>
+  );
+}
+
+/* ============================================
+   RECIPES VIEW
+   ============================================ */
+
+function RecipesView({ gameId }: { gameId: string }) {
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const toggleCollected = useGameStore((s) => s.toggleCollected);
+
+  const collected = progress?.collected ?? new Set<string>();
+  const totalRecipes = sandwichRecipes.length;
+  const completedCount = sandwichRecipes.filter((r) => collected.has(createRecipeId(r.number))).length;
+
+  return (
+    <TrackerLayout title="Sandwich Recipes" totalItems={totalRecipes} completedItems={completedCount}>
+      <p className="text-xs text-zinc-500 mb-3">
+        Collect all 151 sandwich recipes. Sandwiches provide meal powers that boost encounters, shiny rates, and more!
+      </p>
+      <div className="bg-zinc-800/50 rounded-lg p-3">
+        <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-1">
+          {sandwichRecipes.map((recipe) => {
+            const isComplete = collected.has(createRecipeId(recipe.number));
+            return (
+              <button
+                key={recipe.id}
+                onClick={() => toggleCollected(gameId, createRecipeId(recipe.number))}
+                className={`aspect-square rounded flex items-center justify-center text-xs font-medium transition-all ${
+                  isComplete
+                    ? 'bg-amber-500/30 text-amber-400 border border-amber-500/50'
+                    : 'bg-zinc-700/50 text-zinc-400 hover:bg-zinc-700 border border-transparent'
+                }`}
+              >
+                {recipe.number}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </TrackerLayout>
+  );
+}
+
+/* ============================================
+   COSMETICS VIEW
+   ============================================ */
+
+function CosmeticsView({ gameId }: { gameId: string }) {
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const toggleCollected = useGameStore((s) => s.toggleCollected);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  const collected = progress?.collected ?? new Set<string>();
+
+  const casesCompleted = rotomPhoneCases.filter((c) => collected.has(createCaseId(c.id))).length;
+  const emotesCompleted = emotes.filter((e) => collected.has(createEmoteId(e.id))).length;
+  const clothsCompleted = tablecloths.filter((t) => collected.has(createTableclothId(t.id))).length;
+
+  const totalItems = rotomPhoneCases.length + emotes.length + tablecloths.length;
+  const completedCount = casesCompleted + emotesCompleted + clothsCompleted;
+
+  const toggleSection = (section: string, isCollapsed: boolean) => {
+    setCollapsedSections((prev) => {
+      const next = new Set(prev);
+      if (isCollapsed) next.delete(section);
+      else next.add(section);
+      return next;
+    });
+  };
+
+  return (
+    <TrackerLayout title="Cosmetics & Emotes" totalItems={totalItems} completedItems={completedCount}>
+      {/* Phone Cases */}
+      <TrackerSection
+        icon={<Smartphone className="w-4 h-4" />}
+        iconColor="text-pink-400"
+        label="Rotom Phone Cases"
+        completedCount={casesCompleted}
+        totalCount={rotomPhoneCases.length}
+        isCollapsed={collapsedSections.has('cases')}
+        onToggle={() => toggleSection('cases', collapsedSections.has('cases'))}
+      >
+        {rotomPhoneCases.map((phoneCase) => (
+          <SimpleTrackerItem
+            key={createCaseId(phoneCase.id)}
+            name={phoneCase.name}
+            isComplete={collected.has(createCaseId(phoneCase.id))}
+            onToggle={() => toggleCollected(gameId, createCaseId(phoneCase.id))}
+          />
+        ))}
+      </TrackerSection>
+
+      {/* Emotes */}
+      <TrackerSection
+        icon={<Gamepad className="w-4 h-4" />}
+        iconColor="text-purple-400"
+        label="Emotes"
+        completedCount={emotesCompleted}
+        totalCount={emotes.length}
+        isCollapsed={collapsedSections.has('emotes')}
+        onToggle={() => toggleSection('emotes', collapsedSections.has('emotes'))}
+      >
+        {emotes.map((emote) => (
+          <SimpleTrackerItem
+            key={createEmoteId(emote.id)}
+            name={emote.name}
+            isComplete={collected.has(createEmoteId(emote.id))}
+            onToggle={() => toggleCollected(gameId, createEmoteId(emote.id))}
+          />
+        ))}
+      </TrackerSection>
+
+      {/* Tablecloths */}
+      <TrackerSection
+        icon={<Disc className="w-4 h-4" />}
+        iconColor="text-teal-400"
+        label="Tablecloths"
+        completedCount={clothsCompleted}
+        totalCount={tablecloths.length}
+        isCollapsed={collapsedSections.has('cloths')}
+        onToggle={() => toggleSection('cloths', collapsedSections.has('cloths'))}
+      >
+        {tablecloths.map((cloth) => (
+          <SimpleTrackerItem
+            key={createTableclothId(cloth.id)}
+            name={cloth.name}
+            isComplete={collected.has(createTableclothId(cloth.id))}
+            onToggle={() => toggleCollected(gameId, createTableclothId(cloth.id))}
+          />
+        ))}
+      </TrackerSection>
+    </TrackerLayout>
+  );
+}
+
+/* ============================================
+   SIGHTSEEING VIEW
+   ============================================ */
+
+function SightseeingView({ gameId }: { gameId: string }) {
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const toggleCollected = useGameStore((s) => s.toggleCollected);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  const collected = progress?.collected ?? new Set<string>();
+
+  const sightsCompleted = paldeaSights.filter((s) => collected.has(createSightId(s.id))).length;
+  const wondersCompleted = kitakamiWonders.filter((w) => collected.has(createWonderId(w.id))).length;
+
+  const totalItems = paldeaSights.length + kitakamiWonders.length;
+  const completedCount = sightsCompleted + wondersCompleted;
+
+  const toggleSection = (section: string, isCollapsed: boolean) => {
+    setCollapsedSections((prev) => {
+      const next = new Set(prev);
+      if (isCollapsed) next.delete(section);
+      else next.add(section);
+      return next;
+    });
+  };
+
+  return (
+    <TrackerLayout title="Sightseeing" totalItems={totalItems} completedItems={completedCount}>
+      {/* Ten Sights of Paldea */}
+      <TrackerSection
+        icon={<Eye className="w-4 h-4" />}
+        iconColor="text-cyan-400"
+        label="Ten Sights of Paldea"
+        completedCount={sightsCompleted}
+        totalCount={paldeaSights.length}
+        isCollapsed={collapsedSections.has('sights')}
+        onToggle={() => toggleSection('sights', collapsedSections.has('sights'))}
+      >
+        {paldeaSights.map((sight) => (
+          <SimpleTrackerItem
+            key={createSightId(sight.id)}
+            name={sight.name}
+            isComplete={collected.has(createSightId(sight.id))}
+            onToggle={() => toggleCollected(gameId, createSightId(sight.id))}
+          />
+        ))}
+      </TrackerSection>
+
+      {/* Six Wonders of Kitakami */}
+      <TrackerSection
+        icon={<Eye className="w-4 h-4" />}
+        iconColor="text-green-400"
+        label="Six Wonders of Kitakami"
+        completedCount={wondersCompleted}
+        totalCount={kitakamiWonders.length}
+        isCollapsed={collapsedSections.has('wonders')}
+        onToggle={() => toggleSection('wonders', collapsedSections.has('wonders'))}
+      >
+        {kitakamiWonders.map((wonder) => (
+          <SimpleTrackerItem
+            key={createWonderId(wonder.id)}
+            name={wonder.name}
+            isComplete={collected.has(createWonderId(wonder.id))}
+            onToggle={() => toggleCollected(gameId, createWonderId(wonder.id))}
+          />
+        ))}
+      </TrackerSection>
+    </TrackerLayout>
+  );
+}
+
+/* ============================================
+   MARKS & RIBBONS VIEW
+   ============================================ */
+
+function MarksRibbonsView({ gameId }: { gameId: string }) {
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const toggleCollected = useGameStore((s) => s.toggleCollected);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  const collected = progress?.collected ?? new Set<string>();
+
+  const marksCompleted = pokemonMarks.filter((m) => collected.has(createMarkId(m.id))).length;
+  const ribbonsCompleted = pokemonRibbons.filter((r) => collected.has(createRibbonId(r.id))).length;
+
+  const totalItems = pokemonMarks.length + pokemonRibbons.length;
+  const completedCount = marksCompleted + ribbonsCompleted;
+
+  const toggleSection = (section: string, isCollapsed: boolean) => {
+    setCollapsedSections((prev) => {
+      const next = new Set(prev);
+      if (isCollapsed) next.delete(section);
+      else next.add(section);
+      return next;
+    });
+  };
+
+  return (
+    <TrackerLayout title="Marks & Ribbons" totalItems={totalItems} completedItems={completedCount}>
+      <p className="text-xs text-zinc-500 mb-3">
+        Collect Pokemon with special marks or earn ribbons through achievements. Mark Pokemon have special titles!
+      </p>
+
+      {/* Marks */}
+      <TrackerSection
+        icon={<Medal className="w-4 h-4" />}
+        iconColor="text-indigo-400"
+        label="Pokemon Marks"
+        completedCount={marksCompleted}
+        totalCount={pokemonMarks.length}
+        isCollapsed={collapsedSections.has('marks')}
+        onToggle={() => toggleSection('marks', collapsedSections.has('marks'))}
+      >
+        {pokemonMarks.map((mark) => (
+          <SimpleTrackerItem
+            key={createMarkId(mark.id)}
+            name={mark.name}
+            isComplete={collected.has(createMarkId(mark.id))}
+            onToggle={() => toggleCollected(gameId, createMarkId(mark.id))}
+          />
+        ))}
+      </TrackerSection>
+
+      {/* Ribbons */}
+      <TrackerSection
+        icon={<Ribbon className="w-4 h-4" />}
+        iconColor="text-rose-400"
+        label="Pokemon Ribbons"
+        completedCount={ribbonsCompleted}
+        totalCount={pokemonRibbons.length}
+        isCollapsed={collapsedSections.has('ribbons')}
+        onToggle={() => toggleSection('ribbons', collapsedSections.has('ribbons'))}
+      >
+        {pokemonRibbons.map((ribbon) => (
+          <SimpleTrackerItem
+            key={createRibbonId(ribbon.id)}
+            name={ribbon.name}
+            isComplete={collected.has(createRibbonId(ribbon.id))}
+            onToggle={() => toggleCollected(gameId, createRibbonId(ribbon.id))}
+          />
+        ))}
+      </TrackerSection>
     </TrackerLayout>
   );
 }
