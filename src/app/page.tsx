@@ -168,7 +168,7 @@ export default function Home() {
       <Sidebar />
 
       {/* Main Content */}
-      <main className={`flex-1 flex flex-col overflow-hidden ${sidebarOpen ? '' : 'ml-0'}`}>
+      <main className={`flex-1 flex flex-col overflow-hidden ${sidebarOpen ? '' : 'ml-0'}`} style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {/* Top Bar */}
         <header className="bg-zinc-900 border-b border-zinc-800 px-4 py-2 flex items-center justify-between">
           <div>
@@ -204,7 +204,7 @@ export default function Home() {
 
             <button
               onClick={handleExport}
-              className="flex items-center gap-1.5 px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm"
               title="Export progress"
             >
               <Download className="w-3.5 h-3.5" />
@@ -213,7 +213,7 @@ export default function Home() {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm"
               title="Import progress"
             >
               <Upload className="w-3.5 h-3.5" />
@@ -229,7 +229,7 @@ export default function Home() {
 
             <button
               onClick={handleReset}
-              className="flex items-center gap-1.5 px-2 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors text-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors text-sm"
               title="Reset progress"
             >
               <RotateCcw className="w-3.5 h-3.5" />

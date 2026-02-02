@@ -369,9 +369,9 @@ export function GameHeader({ gameId }: GameHeaderProps) {
 
           {/* Detailed Stats Grid - Compact */}
           <div className={`grid gap-2 ${
-            stats.length <= 3 ? 'grid-cols-3' :
-            stats.length <= 6 ? 'grid-cols-3 md:grid-cols-6' :
-            'grid-cols-3 md:grid-cols-5 lg:grid-cols-9'
+            stats.length <= 3 ? 'grid-cols-2 sm:grid-cols-3' :
+            stats.length <= 6 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6' :
+            'grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9'
           }`}>
             {stats.map((item) => {
               const colors = colorClasses[item.color];
@@ -413,7 +413,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               placeholder="Search collectibles..."
               value={filters.searchQuery}
               onChange={(e) => setFilters({ searchQuery: e.target.value })}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-8 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-8 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
             />
             {filters.searchQuery && (
               <button
@@ -426,7 +426,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
           </div>
 
           {/* Filter Chips */}
-          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          <div className="flex items-center gap-1.5 mt-2 overflow-x-auto pb-1 scrollbar-hide flex-nowrap sm:flex-wrap sm:overflow-x-visible">
             {/* Collected Toggle */}
             <button
               onClick={() => setFilters({ showCollected: !filters.showCollected })}

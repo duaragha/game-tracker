@@ -253,7 +253,7 @@ export function Sidebar() {
     return (
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed left-4 top-4 z-50 p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors"
+        className="fixed left-4 top-4 z-50 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors"
       >
         <Menu className="w-6 h-6" />
       </button>
@@ -261,7 +261,13 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col h-screen overflow-hidden">
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        onClick={() => setSidebarOpen(false)}
+      />
+      <aside className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col h-screen overflow-hidden fixed md:relative z-50">
       {/* Header */}
       <div className="px-3 py-2 border-b border-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -290,6 +296,7 @@ export function Sidebar() {
               onClick={() => {
                 setCurrentGame(g.id);
                 setCurrentKingdom(null);
+                if (window.innerWidth < 768) setSidebarOpen(false);
               }}
               className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
                 currentGame === g.id
@@ -308,6 +315,7 @@ export function Sidebar() {
               onClick={() => {
                 setCurrentGame(g.id);
                 setCurrentKingdom(null);
+                if (window.innerWidth < 768) setSidebarOpen(false);
               }}
               className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
                 currentGame === g.id
@@ -326,6 +334,7 @@ export function Sidebar() {
               onClick={() => {
                 setCurrentGame(g.id);
                 setCurrentKingdom(null);
+                if (window.innerWidth < 768) setSidebarOpen(false);
               }}
               className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
                 currentGame === g.id
@@ -382,7 +391,10 @@ export function Sidebar() {
           <div className="px-2 pb-2">
             {/* All Collectibles Option */}
             <button
-              onClick={() => setCurrentKingdom(null)}
+              onClick={() => {
+                setCurrentKingdom(null);
+                if (window.innerWidth < 768) setSidebarOpen(false);
+              }}
               className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                 currentKingdom === null
                   ? 'bg-yellow-500/20 text-yellow-400'
@@ -408,7 +420,10 @@ export function Sidebar() {
               return (
                 <button
                   key={kingdom.id}
-                  onClick={() => setCurrentKingdom(kingdom.id)}
+                  onClick={() => {
+                    setCurrentKingdom(kingdom.id);
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     isSelected ? 'bg-yellow-500/20 text-yellow-400' : 'hover:bg-zinc-800'
                   }`}
@@ -462,7 +477,10 @@ export function Sidebar() {
               <div className="px-2 pb-2">
                 {/* All Items Option */}
                 <button
-                  onClick={() => setCurrentMarioKartSection(null)}
+                  onClick={() => {
+                    setCurrentMarioKartSection(null);
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentMarioKartSection === null
                       ? 'bg-yellow-500/20 text-yellow-400'
@@ -482,7 +500,10 @@ export function Sidebar() {
 
                 {/* Grand Prix */}
                 <button
-                  onClick={() => setCurrentMarioKartSection('grand-prix')}
+                  onClick={() => {
+                    setCurrentMarioKartSection('grand-prix');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentMarioKartSection === 'grand-prix'
                       ? 'bg-yellow-500/20 text-yellow-400'
@@ -505,7 +526,10 @@ export function Sidebar() {
 
                 {/* Time Trials */}
                 <button
-                  onClick={() => setCurrentMarioKartSection('time-trials')}
+                  onClick={() => {
+                    setCurrentMarioKartSection('time-trials');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentMarioKartSection === 'time-trials'
                       ? 'bg-blue-500/20 text-blue-400'
@@ -529,7 +553,10 @@ export function Sidebar() {
                 {/* Knockout (if applicable) */}
                 {mkStats.hasKnockout && (
                   <button
-                    onClick={() => setCurrentMarioKartSection('knockout')}
+                    onClick={() => {
+                      setCurrentMarioKartSection('knockout');
+                      if (window.innerWidth < 768) setSidebarOpen(false);
+                    }}
                     className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                       currentMarioKartSection === 'knockout'
                         ? 'bg-purple-500/20 text-purple-400'
@@ -574,7 +601,10 @@ export function Sidebar() {
               <div className="px-2 pb-2">
                 {/* All Items Option */}
                 <button
-                  onClick={() => setCurrentPokemonSection(null)}
+                  onClick={() => {
+                    setCurrentPokemonSection(null);
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === null
                       ? 'bg-violet-500/20 text-violet-400'
@@ -594,7 +624,10 @@ export function Sidebar() {
 
                 {/* Story */}
                 <button
-                  onClick={() => setCurrentPokemonSection('story')}
+                  onClick={() => {
+                    setCurrentPokemonSection('story');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'story'
                       ? 'bg-violet-500/20 text-violet-400'
@@ -617,7 +650,10 @@ export function Sidebar() {
 
                 {/* Legendaries */}
                 <button
-                  onClick={() => setCurrentPokemonSection('legendaries')}
+                  onClick={() => {
+                    setCurrentPokemonSection('legendaries');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'legendaries'
                       ? 'bg-yellow-500/20 text-yellow-400'
@@ -640,7 +676,10 @@ export function Sidebar() {
 
                 {/* Post-Game */}
                 <button
-                  onClick={() => setCurrentPokemonSection('post-game')}
+                  onClick={() => {
+                    setCurrentPokemonSection('post-game');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'post-game'
                       ? 'bg-orange-500/20 text-orange-400'
@@ -663,7 +702,10 @@ export function Sidebar() {
 
                 {/* DLC */}
                 <button
-                  onClick={() => setCurrentPokemonSection('dlc')}
+                  onClick={() => {
+                    setCurrentPokemonSection('dlc');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'dlc'
                       ? 'bg-teal-500/20 text-teal-400'
@@ -686,7 +728,10 @@ export function Sidebar() {
 
                 {/* Collectibles */}
                 <button
-                  onClick={() => setCurrentPokemonSection('collectibles')}
+                  onClick={() => {
+                    setCurrentPokemonSection('collectibles');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'collectibles'
                       ? 'bg-emerald-500/20 text-emerald-400'
@@ -709,7 +754,10 @@ export function Sidebar() {
 
                 {/* 6-Star Raids */}
                 <button
-                  onClick={() => setCurrentPokemonSection('raids')}
+                  onClick={() => {
+                    setCurrentPokemonSection('raids');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'raids'
                       ? 'bg-red-500/20 text-red-400'
@@ -732,7 +780,10 @@ export function Sidebar() {
 
                 {/* Pokedex */}
                 <button
-                  onClick={() => setCurrentPokemonSection('pokedex')}
+                  onClick={() => {
+                    setCurrentPokemonSection('pokedex');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'pokedex'
                       ? 'bg-blue-500/20 text-blue-400'
@@ -755,7 +806,10 @@ export function Sidebar() {
 
                 {/* Recipes */}
                 <button
-                  onClick={() => setCurrentPokemonSection('recipes')}
+                  onClick={() => {
+                    setCurrentPokemonSection('recipes');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'recipes'
                       ? 'bg-amber-500/20 text-amber-400'
@@ -778,7 +832,10 @@ export function Sidebar() {
 
                 {/* Cosmetics */}
                 <button
-                  onClick={() => setCurrentPokemonSection('cosmetics')}
+                  onClick={() => {
+                    setCurrentPokemonSection('cosmetics');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'cosmetics'
                       ? 'bg-pink-500/20 text-pink-400'
@@ -801,7 +858,10 @@ export function Sidebar() {
 
                 {/* Sightseeing */}
                 <button
-                  onClick={() => setCurrentPokemonSection('sightseeing')}
+                  onClick={() => {
+                    setCurrentPokemonSection('sightseeing');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'sightseeing'
                       ? 'bg-cyan-500/20 text-cyan-400'
@@ -824,7 +884,10 @@ export function Sidebar() {
 
                 {/* Marks & Ribbons */}
                 <button
-                  onClick={() => setCurrentPokemonSection('marks-ribbons')}
+                  onClick={() => {
+                    setCurrentPokemonSection('marks-ribbons');
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                     currentPokemonSection === 'marks-ribbons'
                       ? 'bg-indigo-500/20 text-indigo-400'
@@ -855,5 +918,6 @@ export function Sidebar() {
         <p>Data saved locally</p>
       </div>
     </aside>
+    </>
   );
 }
