@@ -30,6 +30,7 @@ export interface Collectible {
   order?: number; // For moons, the in-game number
   guide?: string; // Step-by-step guide on how to get this collectible
   imageUrl?: string; // Image showing the collectible location
+  imageUrls?: string[]; // Multiple images (e.g. IGN guide screenshots)
   value?: number; // For Multi Moons, this is 3 (defaults to 1)
 }
 

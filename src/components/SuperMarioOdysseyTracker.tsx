@@ -638,17 +638,22 @@ function SMOCollectibleModal({
             </div>
           )}
 
-          {/* Image */}
-          {collectible.imageUrl && (
+          {/* Images */}
+          {(collectible.imageUrls?.length ? collectible.imageUrls : collectible.imageUrl ? [collectible.imageUrl] : []).length > 0 && (
             <div className="space-y-2">
               <h3 className="font-semibold text-zinc-300">Location Preview</h3>
-              <div className="rounded-lg overflow-hidden border border-zinc-700">
-                <img
-                  src={collectible.imageUrl}
-                  alt={`Location of ${collectible.name}`}
-                  className="w-full h-auto"
-                  referrerPolicy="no-referrer"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(collectible.imageUrls?.length ? collectible.imageUrls : [collectible.imageUrl!]).map((url, idx) => (
+                  <div key={idx} className="rounded-lg overflow-hidden border border-zinc-700">
+                    <img
+                      src={url}
+                      alt={`${collectible.name} - Image ${idx + 1}`}
+                      className="w-full h-auto"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
