@@ -7,6 +7,9 @@ const isRailway = process.env.DATABASE_URL?.includes('.railway.internal') ||
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: isRailway ? false : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 // Initialize the progress table

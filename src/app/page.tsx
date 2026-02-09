@@ -1,10 +1,44 @@
 'use client';
 
-import { Sidebar, SuperMarioOdysseyTracker, MarioKartTracker, GameHeader } from '@/components';
-import { PokemonTracker } from '@/components/PokemonTracker';
+import dynamic from 'next/dynamic';
+import { Sidebar, GameHeader } from '@/components';
 import { useGameStore } from '@/store/game-store';
 import { isMarioKartGame, isPokemonGame } from '@/data';
 import { Download, Upload, RotateCcw, Cloud, CloudOff, Loader2 } from 'lucide-react';
+
+// Lazy-load game trackers to reduce initial bundle size
+const SuperMarioOdysseyTracker = dynamic(
+  () => import('@/components/SuperMarioOdysseyTracker').then((mod) => mod.SuperMarioOdysseyTracker),
+  {
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
+      </div>
+    ),
+  }
+);
+
+const MarioKartTracker = dynamic(
+  () => import('@/components/MarioKartTracker').then((mod) => mod.MarioKartTracker),
+  {
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
+      </div>
+    ),
+  }
+);
+
+const PokemonTracker = dynamic(
+  () => import('@/components/PokemonTracker').then((mod) => mod.PokemonTracker),
+  {
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
+      </div>
+    ),
+  }
+);
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 export default function Home() {

@@ -1,0 +1,5 @@
+nul
+scripts/
+*.html
+ign_full_data.json
+vectors.db
