@@ -1,9 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Check, Circle, ChevronDown, ChevronRight, Search, X } from 'lucide-react';
-import { CompletionFilter } from './CompletionFilter';
-import { useGameStore, useFilters } from '@/store/game-store';
+import { Check, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 
 /**
  * Reusable tracker layout components that match SMO's visual design
@@ -22,23 +20,18 @@ interface TrackerLayoutProps {
 }
 
 export function TrackerLayout({ title, totalItems, completedItems, children }: TrackerLayoutProps) {
-  const filters = useFilters();
-  const setFilters = useGameStore((s) => s.setFilters);
-
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden">
-      {/* Sticky Header - matches SMO exactly */}
+      {/* Sticky Header */}
       <div className="sticky top-0 bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800 px-4 py-2 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-bold">{title}</h2>
             <span className="text-xs text-zinc-400">
               {completedItems}/{totalItems}
-              {filters.searchQuery && ` (filtered)`}
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <CompletionFilter />
             {/* Quick stats */}
             <div className="flex items-center gap-2 text-xs">
               <span className="flex items-center gap-1 text-green-400">
@@ -58,26 +51,6 @@ export function TrackerLayout({ title, totalItems, completedItems, children }: T
               />
             </div>
           </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative mt-2">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="Search items..."
-            value={filters.searchQuery}
-            onChange={(e) => setFilters({ searchQuery: e.target.value })}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-8 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
-          />
-          {filters.searchQuery && (
-            <button
-              onClick={() => setFilters({ searchQuery: '' })}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
 
