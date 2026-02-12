@@ -564,6 +564,8 @@ function StoryView({ gameId, checkpoints }: StoryViewProps) {
           return true;
         });
 
+        if (visibleCheckpoints.length === 0) return null;
+
         return (
           <TrackerSection
             key={path}
@@ -646,6 +648,8 @@ function LegendariesView({ gameId, legendaries }: LegendariesViewProps) {
           if (filters.searchQuery && !l.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
           return true;
         });
+
+        if (visibleLegendaries.length === 0) return null;
 
         return (
           <TrackerSection
@@ -735,6 +739,8 @@ function PostGameView({ gameId, items }: PostGameViewProps) {
           return true;
         });
 
+        if (visibleItems.length === 0) return null;
+
         return (
           <TrackerSection
             key={category}
@@ -814,6 +820,8 @@ function DLCView({ gameId, content }: DLCViewProps) {
           if (filters.searchQuery && !c.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
           return true;
         });
+
+        if (visibleContent.length === 0) return null;
 
         return (
           <TrackerSection
@@ -1170,6 +1178,8 @@ function RaidsView({ gameId }: { gameId: string }) {
           if (filters.searchQuery && !r.pokemon.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
           return true;
         });
+
+        if (visibleRaids.length === 0) return null;
 
         return (
           <TrackerSection

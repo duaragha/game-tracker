@@ -175,6 +175,8 @@ function CupGrid({ gameId, cups, engineClasses, expandedCups, onToggleExpand, is
     if (cupsToRender.length === 0) return null;
 
     const visibleCups = cupsToRender.filter(filterCup);
+    if (visibleCups.length === 0) return null;
+
     const sectionComplete =
       cupsToRender.every((cup) => isCupComplete(cup.id)) && cupsToRender.length > 0;
     const sectionCompleted = cupsToRender.reduce(
@@ -296,6 +298,9 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
     <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
       <div className="space-y-3">
         {game.cups.map((cup) => {
+          const visibleTracks = cup.tracks.filter(filterTrack);
+          if (visibleTracks.length === 0) return null;
+
           const cupComplete = isCupComplete(cup);
           const cupCompleted = cup.tracks.reduce(
             (sum, t) =>
@@ -333,11 +338,8 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
                   )}
                 </div>
               </button>
-              {!isCollapsed && (() => {
-                const visibleTracks = cup.tracks.filter(filterTrack);
-                return (
+              {!isCollapsed && (
                   <div className="px-3 pb-3 min-w-0">
-                    {visibleTracks.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 min-w-0">
                         {visibleTracks.map((track) => {
                           const trackComplete = isTrackComplete(track.id);
@@ -377,14 +379,8 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
                           );
                         })}
                       </div>
-                    ) : (
-                      <div className="text-center py-4 text-zinc-500 text-sm">
-                        No items match your filters
-                      </div>
-                    )}
                   </div>
-                );
-              })()}
+              )}
             </div>
           );
         })}
