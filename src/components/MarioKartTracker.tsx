@@ -89,6 +89,8 @@ function CupGrid({ gameId, cups, engineClasses, expandedCups, onToggleExpand, is
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const filters = useFilters();
+  const { showCollected, showUncollected } = useCompletionFilter();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -114,6 +116,17 @@ function CupGrid({ gameId, cups, engineClasses, expandedCups, onToggleExpand, is
 
   const isCupComplete = (cupId: string) => {
     return engineClasses.every((ec) => collected.has(createCupCompletionId(cupId, ec)));
+  };
+
+  // Filter cup based on collected/uncollected filter and search
+  const filterCup = (cup: Cup) => {
+    const isComplete = isCupComplete(cup.id);
+    if (isComplete && !showCollected) return false;
+    if (!isComplete && !showUncollected) return false;
+    if (filters.searchQuery) {
+      if (!cup.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+    }
+    return true;
   };
 
   const renderCupCard = (cup: Cup) => {
@@ -161,6 +174,7 @@ function CupGrid({ gameId, cups, engineClasses, expandedCups, onToggleExpand, is
   const renderSection = (title: string, cupsToRender: Cup[], sectionKey: string) => {
     if (cupsToRender.length === 0) return null;
 
+    const visibleCups = cupsToRender.filter(filterCup);
     const sectionComplete =
       cupsToRender.every((cup) => isCupComplete(cup.id)) && cupsToRender.length > 0;
     const sectionCompleted = cupsToRender.reduce(
@@ -194,9 +208,15 @@ function CupGrid({ gameId, cups, engineClasses, expandedCups, onToggleExpand, is
         </button>
         {!isCollapsed && (
           <div className="px-3 pb-3 min-w-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 min-w-0">
-              {cupsToRender.map(renderCupCard)}
-            </div>
+            {visibleCups.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 min-w-0">
+                {visibleCups.map(renderCupCard)}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-zinc-500 text-sm">
+                No items match your filters
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -215,7 +235,7 @@ function CupGrid({ gameId, cups, engineClasses, expandedCups, onToggleExpand, is
           renderSection('Rally Cups', rallyCups, 'rally')
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
-            {cups.map(renderCupCard)}
+            {cups.filter(filterCup).map(renderCupCard)}
           </div>
         )}
       </div>
@@ -236,6 +256,8 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedCups, setCollapsedCups] = useState<Record<string, boolean>>({});
+  const filters = useFilters();
+  const { showCollected, showUncollected } = useCompletionFilter();
 
   const collected = progress?.collected ?? new Set<string>();
   // MK World only has 150cc time trials, MK8 has both 150cc and 200cc
@@ -257,6 +279,17 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
 
   const isCupComplete = (cup: Cup) => {
     return cup.tracks.every((t) => isTrackComplete(t.id));
+  };
+
+  // Filter track based on collected/uncollected filter and search
+  const filterTrack = (track: { id: string; name: string }) => {
+    const isComplete = isTrackComplete(track.id);
+    if (isComplete && !showCollected) return false;
+    if (!isComplete && !showUncollected) return false;
+    if (filters.searchQuery) {
+      if (!track.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+    }
+    return true;
   };
 
   return (
@@ -300,49 +333,58 @@ function TimeTrialsView({ gameId, game }: TimeTrialsViewProps) {
                   )}
                 </div>
               </button>
-              {!isCollapsed && (
-                <div className="px-3 pb-3 min-w-0">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 min-w-0">
-                    {cup.tracks.map((track) => {
-                      const trackComplete = isTrackComplete(track.id);
-                      const completedForTrack = TIME_TRIAL_CLASSES.filter((ec) =>
-                        collected.has(`tt-${track.id}-${ec}`)
-                      ).length;
-                      const completedClasses = TIME_TRIAL_CLASSES.filter((ec) =>
-                        collected.has(`tt-${track.id}-${ec}`)
-                      );
+              {!isCollapsed && (() => {
+                const visibleTracks = cup.tracks.filter(filterTrack);
+                return (
+                  <div className="px-3 pb-3 min-w-0">
+                    {visibleTracks.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 min-w-0">
+                        {visibleTracks.map((track) => {
+                          const trackComplete = isTrackComplete(track.id);
+                          const completedForTrack = TIME_TRIAL_CLASSES.filter((ec) =>
+                            collected.has(`tt-${track.id}-${ec}`)
+                          ).length;
+                          const completedClasses = TIME_TRIAL_CLASSES.filter((ec) =>
+                            collected.has(`tt-${track.id}-${ec}`)
+                          );
 
-                      return (
-                        <TrackerItem
-                          key={track.id}
-                          id={track.id}
-                          name={track.name}
-                          isComplete={trackComplete}
-                          onToggle={() => {
-                            TIME_TRIAL_CLASSES.forEach((ec) => {
-                              const id = `tt-${track.id}-${ec}`;
-                              if (trackComplete) {
-                                if (collected.has(id)) toggleCollected(gameId, id);
-                              } else {
-                                if (!collected.has(id)) toggleCollected(gameId, id);
+                          return (
+                            <TrackerItem
+                              key={track.id}
+                              id={track.id}
+                              name={track.name}
+                              isComplete={trackComplete}
+                              onToggle={() => {
+                                TIME_TRIAL_CLASSES.forEach((ec) => {
+                                  const id = `tt-${track.id}-${ec}`;
+                                  if (trackComplete) {
+                                    if (collected.has(id)) toggleCollected(gameId, id);
+                                  } else {
+                                    if (!collected.has(id)) toggleCollected(gameId, id);
+                                  }
+                                });
+                              }}
+                              subContent={`${completedForTrack}/${TIME_TRIAL_CLASSES.length} classes`}
+                              actionButtons={
+                                <EngineClassButtons
+                                  classes={TIME_TRIAL_CLASSES}
+                                  completedClasses={completedClasses as string[]}
+                                  onToggle={(ec) => toggleCollected(gameId, `tt-${track.id}-${ec}`)}
+                                  formatLabel={(ec) => ec.replace('cc', '')}
+                                />
                               }
-                            });
-                          }}
-                          subContent={`${completedForTrack}/${TIME_TRIAL_CLASSES.length} classes`}
-                          actionButtons={
-                            <EngineClassButtons
-                              classes={TIME_TRIAL_CLASSES}
-                              completedClasses={completedClasses as string[]}
-                              onToggle={(ec) => toggleCollected(gameId, `tt-${track.id}-${ec}`)}
-                              formatLabel={(ec) => ec.replace('cc', '')}
                             />
-                          }
-                        />
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-zinc-500 text-sm">
+                        No items match your filters
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           );
         })}

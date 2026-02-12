@@ -518,6 +518,8 @@ function StoryView({ gameId, checkpoints }: StoryViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedPaths, setCollapsedPaths] = useState<Set<StoryPath>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -554,6 +556,13 @@ function StoryView({ gameId, checkpoints }: StoryViewProps) {
         const pathCheckpoints = checkpoints.filter((c) => c.path === path);
         const pathCompleted = pathCheckpoints.filter((c) => collected.has(createStoryId(c.id))).length;
         const isCollapsed = collapsedPaths.has(path);
+        const visibleCheckpoints = pathCheckpoints.filter((c) => {
+          const isComplete = collected.has(createStoryId(c.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !c.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        });
 
         return (
           <TrackerSection
@@ -566,7 +575,7 @@ function StoryView({ gameId, checkpoints }: StoryViewProps) {
             isCollapsed={isCollapsed}
             onToggle={() => togglePath(path, isCollapsed)}
           >
-            {pathCheckpoints.map((checkpoint) => (
+            {visibleCheckpoints.map((checkpoint) => (
               <SimpleTrackerItem
                 key={createStoryId(checkpoint.id)}
                 name={checkpoint.name}
@@ -597,6 +606,8 @@ function LegendariesView({ gameId, legendaries }: LegendariesViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedRegions, setCollapsedRegions] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -628,6 +639,13 @@ function LegendariesView({ gameId, legendaries }: LegendariesViewProps) {
 
         const regionCaught = regionLegendaries.filter((l) => collected.has(createLegendaryId(l.id))).length;
         const isCollapsed = collapsedRegions.has(region);
+        const visibleLegendaries = regionLegendaries.filter((l) => {
+          const isComplete = collected.has(createLegendaryId(l.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !l.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        });
 
         return (
           <TrackerSection
@@ -640,7 +658,7 @@ function LegendariesView({ gameId, legendaries }: LegendariesViewProps) {
             isCollapsed={isCollapsed}
             onToggle={() => toggleRegion(region, isCollapsed)}
           >
-            {regionLegendaries.map((legendary) => (
+            {visibleLegendaries.map((legendary) => (
               <SimpleTrackerItem
                 key={createLegendaryId(legendary.id)}
                 name={legendary.name}
@@ -675,6 +693,8 @@ function PostGameView({ gameId, items }: PostGameViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -707,6 +727,13 @@ function PostGameView({ gameId, items }: PostGameViewProps) {
         const info = categoryInfo[category];
         const catCompleted = categoryItems.filter((i) => collected.has(createPostGameId(i.id))).length;
         const isCollapsed = collapsedCategories.has(category);
+        const visibleItems = categoryItems.filter((i) => {
+          const isComplete = collected.has(createPostGameId(i.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !i.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        });
 
         return (
           <TrackerSection
@@ -719,7 +746,7 @@ function PostGameView({ gameId, items }: PostGameViewProps) {
             isCollapsed={isCollapsed}
             onToggle={() => toggleCategory(category, isCollapsed)}
           >
-            {categoryItems.map((item) => (
+            {visibleItems.map((item) => (
               <SimpleTrackerItem
                 key={createPostGameId(item.id)}
                 name={item.name}
@@ -747,6 +774,8 @@ function DLCView({ gameId, content }: DLCViewProps) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedDLCs, setCollapsedDLCs] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -778,6 +807,13 @@ function DLCView({ gameId, content }: DLCViewProps) {
         const info = dlcInfo[dlc];
         const dlcCompleted = dlcContent.filter((c) => collected.has(createDLCId(c.id))).length;
         const isCollapsed = collapsedDLCs.has(dlc);
+        const visibleContent = dlcContent.filter((c) => {
+          const isComplete = collected.has(createDLCId(c.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !c.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        });
 
         return (
           <TrackerSection
@@ -790,7 +826,7 @@ function DLCView({ gameId, content }: DLCViewProps) {
             isCollapsed={isCollapsed}
             onToggle={() => toggleDLC(dlc, isCollapsed)}
           >
-            {dlcContent.map((item) => (
+            {visibleContent.map((item) => (
               <SimpleTrackerItem
                 key={createDLCId(item.id)}
                 name={item.name}
@@ -820,6 +856,8 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [activeSubTab, setActiveSubTab] = useState<CollectibleSubTab>('stakes');
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -915,7 +953,12 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
                 isCollapsed={isCollapsed}
                 onToggle={() => toggleSection(`stakes-${color}`, isCollapsed)}
               >
-                {stakes.map((stake) => (
+                {stakes.filter((s) => {
+                  const isComplete = collected.has(createStakeId(s.id));
+                  if (isComplete && !showCollected) return false;
+                  if (!isComplete && !showUncollected) return false;
+                  return true;
+                }).map((stake) => (
                   <SimpleTrackerItem
                     key={createStakeId(stake.id)}
                     name={`#${stake.number}`}
@@ -938,7 +981,13 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
           </p>
           <div className="bg-zinc-800/50 rounded-lg p-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
-              {gimmighoulTowers.map((tower) => (
+              {gimmighoulTowers.filter((t) => {
+                const isComplete = collected.has(createTowerId(t.id));
+                if (isComplete && !showCollected) return false;
+                if (!isComplete && !showUncollected) return false;
+                if (filters.searchQuery && !t.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+                return true;
+              }).map((tower) => (
                 <SimpleTrackerItem
                   key={createTowerId(tower.id)}
                   name={tower.name}
@@ -960,7 +1009,13 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
           </p>
           <div className="bg-zinc-800/50 rounded-lg p-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
-              {wildTeraPokemon.map((tera) => (
+              {wildTeraPokemon.filter((t) => {
+                const isComplete = collected.has(createTeraId(t.id));
+                if (isComplete && !showCollected) return false;
+                if (!isComplete && !showUncollected) return false;
+                if (filters.searchQuery && !t.pokemon.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+                return true;
+              }).map((tera) => (
                 <SimpleTrackerItem
                   key={createTeraId(tera.id)}
                   name={tera.pokemon}
@@ -987,7 +1042,13 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
           </p>
           <div className="bg-zinc-800/50 rounded-lg p-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
-              {flyingTaxiPoints.map((point) => (
+              {flyingTaxiPoints.filter((t) => {
+                const isComplete = collected.has(createTaxiId(t.id));
+                if (isComplete && !showCollected) return false;
+                if (!isComplete && !showUncollected) return false;
+                if (filters.searchQuery && !t.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+                return true;
+              }).map((point) => (
                 <SimpleTrackerItem
                   key={createTaxiId(point.id)}
                   name={point.name}
@@ -1009,7 +1070,13 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
           </p>
           <div className="bg-zinc-800/50 rounded-lg p-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
-              {pokemonCenters.map((center) => (
+              {pokemonCenters.filter((c) => {
+                const isComplete = collected.has(createCenterId(c.id));
+                if (isComplete && !showCollected) return false;
+                if (!isComplete && !showUncollected) return false;
+                if (filters.searchQuery && !c.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+                return true;
+              }).map((center) => (
                 <SimpleTrackerItem
                   key={createCenterId(center.id)}
                   name={center.name}
@@ -1031,7 +1098,12 @@ function CollectiblesView({ gameId }: CollectiblesViewProps) {
           </p>
           <div className="bg-zinc-800/50 rounded-lg p-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
-              {dittoSpawns.map((spawn, index) => (
+              {dittoSpawns.filter((d) => {
+                const isComplete = collected.has(createDittoId(d.id));
+                if (isComplete && !showCollected) return false;
+                if (!isComplete && !showUncollected) return false;
+                return true;
+              }).map((spawn, index) => (
                 <SimpleTrackerItem
                   key={createDittoId(spawn.id)}
                   name={`Ditto #${index + 1}`}
@@ -1056,6 +1128,8 @@ function RaidsView({ gameId }: { gameId: string }) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedRegions, setCollapsedRegions] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -1089,6 +1163,13 @@ function RaidsView({ gameId }: { gameId: string }) {
 
         const regionCompleted = regionRaids.filter((r) => collected.has(createRaidId(r.id))).length;
         const isCollapsed = collapsedRegions.has(region);
+        const visibleRaids = regionRaids.filter((r) => {
+          const isComplete = collected.has(createRaidId(r.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !r.pokemon.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        });
 
         return (
           <TrackerSection
@@ -1101,7 +1182,7 @@ function RaidsView({ gameId }: { gameId: string }) {
             isCollapsed={isCollapsed}
             onToggle={() => toggleRegion(region, isCollapsed)}
           >
-            {regionRaids.map((raid) => (
+            {visibleRaids.map((raid) => (
               <SimpleTrackerItem
                 key={createRaidId(raid.id)}
                 name={raid.pokemon}
@@ -1127,6 +1208,7 @@ function PokedexView({ gameId }: { gameId: string }) {
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [activeSubTab, setActiveSubTab] = useState<PokedexSubTab>('paldea');
   const filters = useFilters();
+  const { showCollected, showUncollected } = useCompletionFilter();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -1153,13 +1235,17 @@ function PokedexView({ gameId }: { gameId: string }) {
 
   const currentPokedex = pokedexData[activeSubTab];
   const filteredPokedex = useMemo(() => {
-    if (!filters.searchQuery) return currentPokedex;
-    const query = filters.searchQuery.toLowerCase();
-    return currentPokedex.filter((p) =>
-      p.name.toLowerCase().includes(query) ||
-      p.dexNumber.toString().includes(query)
-    );
-  }, [currentPokedex, filters.searchQuery]);
+    return currentPokedex.filter((p) => {
+      const isComplete = collected.has(createPokedexId(p.id));
+      if (isComplete && !showCollected) return false;
+      if (!isComplete && !showUncollected) return false;
+      if (filters.searchQuery) {
+        const query = filters.searchQuery.toLowerCase();
+        if (!p.name.toLowerCase().includes(query) && !p.dexNumber.toString().includes(query)) return false;
+      }
+      return true;
+    });
+  }, [currentPokedex, filters.searchQuery, showCollected, showUncollected, collected.size]);
 
   const subTabs: { id: PokedexSubTab; name: string; count: number }[] = [
     { id: 'paldea', name: 'Paldea', count: paldeaPokedex.length },
@@ -1273,6 +1359,7 @@ function PokedexView({ gameId }: { gameId: string }) {
 function RecipesView({ gameId }: { gameId: string }) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
+  const { showCollected, showUncollected } = useCompletionFilter();
 
   const collected = progress?.collected ?? new Set<string>();
   const totalRecipes = sandwichRecipes.length;
@@ -1285,7 +1372,12 @@ function RecipesView({ gameId }: { gameId: string }) {
       </p>
       <div className="bg-zinc-800/50 rounded-lg p-3">
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-1">
-          {sandwichRecipes.map((recipe) => {
+          {sandwichRecipes.filter((recipe) => {
+            const isComplete = collected.has(createRecipeId(recipe.number));
+            if (isComplete && !showCollected) return false;
+            if (!isComplete && !showUncollected) return false;
+            return true;
+          }).map((recipe) => {
             const isComplete = collected.has(createRecipeId(recipe.number));
             return (
               <button
@@ -1315,6 +1407,8 @@ function CosmeticsView({ gameId }: { gameId: string }) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -1346,7 +1440,13 @@ function CosmeticsView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('cases')}
         onToggle={() => toggleSection('cases', collapsedSections.has('cases'))}
       >
-        {rotomPhoneCases.map((phoneCase) => (
+        {rotomPhoneCases.filter((c) => {
+          const isComplete = collected.has(createCaseId(c.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !c.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((phoneCase) => (
           <SimpleTrackerItem
             key={createCaseId(phoneCase.id)}
             name={phoneCase.name}
@@ -1366,7 +1466,13 @@ function CosmeticsView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('emotes')}
         onToggle={() => toggleSection('emotes', collapsedSections.has('emotes'))}
       >
-        {emotes.map((emote) => (
+        {emotes.filter((e) => {
+          const isComplete = collected.has(createEmoteId(e.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !e.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((emote) => (
           <SimpleTrackerItem
             key={createEmoteId(emote.id)}
             name={emote.name}
@@ -1386,7 +1492,13 @@ function CosmeticsView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('cloths')}
         onToggle={() => toggleSection('cloths', collapsedSections.has('cloths'))}
       >
-        {tablecloths.map((cloth) => (
+        {tablecloths.filter((t) => {
+          const isComplete = collected.has(createTableclothId(t.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !t.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((cloth) => (
           <SimpleTrackerItem
             key={createTableclothId(cloth.id)}
             name={cloth.name}
@@ -1407,6 +1519,8 @@ function SightseeingView({ gameId }: { gameId: string }) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -1437,7 +1551,13 @@ function SightseeingView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('sights')}
         onToggle={() => toggleSection('sights', collapsedSections.has('sights'))}
       >
-        {paldeaSights.map((sight) => (
+        {paldeaSights.filter((s) => {
+          const isComplete = collected.has(createSightId(s.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !s.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((sight) => (
           <SimpleTrackerItem
             key={createSightId(sight.id)}
             name={sight.name}
@@ -1457,7 +1577,13 @@ function SightseeingView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('wonders')}
         onToggle={() => toggleSection('wonders', collapsedSections.has('wonders'))}
       >
-        {kitakamiWonders.map((wonder) => (
+        {kitakamiWonders.filter((w) => {
+          const isComplete = collected.has(createWonderId(w.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !w.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((wonder) => (
           <SimpleTrackerItem
             key={createWonderId(wonder.id)}
             name={wonder.name}
@@ -1478,6 +1604,8 @@ function MarksRibbonsView({ gameId }: { gameId: string }) {
   const progress = useGameStore((s) => s.progress[gameId]);
   const toggleCollected = useGameStore((s) => s.toggleCollected);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
 
   const collected = progress?.collected ?? new Set<string>();
 
@@ -1512,7 +1640,13 @@ function MarksRibbonsView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('marks')}
         onToggle={() => toggleSection('marks', collapsedSections.has('marks'))}
       >
-        {pokemonMarks.map((mark) => (
+        {pokemonMarks.filter((m) => {
+          const isComplete = collected.has(createMarkId(m.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !m.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((mark) => (
           <SimpleTrackerItem
             key={createMarkId(mark.id)}
             name={mark.name}
@@ -1532,7 +1666,13 @@ function MarksRibbonsView({ gameId }: { gameId: string }) {
         isCollapsed={collapsedSections.has('ribbons')}
         onToggle={() => toggleSection('ribbons', collapsedSections.has('ribbons'))}
       >
-        {pokemonRibbons.map((ribbon) => (
+        {pokemonRibbons.filter((r) => {
+          const isComplete = collected.has(createRibbonId(r.id));
+          if (isComplete && !showCollected) return false;
+          if (!isComplete && !showUncollected) return false;
+          if (filters.searchQuery && !r.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+          return true;
+        }).map((ribbon) => (
           <SimpleTrackerItem
             key={createRibbonId(ribbon.id)}
             name={ribbon.name}
