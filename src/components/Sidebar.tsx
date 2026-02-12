@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useGameStore, useCurrentGame, useCurrentKingdom, useCurrentPokemonSection, useCurrentMarioKartSection, useProgress, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
-import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
+import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, isLuigisMansionGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
 import { Kingdom } from '@/types';
 import { createCupCompletionId } from '@/types/mario-kart';
 import {
@@ -13,7 +13,7 @@ import {
   createLeagueOfficialId, createMiniGameId, createPokedexId, createShinyId, createHiddenAbilityId,
 } from '@/types/pokemon';
 import { allPokedexEntries } from '@/data';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe } from 'lucide-react';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, Gem, Ghost, Flashlight } from 'lucide-react';
 
 export function Sidebar() {
   const currentGame = useCurrentGame();
@@ -32,6 +32,7 @@ export function Sidebar() {
 
   const isMK = currentGame ? isMarioKartGame(currentGame) : false;
   const isPKMN = currentGame ? isPokemonGame(currentGame) : false;
+  const isLM2 = currentGame ? isLuigisMansionGame(currentGame) : false;
   const game = currentGame && !isMK && !isPKMN ? getGame(currentGame) : null;
   const mkGame = currentGame && isMK ? getMarioKartGame(currentGame) : null;
   const pkmnGame = currentGame && isPKMN ? getPokemonGame(currentGame) : null;
@@ -197,7 +198,17 @@ export function Sidebar() {
   const overallStats = (() => {
     if (isMK) return mkStats;
     if (isPKMN) return pkmnStats;
-    if (!game || !stats) return { collected: 0, total: 0, percentage: 0 };
+    if (!game) return { collected: 0, total: 0, percentage: 0 };
+
+    // LM2: count gems, boos, dark moon pieces, secret doors
+    if (isLM2) {
+      const lm2Types = ['gem', 'boo', 'dark_moon_piece', 'secret_door', 'mission', 'ghost', 'upgrade'] as const;
+      const totalCollected = game.collectibles.filter((c) => lm2Types.includes(c.type as typeof lm2Types[number]) && progress.collected.has(c.id)).length;
+      const totalItems = game.collectibles.filter((c) => lm2Types.includes(c.type as typeof lm2Types[number])).length;
+      return { collected: totalCollected, total: totalItems };
+    }
+
+    if (!stats) return { collected: 0, total: 0, percentage: 0 };
 
     const moonCollectibles = game.collectibles.filter((c) => c.type === 'moon');
     const moonsCollected = calculateCollectedValue(progress.collected, moonCollectibles);
@@ -230,22 +241,30 @@ export function Sidebar() {
   };
 
   const getKingdomProgress = (kingdom: Kingdom) => {
-    if (!currentGame) return { moons: 0, totalMoons: 0, coins: 0, totalCoins: 0 };
+    if (!currentGame) return { moons: 0, totalMoons: 0, coins: 0, totalCoins: 0, gems: 0, totalGems: 0, boos: 0, totalBoos: 0 };
 
     const collectibles = getCollectiblesForKingdom(currentGame, kingdom.id);
     const moons = collectibles.filter((c) => c.type === 'moon');
     const coins = collectibles.filter((c) => c.type === 'purple_coin');
+    const gems = collectibles.filter((c) => c.type === 'gem');
+    const boos = collectibles.filter((c) => c.type === 'boo');
 
     // Use value-based counting for moons (Multi Moons count as 3)
     const collectedMoons = calculateCollectedValue(progress.collected, moons);
     const totalMoons = calculateTotalValue(moons);
     const collectedCoins = coins.filter((c) => progress.collected.has(c.id)).length;
+    const collectedGems = gems.filter((c) => progress.collected.has(c.id)).length;
+    const collectedBoos = boos.filter((c) => progress.collected.has(c.id)).length;
 
     return {
       moons: collectedMoons,
       totalMoons: totalMoons,
       coins: collectedCoins,
       totalCoins: coins.length,
+      gems: collectedGems,
+      totalGems: gems.length,
+      boos: collectedBoos,
+      totalBoos: boos.length,
     };
   };
 
@@ -283,24 +302,29 @@ export function Sidebar() {
           <span className="text-xs text-zinc-400 uppercase tracking-wide">Select Game</span>
         </div>
         <div className="grid gap-1">
-          {/* SMO */}
-          {games.map((g) => (
-            <button
-              key={g.id}
-              onClick={() => {
-                setCurrentGame(g.id);
-                setCurrentKingdom(null);
-              }}
-              className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
-                currentGame === g.id
-                  ? 'bg-yellow-500/20 text-yellow-400 font-medium'
-                  : 'hover:bg-zinc-800 text-zinc-300'
-              }`}
-            >
-              <Globe className="w-3 h-3" />
-              {g.name}
-            </button>
-          ))}
+          {/* SMO & other GameData games */}
+          {games.map((g) => {
+            const isLM2Game = isLuigisMansionGame(g.id);
+            const activeColor = isLM2Game ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400';
+            const Icon = isLM2Game ? Flashlight : Globe;
+            return (
+              <button
+                key={g.id}
+                onClick={() => {
+                  setCurrentGame(g.id);
+                  setCurrentKingdom(null);
+                }}
+                className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
+                  currentGame === g.id
+                    ? `${activeColor} font-medium`
+                    : 'hover:bg-zinc-800 text-zinc-300'
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                {g.name}
+              </button>
+            );
+          })}
           {/* Mario Kart Games */}
           {marioKartGames.map((g) => (
             <button
@@ -343,7 +367,7 @@ export function Sidebar() {
       {/* Game Info */}
       {(game || mkGame || pkmnGame) && (
         <div className="px-3 py-2 border-b border-zinc-800">
-          <h2 className={`font-semibold text-sm ${isPKMN ? 'text-violet-400' : 'text-yellow-400'}`}>
+          <h2 className={`font-semibold text-sm ${isPKMN ? 'text-violet-400' : isLM2 ? 'text-green-400' : 'text-yellow-400'}`}>
             {game?.name || mkGame?.name || pkmnGame?.name}
           </h2>
           <div className="flex items-center gap-2 mt-1">
@@ -352,7 +376,7 @@ export function Sidebar() {
             </span>
             <div className="flex-1 bg-zinc-800 rounded-full h-1.5">
               <div
-                className={`${isPKMN ? 'bg-violet-500' : 'bg-yellow-500'} h-1.5 rounded-full transition-all duration-300`}
+                className={`${isPKMN ? 'bg-violet-500' : isLM2 ? 'bg-green-500' : 'bg-yellow-500'} h-1.5 rounded-full transition-all duration-300`}
                 style={{
                   width: `${overallStats.total > 0 ? (overallStats.collected / overallStats.total) * 100 : 0}%`,
                 }}
@@ -369,7 +393,7 @@ export function Sidebar() {
             onClick={() => toggleSection('kingdoms')}
             className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800 transition-colors"
           >
-            <span className="font-medium text-sm">Kingdoms</span>
+            <span className="font-medium text-sm">{isLM2 ? 'Mansions' : 'Kingdoms'}</span>
             {expandedSections.kingdoms ? (
               <ChevronDown className="w-4 h-4" />
             ) : (
@@ -385,11 +409,13 @@ export function Sidebar() {
               onClick={() => setCurrentKingdom(null)}
               className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                 currentKingdom === null
-                  ? 'bg-yellow-500/20 text-yellow-400'
+                  ? isLM2 ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
                   : 'hover:bg-zinc-800'
               }`}
             >
-              <div className="w-6 h-6 rounded bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
+              <div className={`w-6 h-6 rounded flex items-center justify-center ${
+                isLM2 ? 'bg-gradient-to-br from-green-500 to-emerald-500' : 'bg-gradient-to-br from-yellow-500 to-orange-500'
+              }`}>
                 <Search className="w-3 h-3 text-white" />
               </div>
               <div className="flex-1 text-left">
@@ -404,37 +430,62 @@ export function Sidebar() {
             {game.kingdoms.map((kingdom) => {
               const prog = getKingdomProgress(kingdom);
               const isSelected = currentKingdom === kingdom.id;
+              const isLM2Kingdom = isLM2;
+              const selectedColor = isLM2Kingdom ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400';
+              const KingdomIcon = isLM2Kingdom ? Gem : Moon;
+
+              // Determine completion for this kingdom
+              const isKingdomComplete = isLM2Kingdom
+                ? (prog.gems === prog.totalGems && prog.totalGems > 0 && prog.boos === prog.totalBoos && prog.totalBoos > 0)
+                : (prog.moons === prog.totalMoons && prog.totalMoons > 0);
 
               return (
                 <button
                   key={kingdom.id}
                   onClick={() => setCurrentKingdom(kingdom.id)}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
-                    isSelected ? 'bg-yellow-500/20 text-yellow-400' : 'hover:bg-zinc-800'
+                    isSelected ? selectedColor : 'hover:bg-zinc-800'
                   }`}
                 >
                   <div
                     className="w-6 h-6 rounded flex items-center justify-center"
                     style={{ backgroundColor: kingdom.color + '40' }}
                   >
-                    <Moon className="w-3 h-3" style={{ color: kingdom.color }} />
+                    <KingdomIcon className="w-3 h-3" style={{ color: kingdom.color }} />
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <div className="font-medium text-sm truncate">{kingdom.shortName}</div>
                     <div className="text-[10px] text-zinc-400 flex items-center gap-1.5">
-                      <span className="flex items-center gap-0.5">
-                        <Moon className="w-2.5 h-2.5" />
-                        {prog.moons}/{prog.totalMoons}
-                      </span>
-                      {kingdom.purpleCoinCount > 0 && (
-                        <span className="flex items-center gap-0.5 text-purple-400">
-                          <Coins className="w-2.5 h-2.5" />
-                          {prog.coins}/{prog.totalCoins}
-                        </span>
+                      {isLM2Kingdom ? (
+                        <>
+                          <span className="flex items-center gap-0.5">
+                            <Gem className="w-2.5 h-2.5" />
+                            {prog.gems}/{prog.totalGems}
+                          </span>
+                          {prog.totalBoos > 0 && (
+                            <span className="flex items-center gap-0.5 text-purple-400">
+                              <Ghost className="w-2.5 h-2.5" />
+                              {prog.boos}/{prog.totalBoos}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <span className="flex items-center gap-0.5">
+                            <Moon className="w-2.5 h-2.5" />
+                            {prog.moons}/{prog.totalMoons}
+                          </span>
+                          {kingdom.purpleCoinCount > 0 && (
+                            <span className="flex items-center gap-0.5 text-purple-400">
+                              <Coins className="w-2.5 h-2.5" />
+                              {prog.coins}/{prog.totalCoins}
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
-                  {prog.moons === prog.totalMoons && prog.totalMoons > 0 && (
+                  {isKingdomComplete && (
                     <span className="text-green-400 text-[10px]">100%</span>
                   )}
                 </button>

@@ -1,0 +1,178 @@
+import { Collectible } from '@/types';
+
+// ============================================
+// DARK MOON PIECES (6)
+// One per mansion boss (Possessors) + King Boo
+// ============================================
+
+export const lm2DarkMoonPieces: Collectible[] = [
+  {
+    id: 'lm2-dmp-1',
+    name: 'Dark Moon Piece #1',
+    type: 'dark_moon_piece',
+    kingdom: 'gloomy-manor',
+    order: 1,
+    hint: 'A-Boss: Confront the Source',
+    description: 'Cellar - Defeat the Grouchy Possessor who has possessed a giant spider.',
+    guide: 'The Grouchy Possessor takes control of a giant spider in the Cellar. When the spider lunges at you, dodge to the side and pull the web ball stuck to its body with the Poltergust. Sling the web ball at the Possessor when it appears. Repeat this three times across three phases, each adding more spider attacks. The Possessor has infinite HP and is defeated through environmental mechanics.',
+  },
+  {
+    id: 'lm2-dmp-2',
+    name: 'Dark Moon Piece #2',
+    type: 'dark_moon_piece',
+    kingdom: 'haunted-towers',
+    order: 2,
+    hint: 'B-Boss: Tree Topping',
+    description: 'Tree House - Defeat the Harsh Possessor who has set a giant staircase aflame.',
+    guide: 'The Harsh Possessor possesses the staircase leading up the Tree House and sets it on fire. You must climb the burning staircase while dodging fireballs. At the top, the Possessor possesses a suit of armor. Pull rugs to trip the armor, then flash it with the Strobulb when the Possessor peeks out. Suck up the Possessor with the Poltergust. Three phases with increasing difficulty.',
+  },
+  {
+    id: 'lm2-dmp-3',
+    name: 'Dark Moon Piece #3',
+    type: 'dark_moon_piece',
+    kingdom: 'old-clockworks',
+    order: 3,
+    hint: 'C-Boss: Showtime',
+    description: 'Belfry - Defeat the Overset Possessor who has taken control of a giant clock.',
+    guide: 'The Overset Possessor takes control of the giant clock mechanism in the Belfry. The clock hands spin and try to hit Luigi. Dodge the hands, then when the Possessor appears inside the clock face, use the Strobulb to stun it and pull it out with the Poltergust. You must also deal with bombs thrown at you. Three phases with faster clock hands and more bombs each time.',
+  },
+  {
+    id: 'lm2-dmp-4',
+    name: 'Dark Moon Piece #4',
+    type: 'dark_moon_piece',
+    kingdom: 'secret-mine',
+    order: 4,
+    hint: 'D-Boss: Chilly Ride',
+    description: 'Workshop - Defeat the Shrewd Possessor who has frozen the ground into ice.',
+    guide: 'The Shrewd Possessor possesses a massive ice creature in the Workshop. Luigi slides around on ice during the fight. When the ice creature charges, dodge to the side and use the Poltergust to pull on its tongue when it gets stuck. Drag the tongue and slam the creature to expose the Possessor, then vacuum it up. Three phases with slippery ice and increasingly aggressive attacks.',
+  },
+  {
+    id: 'lm2-dmp-5',
+    name: 'Dark Moon Piece #5',
+    type: 'dark_moon_piece',
+    kingdom: 'treacherous-mansion',
+    order: 5,
+    hint: 'E-Boss: Stop the Knightmare',
+    description: 'Terrace - Defeat the Tough Possessor who has animated giant suits of armor.',
+    guide: 'The Tough Possessor animates giant knight armor on the Terrace through a paranormal portal. The knight attacks with a massive sword and shield. Wait for the knight to swing and get its sword stuck, then run behind it and use the Strobulb on the exposed Possessor. Pull it out with the Poltergust. Three phases where the knight gains new attacks including a charge and ground slam.',
+  },
+  {
+    id: 'lm2-dmp-6',
+    name: 'Dark Moon Piece #6',
+    type: 'dark_moon_piece',
+    kingdom: 'treacherous-mansion',
+    order: 6,
+    hint: 'Final Boss: King Boo',
+    description: 'Paranormal Dimension - Defeat King Boo (100 HP) who holds the last Dark Moon piece.',
+    guide: 'King Boo is the final boss, fought in the Paranormal Dimension after all 5 mansions are cleared. He attacks by throwing spiked balls at Luigi. Dodge the attacks and wait for King Boo to slam down, getting his tongue stuck. Pull his tongue with the Poltergust and slam him into the spiked balls to deal damage. He has 100 HP. In later phases he clones himself and creates lightning strikes. After defeating King Boo, the sixth and final Dark Moon piece is recovered.',
+  },
+];
+
+// ============================================
+// SECRET DOORS (10)
+// Hidden doors requiring the Dark-Light Device
+// Each leads to a timed bonus room challenge
+// ============================================
+
+export const lm2SecretDoors: Collectible[] = [
+  {
+    id: 'lm2-sd-a1',
+    name: 'Mudroom Exterior Secret Door',
+    type: 'secret_door',
+    kingdom: 'gloomy-manor',
+    order: 1,
+    hint: 'Mission A-4: Visual Tricks',
+    description: 'Mudroom Exterior - A hidden door revealed with the Dark-Light Device.',
+    guide: 'During Mission A-4, head to the Mudroom Exterior. Use the Dark-Light Device on the wall to reveal a hidden door. Inside is a timed bonus room with a Dark-Light treasure chest challenge. Reveal the chest with the Dark-Light and collect the treasure within the time limit.',
+  },
+  {
+    id: 'lm2-sd-b1',
+    name: 'Sewers Secret Door',
+    type: 'secret_door',
+    kingdom: 'haunted-towers',
+    order: 2,
+    hint: 'Mission B-3: Graveyard Shift',
+    description: 'Sewers - A hidden door leading to a red coin challenge.',
+    guide: 'During Mission B-3, head to the Sewers area. Use the Dark-Light Device to reveal a hidden door on the wall. Inside is a timed bonus room where you must collect all red coins before time runs out to earn treasure.',
+  },
+  {
+    id: 'lm2-sd-b2',
+    name: 'Conservatory Secret Door',
+    type: 'secret_door',
+    kingdom: 'haunted-towers',
+    order: 3,
+    hint: 'Mission B-4: Pool Party',
+    description: 'Conservatory - A hidden door leading to a red coin challenge that rewards the Coffin Emerald.',
+    guide: 'During Mission B-4, go to the Conservatory. Suck up a bulb plant to float up to the right platform. Use the Dark-Light Device to reveal a hidden door. Complete the red coin collection challenge inside to earn the Coffin Emerald gem as a reward.',
+  },
+  {
+    id: 'lm2-sd-c1',
+    name: 'Canyon Narrows Secret Door',
+    type: 'secret_door',
+    kingdom: 'old-clockworks',
+    order: 4,
+    hint: 'Mission C-2: Underground Expedition',
+    description: 'Canyon Narrows - A hidden door leading to a Gold Greenie challenge.',
+    guide: 'During Mission C-2, explore the Canyon Narrows. Use the Dark-Light Device to reveal a hidden door. Inside is a timed bonus room where you must catch Gold Greenies to earn a large treasure payout.',
+  },
+  {
+    id: 'lm2-sd-c2',
+    name: 'Finishing Room Secret Door',
+    type: 'secret_door',
+    kingdom: 'old-clockworks',
+    order: 5,
+    hint: 'Mission C-3: Roundhouse Brawl',
+    description: 'Finishing Room - A hidden door leading to a red coin challenge.',
+    guide: 'During Mission C-3, head to the Finishing Room. Use the Dark-Light Device to reveal a hidden door. Inside is a timed bonus room with a red coin collection challenge for treasure.',
+  },
+  {
+    id: 'lm2-sd-c3',
+    name: 'Gear Chamber Secret Door',
+    type: 'secret_door',
+    kingdom: 'old-clockworks',
+    order: 6,
+    hint: 'Mission C-5: Piece at Last',
+    description: 'Gear Chamber - A hidden door leading to a red coin challenge that rewards the Oval Ruby.',
+    guide: 'During Mission C-5, go to the Gear Chamber. Defeat all the beetles first. Use the Dark-Light Device to reveal a hidden wooden plank/door. Complete the red coin collection challenge to earn the Oval Ruby gem.',
+  },
+  {
+    id: 'lm2-sd-d1',
+    name: 'Drift Hall Secret Door',
+    type: 'secret_door',
+    kingdom: 'secret-mine',
+    order: 7,
+    hint: 'Mission D-1: Cold Case',
+    description: 'Drift Hall - A hidden door leading to a snowman target challenge.',
+    guide: 'During Mission D-1, explore the Drift Hall area. Use the Dark-Light Device to reveal a hidden door. Inside is a timed bonus room where you must shoot projectiles at snowman targets to earn treasure.',
+  },
+  {
+    id: 'lm2-sd-d2',
+    name: 'High Wires Secret Door',
+    type: 'secret_door',
+    kingdom: 'secret-mine',
+    order: 8,
+    hint: 'Mission D-3: Across the Chasm',
+    description: 'High Wires - A hidden door leading to a Hider capture challenge that rewards the Mushroom Sapphire.',
+    guide: 'During Mission D-3, head to the High Wires area. Use the Dark-Light Device to reveal a hidden door. Inside is a timed bonus room where you must capture all Hiders to earn the Mushroom Sapphire gem.',
+  },
+  {
+    id: 'lm2-sd-e1',
+    name: 'Haunted Catacombs Secret Door',
+    type: 'secret_door',
+    kingdom: 'treacherous-mansion',
+    order: 9,
+    hint: 'Mission E-1: Front-Door Key',
+    description: 'Haunted Catacombs - A hidden door leading to a red coin challenge.',
+    guide: 'During Mission E-1, explore the Haunted Catacombs. Use the Dark-Light Device to reveal a hidden door. Inside is a timed bonus room with a red coin collection challenge for treasure.',
+  },
+  {
+    id: 'lm2-sd-e2',
+    name: 'Kitchen Secret Door',
+    type: 'secret_door',
+    kingdom: 'treacherous-mansion',
+    order: 10,
+    hint: 'Mission E-2: Double Trouble',
+    description: 'Kitchen - A hidden door leading to a red coin challenge.',
+    guide: 'During Mission E-2, head to the Kitchen area. Use the Dark-Light Device to reveal a hidden door. Inside is a timed bonus room with a red coin collection challenge for treasure.',
+  },
+];

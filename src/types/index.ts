@@ -1,6 +1,6 @@
 // Core types for the game tracker
 
-export type CollectibleType = 'moon' | 'purple_coin' | 'capture' | 'outfit' | 'souvenir' | 'sticker' | 'checkpoint' | 'painting' | 'music';
+export type CollectibleType = 'moon' | 'purple_coin' | 'capture' | 'outfit' | 'souvenir' | 'sticker' | 'checkpoint' | 'painting' | 'music' | 'gem' | 'boo' | 'dark_moon_piece' | 'secret_door' | 'mission' | 'ghost' | 'upgrade';
 
 export type CollectibleCategory =
   | 'story'

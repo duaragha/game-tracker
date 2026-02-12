@@ -2,6 +2,13 @@ import { GameData } from '@/types';
 import { MarioKartGame } from '@/types/mario-kart';
 import { PokemonGame, isPokemonGame } from '@/types/pokemon';
 import { smoKingdoms } from './smo-kingdoms';
+import { lm2Mansions } from './lm2-mansions';
+import { lm2Gems } from './lm2-gems';
+import { lm2Boos } from './lm2-boos';
+import { lm2DarkMoonPieces, lm2SecretDoors } from './lm2-extras';
+import { lm2Missions } from './lm2-missions';
+import { lm2Upgrades } from './lm2-upgrades';
+import { lm2Ghosts } from './lm2-ghosts';
 import { smoMoons, smoPurchasableMoons } from './smo-moons';
 import { smoPurpleCoins } from './smo-purple-coins';
 import { smoCaptures } from './smo-captures';
@@ -55,8 +62,24 @@ export const superMarioOdyssey: GameData = {
   ],
 };
 
+export const luigisMansion2: GameData = {
+  id: 'lm2',
+  name: "Luigi's Mansion 2: Dark Moon",
+  shortName: 'LM2',
+  kingdoms: lm2Mansions,
+  collectibles: [
+    ...lm2Gems,
+    ...lm2Boos,
+    ...lm2DarkMoonPieces,
+    ...lm2SecretDoors,
+    ...lm2Missions,
+    ...lm2Upgrades,
+    ...lm2Ghosts,
+  ],
+};
+
 // All available games
-export const games: GameData[] = [superMarioOdyssey];
+export const games: GameData[] = [superMarioOdyssey, luigisMansion2];
 
 // Helper functions
 export const getGame = (gameId: string): GameData | undefined =>
@@ -106,6 +129,18 @@ export const getGameStats = (gameId: string) => {
 };
 
 export { smoKingdoms } from './smo-kingdoms';
+
+// Luigi's Mansion 2 exports
+export { lm2Mansions } from './lm2-mansions';
+export { lm2Gems } from './lm2-gems';
+export { lm2Boos } from './lm2-boos';
+export { lm2DarkMoonPieces, lm2SecretDoors } from './lm2-extras';
+export { lm2Missions } from './lm2-missions';
+export { lm2Upgrades } from './lm2-upgrades';
+export { lm2Ghosts, lm2StoryGhosts, lm2ScareScraperGhosts } from './lm2-ghosts';
+
+// Helper to check if a game is Luigi's Mansion 2
+export const isLuigisMansionGame = (gameId: string): boolean => gameId === 'lm2';
 export { smoMoons, smoPurchasableMoons } from './smo-moons';
 export { smoPurpleCoins } from './smo-purple-coins';
 export { smoCaptures } from './smo-captures';

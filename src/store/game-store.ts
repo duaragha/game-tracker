@@ -42,7 +42,7 @@ async function saveToCloud(progress: Record<string, UserProgress>): Promise<bool
 const defaultFilters: FilterState = {
   showCollected: true,
   showUncollected: true,
-  types: ['moon', 'purple_coin', 'capture', 'outfit', 'checkpoint', 'painting', 'souvenir', 'sticker', 'music'],
+  types: ['moon', 'purple_coin', 'capture', 'outfit', 'checkpoint', 'painting', 'souvenir', 'sticker', 'music', 'gem', 'boo', 'dark_moon_piece', 'secret_door', 'mission', 'ghost', 'upgrade'],
   categories: ['story', 'post_game', 'moon_rock', 'shop', 'hint_art', 'toadette', 'peach', 'luigi_balloon'],
   searchQuery: '',
 };
