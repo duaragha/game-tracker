@@ -61,8 +61,8 @@ export function Sidebar() {
       }, 0);
     }
 
-    // Time Trials (150cc and 200cc for each track)
-    const TIME_TRIAL_CLASSES = ['150cc', '200cc'] as const;
+    // Time Trials - MK World only has 150cc, MK8 has both
+    const TIME_TRIAL_CLASSES = currentGame === 'mkworld' ? ['150cc'] as const : ['150cc', '200cc'] as const;
     const allTracks = mkGame.cups.flatMap((c) => c.tracks);
     const ttTotal = allTracks.length * TIME_TRIAL_CLASSES.length;
     const ttCompleted = allTracks.reduce((sum, t) => {
@@ -255,7 +255,7 @@ export function Sidebar() {
         koCompleted = mkG.knockoutRallies.reduce((sum, rally) =>
           sum + mkG.knockoutEngineClasses!.filter(ec => col.has(createCupCompletionId(rally.id, ec))).length, 0);
       }
-      const ttClasses = ['150cc', '200cc'] as const;
+      const ttClasses = mkG.id === 'mkworld' ? ['150cc'] as const : ['150cc', '200cc'] as const;
       const allTracks = mkG.cups.flatMap(c => c.tracks);
       const ttTotal = allTracks.length * ttClasses.length;
       const ttCompleted = allTracks.reduce((sum, t) =>
