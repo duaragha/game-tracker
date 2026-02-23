@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { useProgress, useGameStore, useFilters, useActiveMKModes, useActivePKMNSections, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
-import { getGame, getGameStats, isMarioKartGame, isPokemonGame, isLuigisMansionGame, getMarioKartGame, getPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns, allSixStarRaids, sandwichRecipes, rotomPhoneCases, emotes, tablecloths, paldeaSights, kitakamiWonders, pokemonMarks, pokemonRibbons, leagueOfficials, miniGames, allPokedexEntries } from '@/data';
+import { getGame, getGameStats, isMarioKartGame, isPokemonGame, getMarioKartGame, getPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns, allSixStarRaids, sandwichRecipes, rotomPhoneCases, emotes, tablecloths, paldeaSights, kitakamiWonders, pokemonMarks, pokemonRibbons, leagueOfficials, miniGames, allPokedexEntries } from '@/data';
 import { createCupCompletionId } from '@/types/mario-kart';
 import { createStoryId, createLegendaryId, createPostGameId, createDLCId, createStakeId, createTowerId, createTeraId, createTaxiId, createCenterId, createDittoId, createRaidId, createRecipeId, createCaseId, createEmoteId, createTableclothId, createSightId, createWonderId, createMarkId, createRibbonId, createLeagueOfficialId, createMiniGameId, createPokedexId } from '@/types/pokemon';
 import { CollectibleType, MKModeFilter, PKMNSectionFilter } from '@/types';
-import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight, Gem, Ghost, DoorOpen, Skull, Wrench } from 'lucide-react';
+import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface GameHeaderProps {
   gameId: string;
@@ -90,17 +90,6 @@ const smoTypeConfig: Partial<Record<CollectibleType, { label: string; icon: Reac
   souvenir: { label: 'Souvenirs', icon: <Gift className="w-4 h-4" />, color: 'orange' },
   sticker: { label: 'Stickers', icon: <Sticker className="w-4 h-4" />, color: 'lime' },
   music: { label: 'Music', icon: <Music className="w-4 h-4" />, color: 'rose' },
-};
-
-// LM2 type filter config
-const lm2TypeConfig: Partial<Record<CollectibleType, { label: string; icon: React.ReactNode; color: string }>> = {
-  gem: { label: 'Gems', icon: <Gem className="w-4 h-4" />, color: 'emerald' },
-  boo: { label: 'Boos', icon: <Ghost className="w-4 h-4" />, color: 'purple' },
-  dark_moon_piece: { label: 'Dark Moon', icon: <Moon className="w-4 h-4" />, color: 'yellow' },
-  secret_door: { label: 'Secret Doors', icon: <DoorOpen className="w-4 h-4" />, color: 'cyan' },
-  mission: { label: 'Missions', icon: <Star className="w-4 h-4" />, color: 'orange' },
-  ghost: { label: 'Ghosts', icon: <Skull className="w-4 h-4" />, color: 'red' },
-  upgrade: { label: 'Upgrades', icon: <Wrench className="w-4 h-4" />, color: 'blue' },
 };
 
 // Calculate SMO stats
@@ -283,53 +272,6 @@ function usePokemonStats(gameId: string): { stats: StatItem[]; overall: { collec
   }, [game, progress, collectedSize]);
 }
 
-// Calculate LM2 stats
-function useLM2Stats(gameId: string): { stats: StatItem[]; overall: { collected: number; total: number } } | null {
-  const game = getGame(gameId);
-  const progress = useProgress(gameId);
-  const collectedSize = useGameStore((s) => s.progress[gameId]?.collected?.size ?? 0);
-
-  return useMemo(() => {
-    if (!game) return null;
-
-    const countType = (type: string) => {
-      const items = game.collectibles.filter((c) => c.type === type);
-      const collected = items.filter((c) => progress.collected.has(c.id)).length;
-      return { collected, total: items.length };
-    };
-
-    const gems = countType('gem');
-    const boos = countType('boo');
-    const dmp = countType('dark_moon_piece');
-    const sd = countType('secret_door');
-    const missions = countType('mission');
-    const ghosts = countType('ghost');
-    const upgrades = countType('upgrade');
-
-    const totalItems = gems.total + boos.total + dmp.total + sd.total + missions.total + ghosts.total + upgrades.total;
-    const totalCompleted = gems.collected + boos.collected + dmp.collected + sd.collected + missions.collected + ghosts.collected + upgrades.collected;
-
-    const stats: StatItem[] = [
-      { label: 'Gems', icon: <Gem className="w-5 h-5" />, collected: gems.collected, total: gems.total, color: 'emerald' },
-      { label: 'Boos', icon: <Ghost className="w-5 h-5" />, collected: boos.collected, total: boos.total, color: 'purple' },
-      { label: 'Missions', icon: <Star className="w-5 h-5" />, collected: missions.collected, total: missions.total, color: 'orange' },
-      { label: 'Dark Moon', icon: <Moon className="w-5 h-5" />, collected: dmp.collected, total: dmp.total, color: 'yellow' },
-      { label: 'Secret Doors', icon: <DoorOpen className="w-5 h-5" />, collected: sd.collected, total: sd.total, color: 'cyan' },
-    ];
-
-    if (ghosts.total > 0) {
-      stats.push({ label: 'Ghosts', icon: <Skull className="w-5 h-5" />, collected: ghosts.collected, total: ghosts.total, color: 'red' });
-    }
-
-    stats.push({ label: 'Upgrades', icon: <Wrench className="w-5 h-5" />, collected: upgrades.collected, total: upgrades.total, color: 'blue' });
-
-    return {
-      stats,
-      overall: { collected: totalCompleted, total: totalItems },
-    };
-  }, [game, collectedSize, progress.collected]);
-}
-
 export function GameHeader({ gameId }: GameHeaderProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const filters = useFilters();
@@ -341,7 +283,6 @@ export function GameHeader({ gameId }: GameHeaderProps) {
 
   const isMK = isMarioKartGame(gameId);
   const isPKMN = isPokemonGame(gameId);
-  const isLM2 = isLuigisMansionGame(gameId);
 
   // Get available MK modes (knockout only for MK World)
   const mkGame = isMK ? getMarioKartGame(gameId) : null;
@@ -352,9 +293,8 @@ export function GameHeader({ gameId }: GameHeaderProps) {
   const smoStats = useSMOStats(gameId);
   const mkStats = useMarioKartStats(gameId);
   const pkmnStats = usePokemonStats(gameId);
-  const lm2Stats = useLM2Stats(gameId);
 
-  const data = isMK ? mkStats : isPKMN ? pkmnStats : isLM2 ? lm2Stats : smoStats;
+  const data = isMK ? mkStats : isPKMN ? pkmnStats : smoStats;
 
   if (!data) return null;
 
@@ -380,7 +320,6 @@ export function GameHeader({ gameId }: GameHeaderProps) {
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
             isMK ? 'bg-gradient-to-br from-red-500 to-red-600' :
             isPKMN ? 'bg-gradient-to-br from-violet-500 to-purple-600' :
-            isLM2 ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
             'bg-gradient-to-br from-yellow-500 to-orange-500'
           }`}>
             <Trophy className="w-4 h-4 text-white" />
@@ -397,7 +336,6 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               className={`h-2 rounded-full transition-all duration-500 ${
                 isMK ? 'bg-gradient-to-r from-red-500 to-green-500' :
                 isPKMN ? 'bg-gradient-to-r from-violet-500 to-green-500' :
-                isLM2 ? 'bg-gradient-to-r from-green-500 to-emerald-400' :
                 'bg-gradient-to-r from-yellow-500 to-green-500'
               }`}
               style={{ width: `${overallPercentage}%` }}
@@ -406,7 +344,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
         </div>
         <div className="flex items-center gap-3">
           <span className={`text-lg font-bold ${
-            isMK ? 'text-red-400' : isPKMN ? 'text-violet-400' : isLM2 ? 'text-green-400' : 'text-yellow-400'
+            isMK ? 'text-red-400' : isPKMN ? 'text-violet-400' : 'text-yellow-400'
           }`}>
             {overallPercentage.toFixed(1)}%
           </span>
@@ -423,7 +361,6 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               className={`h-2 rounded-full transition-all duration-500 ${
                 isMK ? 'bg-gradient-to-r from-red-500 via-green-500 to-emerald-500' :
                 isPKMN ? 'bg-gradient-to-r from-violet-500 via-green-500 to-emerald-500' :
-                isLM2 ? 'bg-gradient-to-r from-green-500 via-emerald-400 to-teal-500' :
                 'bg-gradient-to-r from-yellow-500 via-green-500 to-emerald-500'
               }`}
               style={{ width: `${overallPercentage}%` }}
@@ -560,7 +497,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
             })}
 
             {/* SMO Type Filters */}
-            {!isMK && !isPKMN && !isLM2 && (Object.entries(smoTypeConfig) as [CollectibleType, { label: string; icon: React.ReactNode; color: string }][]).map(
+            {!isMK && !isPKMN && (Object.entries(smoTypeConfig) as [CollectibleType, { label: string; icon: React.ReactNode; color: string }][]).map(
               ([type, config]) => (
                 <button
                   key={type}
@@ -577,23 +514,6 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               )
             )}
 
-            {/* LM2 Type Filters */}
-            {isLM2 && (Object.entries(lm2TypeConfig) as [CollectibleType, { label: string; icon: React.ReactNode; color: string }][]).map(
-              ([type, config]) => (
-                <button
-                  key={type}
-                  onClick={() => toggleType(type)}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md border transition-colors text-xs ${
-                    filters.types.includes(type)
-                      ? filterColorClasses[config.color]
-                      : 'bg-zinc-800 text-zinc-500 border-zinc-700'
-                  }`}
-                >
-                  <span className="[&>svg]:w-3.5 [&>svg]:h-3.5">{config.icon}</span>
-                  <span className="hidden sm:inline">{config.label}</span>
-                </button>
-              )
-            )}
           </div>
         </div>
     </div>

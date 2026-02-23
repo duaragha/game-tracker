@@ -79,7 +79,7 @@ export const luigisMansion2: GameData = {
 };
 
 // All available games
-export const games: GameData[] = [superMarioOdyssey, luigisMansion2];
+export const games: GameData[] = [superMarioOdyssey];
 
 // Helper functions
 export const getGame = (gameId: string): GameData | undefined =>
