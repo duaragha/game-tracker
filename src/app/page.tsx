@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { Sidebar, GameHeader } from '@/components';
 import { useGameStore } from '@/store/game-store';
-import { isMarioKartGame, isPokemonGame, isLuigisMansionGame } from '@/data';
+import { isMarioKartGame, isPokemonGame } from '@/data';
 import { Download, Upload, RotateCcw, Cloud, CloudOff, Loader2 } from 'lucide-react';
 
 // Lazy-load game trackers to reduce initial bundle size
@@ -40,16 +40,6 @@ const PokemonTracker = dynamic(
   }
 );
 
-const LuigisMansionTracker = dynamic(
-  () => import('@/components/LuigisMansionTracker').then((mod) => mod.LuigisMansionTracker),
-  {
-    loading: () => (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
-      </div>
-    ),
-  }
-);
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 export default function Home() {
@@ -169,7 +159,6 @@ export default function Home() {
 
   const isMK = currentGame ? isMarioKartGame(currentGame) : false;
   const isPKMN = currentGame ? isPokemonGame(currentGame) : false;
-  const isLM2 = currentGame ? isLuigisMansionGame(currentGame) : false;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
@@ -294,9 +283,6 @@ export default function Home() {
         ) : isPKMN && currentGame ? (
           /* Pokemon Tracker */
           <PokemonTracker gameId={currentGame} />
-        ) : isLM2 && currentGame ? (
-          /* Luigi's Mansion 2 Tracker */
-          <LuigisMansionTracker />
         ) : (
           /* SMO Tracker */
           <SuperMarioOdysseyTracker />

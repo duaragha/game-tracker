@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGameStore, useCurrentGame, useCurrentKingdom, useCurrentPokemonSection, useCurrentMarioKartSection, useProgress, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
-import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, isLuigisMansionGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
+import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
 import { Kingdom } from '@/types';
 import { createCupCompletionId } from '@/types/mario-kart';
 import {
@@ -13,7 +13,7 @@ import {
   createLeagueOfficialId, createMiniGameId, createPokedexId, createShinyId, createHiddenAbilityId,
 } from '@/types/pokemon';
 import { allPokedexEntries } from '@/data';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, Gem, Ghost, Flashlight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe } from 'lucide-react';
 
 export function Sidebar() {
   const currentGame = useCurrentGame();
@@ -29,10 +29,10 @@ export function Sidebar() {
   const progress = useProgress(currentGame || '');
   // Force re-render when collected size changes
   const collectedSize = useGameStore((s) => s.progress[currentGame || '']?.collected?.size ?? 0);
+  const allProgress = useGameStore((s) => s.progress);
 
   const isMK = currentGame ? isMarioKartGame(currentGame) : false;
   const isPKMN = currentGame ? isPokemonGame(currentGame) : false;
-  const isLM2 = currentGame ? isLuigisMansionGame(currentGame) : false;
   const game = currentGame && !isMK && !isPKMN ? getGame(currentGame) : null;
   const mkGame = currentGame && isMK ? getMarioKartGame(currentGame) : null;
   const pkmnGame = currentGame && isPKMN ? getPokemonGame(currentGame) : null;
@@ -198,17 +198,7 @@ export function Sidebar() {
   const overallStats = (() => {
     if (isMK) return mkStats;
     if (isPKMN) return pkmnStats;
-    if (!game) return { collected: 0, total: 0, percentage: 0 };
-
-    // LM2: count gems, boos, dark moon pieces, secret doors
-    if (isLM2) {
-      const lm2Types = ['gem', 'boo', 'dark_moon_piece', 'secret_door', 'mission', 'ghost', 'upgrade'] as const;
-      const totalCollected = game.collectibles.filter((c) => lm2Types.includes(c.type as typeof lm2Types[number]) && progress.collected.has(c.id)).length;
-      const totalItems = game.collectibles.filter((c) => lm2Types.includes(c.type as typeof lm2Types[number])).length;
-      return { collected: totalCollected, total: totalItems };
-    }
-
-    if (!stats) return { collected: 0, total: 0, percentage: 0 };
+    if (!game || !stats) return { collected: 0, total: 0, percentage: 0 };
 
     const moonCollectibles = game.collectibles.filter((c) => c.type === 'moon');
     const moonsCollected = calculateCollectedValue(progress.collected, moonCollectibles);
@@ -229,6 +219,99 @@ export function Sidebar() {
     return { collected: totalCollected, total: totalPossible };
   })();
 
+  // Compute completion percentages for all games (shown in game selector)
+  const gamePercentages = useMemo(() => {
+    const pcts: Record<string, number> = {};
+
+    // Standard GameData games (SMO)
+    for (const g of games) {
+      const col = allProgress[g.id]?.collected ?? new Set<string>();
+      const gameStats = getGameStats(g.id);
+      if (!gameStats) { pcts[g.id] = 0; continue; }
+      const moonCollectibles = g.collectibles.filter(c => c.type === 'moon');
+      const moonsCollected = calculateCollectedValue(col, moonCollectibles);
+      const totalMoonValue = calculateTotalValue(moonCollectibles);
+      const otherTypes = ['purple_coin', 'capture', 'outfit', 'checkpoint', 'painting', 'souvenir', 'sticker', 'music'] as const;
+      let otherCollected = 0, otherTotal = 0;
+      for (const t of otherTypes) {
+        const items = g.collectibles.filter(c => c.type === t);
+        otherCollected += items.filter(c => col.has(c.id)).length;
+        otherTotal += items.length;
+      }
+      const total = totalMoonValue + otherTotal;
+      const collected = moonsCollected + otherCollected;
+      pcts[g.id] = total > 0 ? (collected / total) * 100 : 0;
+    }
+
+    // Mario Kart games
+    for (const mkG of marioKartGames) {
+      const col = allProgress[mkG.id]?.collected ?? new Set<string>();
+      const gpTotal = mkG.cups.length * mkG.engineClasses.length;
+      const gpCompleted = mkG.cups.reduce((sum, cup) =>
+        sum + mkG.engineClasses.filter(ec => col.has(createCupCompletionId(cup.id, ec))).length, 0);
+      let koTotal = 0, koCompleted = 0;
+      if (mkG.knockoutRallies && mkG.knockoutEngineClasses) {
+        koTotal = mkG.knockoutRallies.length * mkG.knockoutEngineClasses.length;
+        koCompleted = mkG.knockoutRallies.reduce((sum, rally) =>
+          sum + mkG.knockoutEngineClasses!.filter(ec => col.has(createCupCompletionId(rally.id, ec))).length, 0);
+      }
+      const ttClasses = ['150cc', '200cc'] as const;
+      const allTracks = mkG.cups.flatMap(c => c.tracks);
+      const ttTotal = allTracks.length * ttClasses.length;
+      const ttCompleted = allTracks.reduce((sum, t) =>
+        sum + ttClasses.filter(ec => col.has(`tt-${t.id}-${ec}`)).length, 0);
+      const total = gpTotal + koTotal + ttTotal;
+      const collected = gpCompleted + koCompleted + ttCompleted;
+      pcts[mkG.id] = total > 0 ? (collected / total) * 100 : 0;
+    }
+
+    // Pokemon games
+    for (const pkG of pokemonGames) {
+      const col = allProgress[pkG.id]?.collected ?? new Set<string>();
+      const storyDone = pkG.storyCheckpoints.filter(c => col.has(createStoryId(c.id))).length;
+      const legendDone = pkG.legendaries.filter(l => col.has(createLegendaryId(l.id))).length;
+      const postDone = pkG.postGame.filter(i => col.has(createPostGameId(i.id))).length;
+      const dlcDone = pkG.dlcContent.filter(c => col.has(createDLCId(c.id))).length;
+      const collDone =
+        allStakes.filter(s => col.has(createStakeId(s.id))).length +
+        gimmighoulTowers.filter(t => col.has(createTowerId(t.id))).length +
+        wildTeraPokemon.filter(t => col.has(createTeraId(t.id))).length +
+        flyingTaxiPoints.filter(t => col.has(createTaxiId(t.id))).length +
+        pokemonCenters.filter(c => col.has(createCenterId(c.id))).length +
+        dittoSpawns.filter(d => col.has(createDittoId(d.id))).length;
+      const collTotal = allStakes.length + gimmighoulTowers.length + wildTeraPokemon.length +
+        flyingTaxiPoints.length + pokemonCenters.length + dittoSpawns.length;
+      const raidsDone = pkG.sixStarRaids?.filter(r => col.has(createRaidId(r.id))).length ?? 0;
+      const recipesDone = pkG.sandwichRecipes?.filter(r => col.has(createRecipeId(r.number))).length ?? 0;
+      const cosmDone =
+        (pkG.rotomCases?.filter(c => col.has(createCaseId(c.id))).length ?? 0) +
+        (pkG.emotes?.filter(e => col.has(createEmoteId(e.id))).length ?? 0) +
+        (pkG.tablecloths?.filter(t => col.has(createTableclothId(t.id))).length ?? 0);
+      const sightsDone =
+        (pkG.paldeaSights?.filter(s => col.has(createSightId(s.id))).length ?? 0) +
+        (pkG.kitakamiWonders?.filter(w => col.has(createWonderId(w.id))).length ?? 0);
+      const marksDone =
+        (pkG.marks?.filter(m => col.has(createMarkId(m.id))).length ?? 0) +
+        (pkG.ribbons?.filter(r => col.has(createRibbonId(r.id))).length ?? 0);
+      const offDone = pkG.leagueOfficials?.filter(o => col.has(createLeagueOfficialId(o.id))).length ?? 0;
+      const miniDone = pkG.miniGames?.filter(g => col.has(createMiniGameId(g.id))).length ?? 0;
+      const dexDone = allPokedexEntries.filter(p => col.has(createPokedexId(p.id))).length;
+      const total = pkG.storyCheckpoints.length + pkG.legendaries.length + pkG.postGame.length +
+        pkG.dlcContent.length + collTotal +
+        (pkG.sixStarRaids?.length ?? 0) + (pkG.sandwichRecipes?.length ?? 0) +
+        (pkG.rotomCases?.length ?? 0) + (pkG.emotes?.length ?? 0) + (pkG.tablecloths?.length ?? 0) +
+        (pkG.paldeaSights?.length ?? 0) + (pkG.kitakamiWonders?.length ?? 0) +
+        (pkG.marks?.length ?? 0) + (pkG.ribbons?.length ?? 0) +
+        (pkG.leagueOfficials?.length ?? 0) + (pkG.miniGames?.length ?? 0) +
+        allPokedexEntries.length;
+      const collected = storyDone + legendDone + postDone + dlcDone + collDone +
+        raidsDone + recipesDone + cosmDone + sightsDone + marksDone + offDone + miniDone + dexDone;
+      pcts[pkG.id] = total > 0 ? (collected / total) * 100 : 0;
+    }
+
+    return pcts;
+  }, [allProgress]);
+
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     kingdoms: true,
     filters: false,
@@ -241,30 +324,22 @@ export function Sidebar() {
   };
 
   const getKingdomProgress = (kingdom: Kingdom) => {
-    if (!currentGame) return { moons: 0, totalMoons: 0, coins: 0, totalCoins: 0, gems: 0, totalGems: 0, boos: 0, totalBoos: 0 };
+    if (!currentGame) return { moons: 0, totalMoons: 0, coins: 0, totalCoins: 0 };
 
     const collectibles = getCollectiblesForKingdom(currentGame, kingdom.id);
     const moons = collectibles.filter((c) => c.type === 'moon');
     const coins = collectibles.filter((c) => c.type === 'purple_coin');
-    const gems = collectibles.filter((c) => c.type === 'gem');
-    const boos = collectibles.filter((c) => c.type === 'boo');
 
     // Use value-based counting for moons (Multi Moons count as 3)
     const collectedMoons = calculateCollectedValue(progress.collected, moons);
     const totalMoons = calculateTotalValue(moons);
     const collectedCoins = coins.filter((c) => progress.collected.has(c.id)).length;
-    const collectedGems = gems.filter((c) => progress.collected.has(c.id)).length;
-    const collectedBoos = boos.filter((c) => progress.collected.has(c.id)).length;
 
     return {
       moons: collectedMoons,
       totalMoons: totalMoons,
       coins: collectedCoins,
       totalCoins: coins.length,
-      gems: collectedGems,
-      totalGems: gems.length,
-      boos: collectedBoos,
-      totalBoos: boos.length,
     };
   };
 
@@ -303,28 +378,24 @@ export function Sidebar() {
         </div>
         <div className="grid gap-1">
           {/* SMO & other GameData games */}
-          {games.map((g) => {
-            const isLM2Game = isLuigisMansionGame(g.id);
-            const activeColor = isLM2Game ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400';
-            const Icon = isLM2Game ? Flashlight : Globe;
-            return (
-              <button
-                key={g.id}
-                onClick={() => {
-                  setCurrentGame(g.id);
-                  setCurrentKingdom(null);
-                }}
-                className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
-                  currentGame === g.id
-                    ? `${activeColor} font-medium`
-                    : 'hover:bg-zinc-800 text-zinc-300'
-                }`}
-              >
-                <Icon className="w-3 h-3" />
-                {g.name}
-              </button>
-            );
-          })}
+          {games.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => {
+                setCurrentGame(g.id);
+                setCurrentKingdom(null);
+              }}
+              className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
+                currentGame === g.id
+                  ? 'bg-yellow-500/20 text-yellow-400 font-medium'
+                  : 'hover:bg-zinc-800 text-zinc-300'
+              }`}
+            >
+              <Globe className="w-3 h-3 shrink-0" />
+              <span className="flex-1 truncate">{g.name}</span>
+              <span className={`text-[11px] shrink-0 ${currentGame === g.id ? 'text-yellow-400' : 'text-zinc-500'}`}>{(gamePercentages[g.id] ?? 0).toFixed(1)}%</span>
+            </button>
+          ))}
           {/* Mario Kart Games */}
           {marioKartGames.map((g) => (
             <button
@@ -339,8 +410,9 @@ export function Sidebar() {
                   : 'hover:bg-zinc-800 text-zinc-300'
               }`}
             >
-              <Flag className="w-3 h-3" />
-              {g.name}
+              <Flag className="w-3 h-3 shrink-0" />
+              <span className="flex-1 truncate">{g.name}</span>
+              <span className={`text-[11px] shrink-0 ${currentGame === g.id ? 'text-yellow-400' : 'text-zinc-500'}`}>{(gamePercentages[g.id] ?? 0).toFixed(1)}%</span>
             </button>
           ))}
           {/* Pokemon Games */}
@@ -357,8 +429,9 @@ export function Sidebar() {
                   : 'hover:bg-zinc-800 text-zinc-300'
               }`}
             >
-              <Sparkles className="w-3 h-3" />
-              {g.name}
+              <Sparkles className="w-3 h-3 shrink-0" />
+              <span className="flex-1 truncate">{g.name}</span>
+              <span className={`text-[11px] shrink-0 ${currentGame === g.id ? 'text-violet-400' : 'text-zinc-500'}`}>{(gamePercentages[g.id] ?? 0).toFixed(1)}%</span>
             </button>
           ))}
         </div>
@@ -367,7 +440,7 @@ export function Sidebar() {
       {/* Game Info */}
       {(game || mkGame || pkmnGame) && (
         <div className="px-3 py-2 border-b border-zinc-800">
-          <h2 className={`font-semibold text-sm ${isPKMN ? 'text-violet-400' : isLM2 ? 'text-green-400' : 'text-yellow-400'}`}>
+          <h2 className={`font-semibold text-sm ${isPKMN ? 'text-violet-400' : 'text-yellow-400'}`}>
             {game?.name || mkGame?.name || pkmnGame?.name}
           </h2>
           <div className="flex items-center gap-2 mt-1">
@@ -376,7 +449,7 @@ export function Sidebar() {
             </span>
             <div className="flex-1 bg-zinc-800 rounded-full h-1.5">
               <div
-                className={`${isPKMN ? 'bg-violet-500' : isLM2 ? 'bg-green-500' : 'bg-yellow-500'} h-1.5 rounded-full transition-all duration-300`}
+                className={`${isPKMN ? 'bg-violet-500' : 'bg-yellow-500'} h-1.5 rounded-full transition-all duration-300`}
                 style={{
                   width: `${overallStats.total > 0 ? (overallStats.collected / overallStats.total) * 100 : 0}%`,
                 }}
@@ -393,7 +466,7 @@ export function Sidebar() {
             onClick={() => toggleSection('kingdoms')}
             className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800 transition-colors"
           >
-            <span className="font-medium text-sm">{isLM2 ? 'Mansions' : 'Kingdoms'}</span>
+            <span className="font-medium text-sm">Kingdoms</span>
             {expandedSections.kingdoms ? (
               <ChevronDown className="w-4 h-4" />
             ) : (
@@ -409,13 +482,11 @@ export function Sidebar() {
               onClick={() => setCurrentKingdom(null)}
               className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
                 currentKingdom === null
-                  ? isLM2 ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                  ? 'bg-yellow-500/20 text-yellow-400'
                   : 'hover:bg-zinc-800'
               }`}
             >
-              <div className={`w-6 h-6 rounded flex items-center justify-center ${
-                isLM2 ? 'bg-gradient-to-br from-green-500 to-emerald-500' : 'bg-gradient-to-br from-yellow-500 to-orange-500'
-              }`}>
+              <div className="w-6 h-6 rounded flex items-center justify-center bg-gradient-to-br from-yellow-500 to-orange-500">
                 <Search className="w-3 h-3 text-white" />
               </div>
               <div className="flex-1 text-left">
@@ -430,58 +501,34 @@ export function Sidebar() {
             {game.kingdoms.map((kingdom) => {
               const prog = getKingdomProgress(kingdom);
               const isSelected = currentKingdom === kingdom.id;
-              const isLM2Kingdom = isLM2;
-              const selectedColor = isLM2Kingdom ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400';
-              const KingdomIcon = isLM2Kingdom ? Gem : Moon;
-
-              // Determine completion for this kingdom
-              const isKingdomComplete = isLM2Kingdom
-                ? (prog.gems === prog.totalGems && prog.totalGems > 0 && prog.boos === prog.totalBoos && prog.totalBoos > 0)
-                : (prog.moons === prog.totalMoons && prog.totalMoons > 0);
+              const isKingdomComplete = prog.moons === prog.totalMoons && prog.totalMoons > 0;
 
               return (
                 <button
                   key={kingdom.id}
                   onClick={() => setCurrentKingdom(kingdom.id)}
                   className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
-                    isSelected ? selectedColor : 'hover:bg-zinc-800'
+                    isSelected ? 'bg-yellow-500/20 text-yellow-400' : 'hover:bg-zinc-800'
                   }`}
                 >
                   <div
                     className="w-6 h-6 rounded flex items-center justify-center"
                     style={{ backgroundColor: kingdom.color + '40' }}
                   >
-                    <KingdomIcon className="w-3 h-3" style={{ color: kingdom.color }} />
+                    <Moon className="w-3 h-3" style={{ color: kingdom.color }} />
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <div className="font-medium text-sm truncate">{kingdom.shortName}</div>
                     <div className="text-[10px] text-zinc-400 flex items-center gap-1.5">
-                      {isLM2Kingdom ? (
-                        <>
-                          <span className="flex items-center gap-0.5">
-                            <Gem className="w-2.5 h-2.5" />
-                            {prog.gems}/{prog.totalGems}
-                          </span>
-                          {prog.totalBoos > 0 && (
-                            <span className="flex items-center gap-0.5 text-purple-400">
-                              <Ghost className="w-2.5 h-2.5" />
-                              {prog.boos}/{prog.totalBoos}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <span className="flex items-center gap-0.5">
-                            <Moon className="w-2.5 h-2.5" />
-                            {prog.moons}/{prog.totalMoons}
-                          </span>
-                          {kingdom.purpleCoinCount > 0 && (
-                            <span className="flex items-center gap-0.5 text-purple-400">
-                              <Coins className="w-2.5 h-2.5" />
-                              {prog.coins}/{prog.totalCoins}
-                            </span>
-                          )}
-                        </>
+                      <span className="flex items-center gap-0.5">
+                        <Moon className="w-2.5 h-2.5" />
+                        {prog.moons}/{prog.totalMoons}
+                      </span>
+                      {kingdom.purpleCoinCount > 0 && (
+                        <span className="flex items-center gap-0.5 text-purple-400">
+                          <Coins className="w-2.5 h-2.5" />
+                          {prog.coins}/{prog.totalCoins}
+                        </span>
                       )}
                     </div>
                   </div>
