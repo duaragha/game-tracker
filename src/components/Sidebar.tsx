@@ -15,6 +15,19 @@ import {
 import { allPokedexEntries } from '@/data';
 import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe } from 'lucide-react';
 
+function PercentBadge({ completed, total }: { completed: number; total: number }) {
+  if (total <= 0) return null;
+  const isComplete = completed >= total;
+  const pct = (completed / total) * 100;
+  return (
+    <span
+      className={`text-[10px] shrink-0 ${isComplete ? 'text-green-400' : 'text-zinc-500'}`}
+    >
+      {isComplete ? '100%' : `${pct.toFixed(1)}%`}
+    </span>
+  );
+}
+
 export function Sidebar() {
   const currentGame = useCurrentGame();
   const currentKingdom = useCurrentKingdom();
@@ -501,7 +514,8 @@ export function Sidebar() {
             {game.kingdoms.map((kingdom) => {
               const prog = getKingdomProgress(kingdom);
               const isSelected = currentKingdom === kingdom.id;
-              const isKingdomComplete = prog.moons === prog.totalMoons && prog.totalMoons > 0;
+              const totalItems = prog.totalMoons + prog.totalCoins;
+              const collectedItems = prog.moons + prog.coins;
 
               return (
                 <button
@@ -532,9 +546,7 @@ export function Sidebar() {
                       )}
                     </div>
                   </div>
-                  {isKingdomComplete && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={collectedItems} total={totalItems} />
                 </button>
               );
             })}
@@ -596,9 +608,7 @@ export function Sidebar() {
                       {mkStats.grandPrix.completed}/{mkStats.grandPrix.total}
                     </div>
                   </div>
-                  {mkStats.grandPrix.completed === mkStats.grandPrix.total && mkStats.grandPrix.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={mkStats.grandPrix.completed} total={mkStats.grandPrix.total} />
                 </button>
 
                 {/* Time Trials */}
@@ -619,9 +629,7 @@ export function Sidebar() {
                       {mkStats.timeTrials.completed}/{mkStats.timeTrials.total}
                     </div>
                   </div>
-                  {mkStats.timeTrials.completed === mkStats.timeTrials.total && mkStats.timeTrials.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={mkStats.timeTrials.completed} total={mkStats.timeTrials.total} />
                 </button>
 
                 {/* Knockout (if applicable) */}
@@ -643,9 +651,7 @@ export function Sidebar() {
                         {mkStats.knockout.completed}/{mkStats.knockout.total}
                       </div>
                     </div>
-                    {mkStats.knockout.completed === mkStats.knockout.total && mkStats.knockout.total > 0 && (
-                      <span className="text-green-400 text-[10px]">100%</span>
-                    )}
+                    <PercentBadge completed={mkStats.knockout.completed} total={mkStats.knockout.total} />
                   </button>
                 )}
               </div>
@@ -708,9 +714,7 @@ export function Sidebar() {
                       {pkmnStats.story.completed}/{pkmnStats.story.total}
                     </div>
                   </div>
-                  {pkmnStats.story.completed === pkmnStats.story.total && pkmnStats.story.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.story.completed} total={pkmnStats.story.total} />
                 </button>
 
                 {/* Legendaries */}
@@ -731,9 +735,7 @@ export function Sidebar() {
                       {pkmnStats.legendaries.completed}/{pkmnStats.legendaries.total}
                     </div>
                   </div>
-                  {pkmnStats.legendaries.completed === pkmnStats.legendaries.total && pkmnStats.legendaries.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.legendaries.completed} total={pkmnStats.legendaries.total} />
                 </button>
 
                 {/* Post-Game */}
@@ -754,9 +756,7 @@ export function Sidebar() {
                       {pkmnStats.postGame.completed}/{pkmnStats.postGame.total}
                     </div>
                   </div>
-                  {pkmnStats.postGame.completed === pkmnStats.postGame.total && pkmnStats.postGame.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.postGame.completed} total={pkmnStats.postGame.total} />
                 </button>
 
                 {/* DLC */}
@@ -777,9 +777,7 @@ export function Sidebar() {
                       {pkmnStats.dlc.completed}/{pkmnStats.dlc.total}
                     </div>
                   </div>
-                  {pkmnStats.dlc.completed === pkmnStats.dlc.total && pkmnStats.dlc.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.dlc.completed} total={pkmnStats.dlc.total} />
                 </button>
 
                 {/* Collectibles */}
@@ -800,9 +798,7 @@ export function Sidebar() {
                       {pkmnStats.collectibles.completed}/{pkmnStats.collectibles.total}
                     </div>
                   </div>
-                  {pkmnStats.collectibles.completed === pkmnStats.collectibles.total && pkmnStats.collectibles.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.collectibles.completed} total={pkmnStats.collectibles.total} />
                 </button>
 
                 {/* 6-Star Raids */}
@@ -823,9 +819,7 @@ export function Sidebar() {
                       {pkmnStats.raids.completed}/{pkmnStats.raids.total}
                     </div>
                   </div>
-                  {pkmnStats.raids.completed === pkmnStats.raids.total && pkmnStats.raids.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.raids.completed} total={pkmnStats.raids.total} />
                 </button>
 
                 {/* Pokedex */}
@@ -846,9 +840,7 @@ export function Sidebar() {
                       {pkmnStats.pokedex.completed}/{pkmnStats.pokedex.total}
                     </div>
                   </div>
-                  {pkmnStats.pokedex.completed === pkmnStats.pokedex.total && pkmnStats.pokedex.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.pokedex.completed} total={pkmnStats.pokedex.total} />
                 </button>
 
                 {/* Recipes */}
@@ -869,9 +861,7 @@ export function Sidebar() {
                       {pkmnStats.recipes.completed}/{pkmnStats.recipes.total}
                     </div>
                   </div>
-                  {pkmnStats.recipes.completed === pkmnStats.recipes.total && pkmnStats.recipes.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.recipes.completed} total={pkmnStats.recipes.total} />
                 </button>
 
                 {/* Cosmetics */}
@@ -892,9 +882,7 @@ export function Sidebar() {
                       {pkmnStats.cosmetics.completed}/{pkmnStats.cosmetics.total}
                     </div>
                   </div>
-                  {pkmnStats.cosmetics.completed === pkmnStats.cosmetics.total && pkmnStats.cosmetics.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.cosmetics.completed} total={pkmnStats.cosmetics.total} />
                 </button>
 
                 {/* Sightseeing */}
@@ -915,9 +903,7 @@ export function Sidebar() {
                       {pkmnStats.sightseeing.completed}/{pkmnStats.sightseeing.total}
                     </div>
                   </div>
-                  {pkmnStats.sightseeing.completed === pkmnStats.sightseeing.total && pkmnStats.sightseeing.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.sightseeing.completed} total={pkmnStats.sightseeing.total} />
                 </button>
 
                 {/* Marks & Ribbons */}
@@ -938,9 +924,7 @@ export function Sidebar() {
                       {pkmnStats.marksRibbons.completed}/{pkmnStats.marksRibbons.total}
                     </div>
                   </div>
-                  {pkmnStats.marksRibbons.completed === pkmnStats.marksRibbons.total && pkmnStats.marksRibbons.total > 0 && (
-                    <span className="text-green-400 text-[10px]">100%</span>
-                  )}
+                  <PercentBadge completed={pkmnStats.marksRibbons.completed} total={pkmnStats.marksRibbons.total} />
                 </button>
               </div>
             )}
