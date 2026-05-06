@@ -64,17 +64,25 @@ function pokemonTotal(g: PokemonGame): number {
   return POKEMON_TOTAL_BY_ID[g.id] ?? 0
 }
 
-/** Sum of all 10 tickable item arrays (mirrors `acmStats` in
- *  Sidebar.tsx). Districts and shards aren't progress targets. */
+/** Sum of every tickable item array (mirrors `acmStats` in
+ *  Sidebar.tsx). `districts` is the only field skipped — it's a
+ *  spatial filter, not a collectible. */
 function acMirageTotal(g: ACMirageGame): number {
   return (
     g.mainQuests.length +
     g.investigations.length +
+    g.contracts.length +
     g.tales.length +
     g.enigmas.length +
     g.historicalSites.length +
     g.lostBooks.length +
     g.curios.length +
+    g.shards.length +
+    g.viewpoints.length +
+    g.folktales.length +
+    g.oudMelodies.length +
+    g.stolenGoods.length +
+    g.alulaTales.length +
     g.weapons.length +
     g.outfits.length +
     g.achievements.length
