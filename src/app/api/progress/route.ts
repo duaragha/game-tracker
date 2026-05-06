@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProgress, saveAllProgress, ProgressData } from '@/lib/db';
+import { triggerDrain } from '@/lib/outbox';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,8 +31,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await saveAllProgress(userId, progress);
-    return NextResponse.json({ success: true });
+    const { outboxIds } = await saveAllProgress(userId, progress);
+    // Eager-drain any newly enqueued webhook deliveries so changes
+    // reach downstream within ~1s on the happy path. The drain is
+    // also called by /api/internal/drain-outbox on a cron, which
+    // covers the unhappy paths (process restart between save and
+    // drain, network hiccup, receiver down).
+    if (outboxIds.length > 0) triggerDrain();
+    return NextResponse.json({ success: true, enqueued: outboxIds.length });
   } catch (error) {
     console.error('Failed to save progress:', error);
     return NextResponse.json(
