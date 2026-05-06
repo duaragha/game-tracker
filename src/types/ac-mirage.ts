@@ -22,7 +22,8 @@ export interface ACMirageDistrict {
   color: string;
 }
 
-// Story arc — Mirage's main story is split into 5 chapters + prologue/epilogue
+// Story arc — Mirage's main story is split into 5 chapters + prologue/epilogue,
+// plus 'side-quests' for the named-NPC side missions (Nehal, Dervis, Al-Jahiz)
 export type StoryArc =
   | 'prologue'
   | 'al-ghul'
@@ -30,7 +31,8 @@ export type StoryArc =
   | 'al-pairika'
   | 'al-mardikhwar'
   | 'al-bahamut'
-  | 'epilogue';
+  | 'epilogue'
+  | 'side-quests';
 
 // Main story quest (Memory)
 export interface ACMirageQuest {

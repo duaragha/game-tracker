@@ -156,6 +156,7 @@ const arcLabels: Record<StoryArc, string> = {
   'al-mardikhwar': 'Al-Mardikhwar Arc',
   'al-bahamut': 'Al-Bahamut Arc',
   epilogue: 'Epilogue',
+  'side-quests': 'Side Quests',
 };
 
 const rarityStyles: Record<AchievementRarity, string> = {
@@ -449,7 +450,7 @@ function MainQuestsView({ gameId, game, onSelect }: ViewProps) {
   const completed = game.mainQuests.filter((q) => collected.has(createQuestId(q.id))).length;
 
   // Group by arc
-  const arcs: StoryArc[] = ['prologue', 'al-ghul', 'al-rabisu', 'al-pairika', 'al-mardikhwar', 'al-bahamut', 'epilogue'];
+  const arcs: StoryArc[] = ['prologue', 'al-ghul', 'al-rabisu', 'al-pairika', 'al-mardikhwar', 'al-bahamut', 'epilogue', 'side-quests'];
 
   return (
     <TrackerLayout title="Main Story" totalItems={game.mainQuests.length} completedItems={completed}>

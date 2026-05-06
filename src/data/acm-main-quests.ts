@@ -64,4 +64,30 @@ export const acmMainQuests: ACMirageQuest[] = [
   // Epilogue
   { id: 'the-last-journey', name: 'The Last Journey', arc: 'epilogue', order: 43 },
   { id: 'in-pursuit-of-truth', name: 'In Pursuit of Truth', arc: 'epilogue', order: 44 },
+
+  // Side quests (named-NPC story arcs that aren't main missions but appear on the quest log)
+  {
+    id: 'nehals-calling',
+    name: "Nehal's Calling — The Calling",
+    arc: 'side-quests',
+    order: 45,
+    region: 'wilderness',
+    description: 'Find the Hidden Place at the Northern Oasis (east of Anbar). Reveal the chamber\'s secrets by inserting all 10 Mysterious Shards into the locked alcoves to unlock the Samsaama Dagger, Shamshir-e Zomorrodnegar Sword, and Milad\'s Outfit.',
+  },
+  {
+    id: 'dervis-shop',
+    name: "Dervis' Shop — Curio Collection",
+    arc: 'side-quests',
+    order: 46,
+    region: 'harbiyah',
+    description: "Meet Dervis at his shop in the Dyeing Factory in Shari', Harbiyah (unlocks after the main quest \"Follow Nur's Lead\"). Pickpocket all 18 artifacts from civilians and turn them in for the Treasure Hunter Costume + Curio Collector trophy.",
+  },
+  {
+    id: 'al-jahiz-lost-books',
+    name: "Al-Jahiz's Lost Books — Scholar",
+    arc: 'side-quests',
+    order: 47,
+    region: 'abbasiyah',
+    description: 'Speak to Al-Jahiz at the House of Wisdom in Abbasiyah. Find all 7 Lost Books across Baghdad and the Wilderness, then return them for the Scholar Costume + Scholar trophy.',
+  },
 ];
