@@ -4,6 +4,7 @@ import {
   marioKart8Deluxe,
   marioKartWorld,
   pokemonViolet,
+  acMirage,
   completionCounts as pokemonCompletionCounts,
 } from '@/data';
 import { pokedexCounts as pokemonPokedexCounts } from '@/data/pokemon-pokedex';
@@ -49,6 +50,24 @@ const POKEMON_TOTAL = (() => {
  *   mkworld  → ['150cc']                  (1 class)
  *   mk8dx    → ['150cc', '200cc']         (2 classes)
  */
+/** Mirrors the AC Mirage percent calc in Sidebar.tsx — sum of all 10
+ *  tickable item arrays (districts and shards are spatial / cosmetic
+ *  filters, not progress targets). */
+function acMirageTotal(g: typeof acMirage): number {
+  return (
+    g.mainQuests.length +
+    g.investigations.length +
+    g.tales.length +
+    g.enigmas.length +
+    g.historicalSites.length +
+    g.lostBooks.length +
+    g.curios.length +
+    g.weapons.length +
+    g.outfits.length +
+    g.achievements.length
+  );
+}
+
 function marioKartTotal(g: typeof marioKart8Deluxe): number {
   const gp = g.cups.length * g.engineClasses.length;
   const ko =
@@ -94,6 +113,11 @@ const TABLE: Record<string, GameMeta> = {
     id: 'botw',
     name: 'The Legend of Zelda: Breath of the Wild',
     total: 0,
+  },
+  'ac-mirage': {
+    id: acMirage.id,
+    name: acMirage.name,
+    total: acMirageTotal(acMirage),
   },
 }
 
