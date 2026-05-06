@@ -73,7 +73,7 @@ export const useGameStore = create<AppState>()(
       sidebarOpen: true,
       activeMKModes: new Set<MKModeFilter>(['gp', 'tt', 'ko']),
       activePKMNSections: new Set<PKMNSectionFilter>(['story', 'legendaries', 'pokedex', 'raids', 'post-game', 'dlc', 'collectibles', 'recipes', 'cosmetics', 'sights', 'marks']),
-      activeACMSections: new Set<ACMSectionFilter>(['main-quests', 'investigations', 'contracts', 'tales', 'enigmas', 'historical-sites', 'lost-books', 'curios', 'weapons', 'outfits', 'achievements']),
+      activeACMSections: new Set<ACMSectionFilter>(['main-quests', 'investigations', 'contracts', 'tales', 'enigmas', 'historical-sites', 'lost-books', 'curios', 'shards', 'viewpoints', 'folktales', 'oud-melodies', 'stolen-goods', 'alula-tales', 'weapons', 'outfits', 'achievements']),
 
       // Actions
       setCurrentGame: (gameId) => set({ currentGame: gameId, currentKingdom: null, currentPokemonSection: null, currentMarioKartSection: null, currentACMirageSection: null }),

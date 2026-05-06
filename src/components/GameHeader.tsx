@@ -14,12 +14,18 @@ import {
   createHistoricalSiteId as acmCreateSiteId,
   createLostBookId as acmCreateBookId,
   createCurioId as acmCreateCurioId,
+  createShardId as acmCreateShardId,
+  createViewpointId as acmCreateViewpointId,
+  createFolktaleId as acmCreateFolktaleId,
+  createOudMelodyId as acmCreateOudMelodyId,
+  createStolenGoodId as acmCreateStolenGoodId,
+  createAlulaTaleId as acmCreateAlulaTaleId,
   createWeaponId as acmCreateWeaponId,
   createOutfitId as acmCreateOutfitId,
   createAchievementId as acmCreateAchievementId,
 } from '@/types/ac-mirage';
 import { CollectibleType, MKModeFilter, PKMNSectionFilter, ACMSectionFilter } from '@/types';
-import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight, ScrollText, Skull, Library, Landmark, Gem, Sword, Sparkles, Handshake } from 'lucide-react';
+import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight, ScrollText, Skull, Library, Landmark, Gem, Sword, Sparkles, Handshake, Diamond, Telescope, Feather, Music2, Package, Scroll } from 'lucide-react';
 
 interface GameHeaderProps {
   gameId: string;
@@ -42,6 +48,12 @@ const acmSectionConfig: Record<ACMSectionFilter, { label: string; icon: React.Re
   'historical-sites':  { label: 'Sites',      icon: <Landmark className="w-4 h-4" />,   color: 'cyan' },
   'lost-books':        { label: 'Books',      icon: <Library className="w-4 h-4" />,    color: 'amber' },
   'curios':            { label: 'Curios',     icon: <Gem className="w-4 h-4" />,        color: 'violet' },
+  'shards':            { label: 'Shards',     icon: <Diamond className="w-4 h-4" />,    color: 'indigo' },
+  'viewpoints':        { label: 'Viewpoints', icon: <Telescope className="w-4 h-4" />,  color: 'blue' },
+  'folktales':         { label: 'Folktales',  icon: <Feather className="w-4 h-4" />,    color: 'teal' },
+  'oud-melodies':      { label: 'Oud',        icon: <Music2 className="w-4 h-4" />,     color: 'lime' },
+  'stolen-goods':      { label: 'Stolen',     icon: <Package className="w-4 h-4" />,    color: 'rose' },
+  'alula-tales':       { label: 'AlUla Tales', icon: <Scroll className="w-4 h-4" />,    color: 'emerald' },
   'weapons':           { label: 'Weapons',    icon: <Sword className="w-4 h-4" />,      color: 'rose' },
   'outfits':           { label: 'Outfits',    icon: <Shirt className="w-4 h-4" />,      color: 'pink' },
   'achievements':      { label: 'Trophies',   icon: <Trophy className="w-4 h-4" />,     color: 'yellow' },
@@ -241,14 +253,22 @@ function useACMirageStats(gameId: string): { stats: StatItem[]; overall: { colle
     const sites = count(game.historicalSites, acmCreateSiteId);
     const books = count(game.lostBooks, acmCreateBookId);
     const curios = count(game.curios, acmCreateCurioId);
+    const shards = count(game.shards, acmCreateShardId);
+    const viewpoints = count(game.viewpoints, acmCreateViewpointId);
+    const folktales = count(game.folktales, acmCreateFolktaleId);
+    const oud = count(game.oudMelodies, acmCreateOudMelodyId);
+    const stolen = count(game.stolenGoods, acmCreateStolenGoodId);
+    const alula = count(game.alulaTales, acmCreateAlulaTaleId);
     const weapons = count(game.weapons, acmCreateWeaponId);
     const outfits = count(game.outfits, acmCreateOutfitId);
     const achievements = count(game.achievements, acmCreateAchievementId);
 
     const totalItems = mq.total + inv.total + contracts.total + tales.total + enigmas.total + sites.total +
-      books.total + curios.total + weapons.total + outfits.total + achievements.total;
+      books.total + curios.total + shards.total + viewpoints.total + folktales.total + oud.total + stolen.total +
+      alula.total + weapons.total + outfits.total + achievements.total;
     const totalCompleted = mq.done + inv.done + contracts.done + tales.done + enigmas.done + sites.done +
-      books.done + curios.done + weapons.done + outfits.done + achievements.done;
+      books.done + curios.done + shards.done + viewpoints.done + folktales.done + oud.done + stolen.done +
+      alula.done + weapons.done + outfits.done + achievements.done;
 
     return {
       stats: [
@@ -260,6 +280,12 @@ function useACMirageStats(gameId: string): { stats: StatItem[]; overall: { colle
         { label: 'Sites', icon: <Landmark className="w-5 h-5" />, collected: sites.done, total: sites.total, color: 'cyan' },
         { label: 'Lost Books', icon: <Library className="w-5 h-5" />, collected: books.done, total: books.total, color: 'amber' },
         { label: 'Curios', icon: <Gem className="w-5 h-5" />, collected: curios.done, total: curios.total, color: 'violet' },
+        { label: 'Shards', icon: <Diamond className="w-5 h-5" />, collected: shards.done, total: shards.total, color: 'indigo' },
+        { label: 'Viewpoints', icon: <Telescope className="w-5 h-5" />, collected: viewpoints.done, total: viewpoints.total, color: 'blue' },
+        { label: 'Folktales', icon: <Feather className="w-5 h-5" />, collected: folktales.done, total: folktales.total, color: 'teal' },
+        { label: 'Oud Melodies', icon: <Music2 className="w-5 h-5" />, collected: oud.done, total: oud.total, color: 'lime' },
+        { label: 'Stolen Goods', icon: <Package className="w-5 h-5" />, collected: stolen.done, total: stolen.total, color: 'rose' },
+        { label: 'AlUla Tales', icon: <Scroll className="w-5 h-5" />, collected: alula.done, total: alula.total, color: 'emerald' },
         { label: 'Weapons', icon: <Sword className="w-5 h-5" />, collected: weapons.done, total: weapons.total, color: 'rose' },
         { label: 'Outfits', icon: <Shirt className="w-5 h-5" />, collected: outfits.done, total: outfits.total, color: 'pink' },
         { label: 'Trophies', icon: <Trophy className="w-5 h-5" />, collected: achievements.done, total: achievements.total, color: 'yellow' },
@@ -459,7 +485,8 @@ export function GameHeader({ gameId }: GameHeaderProps) {
             stats.length <= 6 ? 'grid-cols-3 md:grid-cols-6' :
             stats.length <= 9 ? 'grid-cols-3 md:grid-cols-5 lg:grid-cols-9' :
             stats.length <= 10 ? 'grid-cols-3 md:grid-cols-5 lg:grid-cols-10' :
-            'grid-cols-3 md:grid-cols-6 lg:grid-cols-11'
+            stats.length <= 11 ? 'grid-cols-3 md:grid-cols-6 lg:grid-cols-11' :
+            'grid-cols-3 md:grid-cols-6 lg:grid-cols-9'
           }`}>
             {stats.map((item) => {
               const colors = colorClasses[item.color];

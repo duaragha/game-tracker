@@ -21,12 +21,18 @@ import {
   createHistoricalSiteId as acmCreateSiteId,
   createLostBookId as acmCreateBookId,
   createCurioId as acmCreateCurioId,
+  createShardId as acmCreateShardId,
+  createViewpointId as acmCreateViewpointId,
+  createFolktaleId as acmCreateFolktaleId,
+  createOudMelodyId as acmCreateOudMelodyId,
+  createStolenGoodId as acmCreateStolenGoodId,
+  createAlulaTaleId as acmCreateAlulaTaleId,
   createWeaponId as acmCreateWeaponId,
   createOutfitId as acmCreateOutfitId,
   createAchievementId as acmCreateAchievementId,
 } from '@/types/ac-mirage';
 import { allPokedexEntries } from '@/data';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, ScrollText, Skull, Library, Landmark, Gem, Sword, Shirt, Handshake } from 'lucide-react';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, ScrollText, Skull, Library, Landmark, Gem, Sword, Shirt, Handshake, Diamond, Telescope, Feather, Music2, Package, Scroll } from 'lucide-react';
 
 function PercentBadge({ completed, total }: { completed: number; total: number }) {
   if (total <= 0) return null;
@@ -238,6 +244,12 @@ export function Sidebar() {
       historicalSites: { completed: 0, total: 0 },
       lostBooks: { completed: 0, total: 0 },
       curios: { completed: 0, total: 0 },
+      shards: { completed: 0, total: 0 },
+      viewpoints: { completed: 0, total: 0 },
+      folktales: { completed: 0, total: 0 },
+      oudMelodies: { completed: 0, total: 0 },
+      stolenGoods: { completed: 0, total: 0 },
+      alulaTales: { completed: 0, total: 0 },
       weapons: { completed: 0, total: 0 },
       outfits: { completed: 0, total: 0 },
       achievements: { completed: 0, total: 0 },
@@ -259,17 +271,25 @@ export function Sidebar() {
     const historicalSites = count(acmGame.historicalSites, acmCreateSiteId);
     const lostBooks = count(acmGame.lostBooks, acmCreateBookId);
     const curios = count(acmGame.curios, acmCreateCurioId);
+    const shards = count(acmGame.shards, acmCreateShardId);
+    const viewpoints = count(acmGame.viewpoints, acmCreateViewpointId);
+    const folktales = count(acmGame.folktales, acmCreateFolktaleId);
+    const oudMelodies = count(acmGame.oudMelodies, acmCreateOudMelodyId);
+    const stolenGoods = count(acmGame.stolenGoods, acmCreateStolenGoodId);
+    const alulaTales = count(acmGame.alulaTales, acmCreateAlulaTaleId);
     const weapons = count(acmGame.weapons, acmCreateWeaponId);
     const outfits = count(acmGame.outfits, acmCreateOutfitId);
     const achievements = count(acmGame.achievements, acmCreateAchievementId);
 
     const total =
       mainQuests.total + investigations.total + contracts.total + tales.total + enigmas.total +
-      historicalSites.total + lostBooks.total + curios.total +
+      historicalSites.total + lostBooks.total + curios.total + shards.total + viewpoints.total +
+      folktales.total + oudMelodies.total + stolenGoods.total + alulaTales.total +
       weapons.total + outfits.total + achievements.total;
     const completed =
       mainQuests.completed + investigations.completed + contracts.completed + tales.completed + enigmas.completed +
-      historicalSites.completed + lostBooks.completed + curios.completed +
+      historicalSites.completed + lostBooks.completed + curios.completed + shards.completed + viewpoints.completed +
+      folktales.completed + oudMelodies.completed + stolenGoods.completed + alulaTales.completed +
       weapons.completed + outfits.completed + achievements.completed;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
@@ -278,7 +298,8 @@ export function Sidebar() {
       total,
       percentage,
       mainQuests, investigations, contracts, tales, enigmas, historicalSites, lostBooks,
-      curios, weapons, outfits, achievements,
+      curios, shards, viewpoints, folktales, oudMelodies, stolenGoods, alulaTales,
+      weapons, outfits, achievements,
     };
   })();
 
@@ -407,6 +428,12 @@ export function Sidebar() {
         countDone(acmG.mainQuests, acmCreateQuestId) +
         countDone(acmG.investigations, acmCreateInvestigationId) +
         countDone(acmG.contracts, acmCreateContractId) +
+        countDone(acmG.shards, acmCreateShardId) +
+        countDone(acmG.viewpoints, acmCreateViewpointId) +
+        countDone(acmG.folktales, acmCreateFolktaleId) +
+        countDone(acmG.oudMelodies, acmCreateOudMelodyId) +
+        countDone(acmG.stolenGoods, acmCreateStolenGoodId) +
+        countDone(acmG.alulaTales, acmCreateAlulaTaleId) +
         countDone(acmG.tales, acmCreateTaleId) +
         countDone(acmG.enigmas, acmCreateEnigmaId) +
         countDone(acmG.historicalSites, acmCreateSiteId) +
@@ -418,7 +445,8 @@ export function Sidebar() {
       const total =
         acmG.mainQuests.length + acmG.investigations.length + acmG.contracts.length + acmG.tales.length +
         acmG.enigmas.length + acmG.historicalSites.length + acmG.lostBooks.length +
-        acmG.curios.length +
+        acmG.curios.length + acmG.shards.length + acmG.viewpoints.length + acmG.folktales.length +
+        acmG.oudMelodies.length + acmG.stolenGoods.length + acmG.alulaTales.length +
         acmG.weapons.length + acmG.outfits.length + acmG.achievements.length;
       pcts[acmG.id] = total > 0 ? (collected / total) * 100 : 0;
     }
@@ -1263,6 +1291,132 @@ export function Sidebar() {
                     </div>
                   </div>
                   <PercentBadge completed={acmStats.curios.completed} total={acmStats.curios.total} />
+                </button>
+
+                {/* Mysterious Shards */}
+                <button
+                  onClick={() => setCurrentACMirageSection('shards')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'shards'
+                      ? 'bg-indigo-500/20 text-indigo-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-indigo-500/40 flex items-center justify-center">
+                    <Diamond className="w-3 h-3 text-indigo-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Mysterious Shards</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.shards.completed}/{acmStats.shards.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.shards.completed} total={acmStats.shards.total} />
+                </button>
+
+                {/* Viewpoints */}
+                <button
+                  onClick={() => setCurrentACMirageSection('viewpoints')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'viewpoints'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-blue-500/40 flex items-center justify-center">
+                    <Telescope className="w-3 h-3 text-blue-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Viewpoints</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.viewpoints.completed}/{acmStats.viewpoints.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.viewpoints.completed} total={acmStats.viewpoints.total} />
+                </button>
+
+                {/* DLC: Folktales */}
+                <button
+                  onClick={() => setCurrentACMirageSection('folktales')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'folktales'
+                      ? 'bg-teal-500/20 text-teal-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-teal-500/40 flex items-center justify-center">
+                    <Feather className="w-3 h-3 text-teal-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Folktales (DLC)</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.folktales.completed}/{acmStats.folktales.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.folktales.completed} total={acmStats.folktales.total} />
+                </button>
+
+                {/* DLC: Oud Melodies */}
+                <button
+                  onClick={() => setCurrentACMirageSection('oud-melodies')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'oud-melodies'
+                      ? 'bg-lime-500/20 text-lime-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-lime-500/40 flex items-center justify-center">
+                    <Music2 className="w-3 h-3 text-lime-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Oud Melodies (DLC)</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.oudMelodies.completed}/{acmStats.oudMelodies.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.oudMelodies.completed} total={acmStats.oudMelodies.total} />
+                </button>
+
+                {/* DLC: Stolen Goods */}
+                <button
+                  onClick={() => setCurrentACMirageSection('stolen-goods')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'stolen-goods'
+                      ? 'bg-rose-500/20 text-rose-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-rose-500/40 flex items-center justify-center">
+                    <Package className="w-3 h-3 text-rose-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Stolen Goods (DLC)</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.stolenGoods.completed}/{acmStats.stolenGoods.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.stolenGoods.completed} total={acmStats.stolenGoods.total} />
+                </button>
+
+                {/* DLC: Tales of AlUla */}
+                <button
+                  onClick={() => setCurrentACMirageSection('alula-tales')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'alula-tales'
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-emerald-500/40 flex items-center justify-center">
+                    <Scroll className="w-3 h-3 text-emerald-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Tales of AlUla (DLC)</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.alulaTales.completed}/{acmStats.alulaTales.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.alulaTales.completed} total={acmStats.alulaTales.total} />
                 </button>
 
                 {/* Weapons */}

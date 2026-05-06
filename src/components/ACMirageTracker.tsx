@@ -19,6 +19,12 @@ import {
   createQuestId,
   createInvestigationId,
   createContractId,
+  createShardId,
+  createViewpointId,
+  createFolktaleId,
+  createOudMelodyId,
+  createStolenGoodId,
+  createAlulaTaleId,
   createTaleId,
   createEnigmaId,
   createHistoricalSiteId,
@@ -40,6 +46,12 @@ import {
   Shirt,
   Trophy,
   Handshake,
+  Diamond,
+  Telescope,
+  Feather,
+  Music2,
+  Package,
+  Scroll,
   Check,
   X,
   MapPin,
@@ -91,6 +103,12 @@ export function ACMirageTracker({ gameId }: ACMirageTrackerProps) {
       {section === 'historical-sites' && <HistoricalSitesView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'lost-books' && <LostBooksView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'curios' && <CuriosView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'shards' && <ShardsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'viewpoints' && <ViewpointsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'folktales' && <FolktalesView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'oud-melodies' && <OudMelodiesView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'stolen-goods' && <StolenGoodsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'alula-tales' && <AlulaTalesView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'weapons' && <WeaponsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'outfits' && <OutfitsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'achievements' && <AchievementsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
@@ -850,6 +868,276 @@ function CuriosView({ gameId, game, onSelect }: ViewProps) {
 }
 
 // ============================================
+// MYSTERIOUS SHARDS (region-grouped)
+// ============================================
+
+function ShardsView({ gameId, game, onSelect }: ViewProps) {
+  return (
+    <RegionGroupedView
+      gameId={gameId}
+      game={game}
+      onSelect={onSelect}
+      config={{
+        title: 'Mysterious Shards',
+        items: game.shards,
+        createId: (s) => createShardId(s.id),
+        getName: (s) => `Shard #${s.number}`,
+        getRegion: (s) => s.region,
+        getSearchText: (s) => `${s.number} ${s.location ?? ''}`,
+        toDetail: (s, district) => ({
+          collectId: createShardId(s.id),
+          title: `Mysterious Shard #${s.number}`,
+          subtitle: 'Trade at Northern Oasis hidden temple.',
+          badges: district ? [{ label: district.shortName, color: district.color }] : [],
+          location: s.location,
+          source: "Pickpocket from a black-robed NPC patrolling the area (escorted by guards). Take all 10 to the hidden temple under the Northern Oasis to unlock Milad's Outfit, Shamshir-e Zomorrodnegar, and the Samsaama dagger.",
+          district,
+          region: s.region,
+          imageUrl: s.imageUrl,
+        }),
+        icon: <Diamond />,
+        iconColor: 'text-indigo-400',
+      }}
+    />
+  );
+}
+
+// ============================================
+// VIEWPOINTS (region-grouped)
+// ============================================
+
+function ViewpointsView({ gameId, game, onSelect }: ViewProps) {
+  return (
+    <RegionGroupedView
+      gameId={gameId}
+      game={game}
+      onSelect={onSelect}
+      config={{
+        title: 'Viewpoints',
+        items: game.viewpoints,
+        createId: (v) => createViewpointId(v.id),
+        getName: (v) => v.name,
+        getRegion: (v) => v.region,
+        getSearchText: (v) => `${v.name} ${v.description ?? ''}`,
+        toDetail: (v, district) => ({
+          collectId: createViewpointId(v.id),
+          title: v.name,
+          subtitle: 'Synchronize for the Fearless trophy.',
+          badges: district ? [{ label: district.shortName, color: district.color }] : [],
+          description: v.description,
+          district,
+          region: v.region,
+          imageUrl: v.imageUrl,
+        }),
+        icon: <Telescope />,
+        iconColor: 'text-blue-400',
+      }}
+    />
+  );
+}
+
+// ============================================
+// DLC: FOLKTALES (flat list)
+// ============================================
+
+function FolktalesView({ gameId, game, onSelect }: ViewProps) {
+  const collected = useCollected(gameId);
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
+
+  const filtered = useMemo(
+    () =>
+      game.folktales.filter((f) => {
+        const isComplete = collected.has(createFolktaleId(f.id));
+        if (isComplete && !showCollected) return false;
+        if (!isComplete && !showUncollected) return false;
+        return searchMatches(filters.searchQuery, f.name, f.location);
+      }),
+    [game.folktales, collected, showCollected, showUncollected, filters.searchQuery]
+  );
+
+  const completed = game.folktales.filter((f) => collected.has(createFolktaleId(f.id))).length;
+
+  const details: ItemDetail[] = filtered.map((f) => ({
+    collectId: createFolktaleId(f.id),
+    title: f.name,
+    subtitle: f.location,
+    badges: [{ label: 'DLC', color: '#facc15' }],
+    location: f.location,
+    source: 'Sit on the bench and listen. Trophy: Once Upon a Time.',
+    imageUrl: f.imageUrl,
+  }));
+
+  return (
+    <TrackerLayout title="Folktales (Valley of Memory)" totalItems={game.folktales.length} completedItems={completed}>
+      <ItemListSection
+        gameId={gameId}
+        label="All Folktales"
+        icon={<Feather />}
+        iconColor="text-teal-400"
+        details={details}
+        totalForSection={game.folktales.length}
+        totalCompleted={completed}
+        onSelect={onSelect}
+      />
+      {filtered.length === 0 && <TrackerEmptyState />}
+    </TrackerLayout>
+  );
+}
+
+// ============================================
+// DLC: OUD MELODIES (flat list)
+// ============================================
+
+function OudMelodiesView({ gameId, game, onSelect }: ViewProps) {
+  const collected = useCollected(gameId);
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
+
+  const filtered = useMemo(
+    () =>
+      game.oudMelodies.filter((o) => {
+        const isComplete = collected.has(createOudMelodyId(o.id));
+        if (isComplete && !showCollected) return false;
+        if (!isComplete && !showUncollected) return false;
+        return searchMatches(filters.searchQuery, o.name, o.location);
+      }),
+    [game.oudMelodies, collected, showCollected, showUncollected, filters.searchQuery]
+  );
+
+  const completed = game.oudMelodies.filter((o) => collected.has(createOudMelodyId(o.id))).length;
+
+  const details: ItemDetail[] = filtered.map((o) => ({
+    collectId: createOudMelodyId(o.id),
+    title: o.name,
+    subtitle: o.location,
+    badges: [
+      { label: 'DLC', color: '#facc15' },
+      ...(o.isQuestReward ? [{ label: 'quest', color: '#a3e635' }] : []),
+    ],
+    location: o.location,
+    source: o.isQuestReward
+      ? 'Awarded automatically from a main DLC quest.'
+      : 'Parkour to a small floating paper atop a tower or rock formation. Trophy: Pro Musician.',
+    imageUrl: o.imageUrl,
+  }));
+
+  return (
+    <TrackerLayout title="Oud Melodies (Valley of Memory)" totalItems={game.oudMelodies.length} completedItems={completed}>
+      <ItemListSection
+        gameId={gameId}
+        label="All Oud Melodies"
+        icon={<Music2 />}
+        iconColor="text-lime-400"
+        details={details}
+        totalForSection={game.oudMelodies.length}
+        totalCompleted={completed}
+        onSelect={onSelect}
+      />
+      {filtered.length === 0 && <TrackerEmptyState />}
+    </TrackerLayout>
+  );
+}
+
+// ============================================
+// DLC: STOLEN GOODS (flat list)
+// ============================================
+
+function StolenGoodsView({ gameId, game, onSelect }: ViewProps) {
+  const collected = useCollected(gameId);
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
+
+  const filtered = useMemo(
+    () =>
+      game.stolenGoods.filter((s) => {
+        const isComplete = collected.has(createStolenGoodId(s.id));
+        if (isComplete && !showCollected) return false;
+        if (!isComplete && !showUncollected) return false;
+        return searchMatches(filters.searchQuery, s.name, s.location);
+      }),
+    [game.stolenGoods, collected, showCollected, showUncollected, filters.searchQuery]
+  );
+
+  const completed = game.stolenGoods.filter((s) => collected.has(createStolenGoodId(s.id))).length;
+
+  const details: ItemDetail[] = filtered.map((s) => ({
+    collectId: createStolenGoodId(s.id),
+    title: s.name,
+    subtitle: s.location,
+    badges: [{ label: 'DLC', color: '#facc15' }],
+    location: s.location,
+    source: "Return to Hind at Nimlot's Estate after the DLC main quest \"The Ones Who Remain\". Trophy: Lost and Found.",
+    imageUrl: s.imageUrl,
+  }));
+
+  return (
+    <TrackerLayout title="Stolen Goods (Valley of Memory)" totalItems={game.stolenGoods.length} completedItems={completed}>
+      <ItemListSection
+        gameId={gameId}
+        label="All Stolen Goods"
+        icon={<Package />}
+        iconColor="text-rose-400"
+        details={details}
+        totalForSection={game.stolenGoods.length}
+        totalCompleted={completed}
+        onSelect={onSelect}
+      />
+      {filtered.length === 0 && <TrackerEmptyState />}
+    </TrackerLayout>
+  );
+}
+
+// ============================================
+// DLC: TALES OF ALULA (flat list)
+// ============================================
+
+function AlulaTalesView({ gameId, game, onSelect }: ViewProps) {
+  const collected = useCollected(gameId);
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
+
+  const filtered = useMemo(
+    () =>
+      game.alulaTales.filter((t) => {
+        const isComplete = collected.has(createAlulaTaleId(t.id));
+        if (isComplete && !showCollected) return false;
+        if (!isComplete && !showUncollected) return false;
+        return searchMatches(filters.searchQuery, t.name, t.location, t.description);
+      }),
+    [game.alulaTales, collected, showCollected, showUncollected, filters.searchQuery]
+  );
+
+  const completed = game.alulaTales.filter((t) => collected.has(createAlulaTaleId(t.id))).length;
+
+  const details: ItemDetail[] = filtered.map((t) => ({
+    collectId: createAlulaTaleId(t.id),
+    title: t.name,
+    subtitle: t.location,
+    badges: [{ label: 'DLC', color: '#facc15' }],
+    description: t.description,
+    location: t.location,
+    imageUrl: t.imageUrl,
+  }));
+
+  return (
+    <TrackerLayout title="Tales of AlUla (Valley of Memory)" totalItems={game.alulaTales.length} completedItems={completed}>
+      <ItemListSection
+        gameId={gameId}
+        label="All AlUla Tales"
+        icon={<Scroll />}
+        iconColor="text-emerald-400"
+        details={details}
+        totalForSection={game.alulaTales.length}
+        totalCompleted={completed}
+        onSelect={onSelect}
+      />
+      {filtered.length === 0 && <TrackerEmptyState />}
+    </TrackerLayout>
+  );
+}
+
+// ============================================
 // WEAPONS
 // ============================================
 
@@ -1092,6 +1380,12 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
       sites: game.historicalSites.filter((s) => filterFnInner(createHistoricalSiteId(s.id), s.name)),
       books: game.lostBooks.filter((b) => filterFnInner(createLostBookId(b.id), b.title)),
       curios: game.curios.filter((c) => filterFnInner(createCurioId(c.id), c.name)),
+      shards: game.shards.filter((s) => filterFnInner(createShardId(s.id), `Shard ${s.number}`, s.location)),
+      viewpoints: game.viewpoints.filter((v) => filterFnInner(createViewpointId(v.id), v.name)),
+      folktales: game.folktales.filter((f) => filterFnInner(createFolktaleId(f.id), f.name, f.location)),
+      oudMelodies: game.oudMelodies.filter((o) => filterFnInner(createOudMelodyId(o.id), o.name, o.location)),
+      stolenGoods: game.stolenGoods.filter((s) => filterFnInner(createStolenGoodId(s.id), s.name, s.location)),
+      alulaTales: game.alulaTales.filter((t) => filterFnInner(createAlulaTaleId(t.id), t.name, t.location)),
       weapons: game.weapons.filter((w) => filterFnInner(createWeaponId(w.id), w.name)),
       outfits: game.outfits.filter((o) => filterFnInner(createOutfitId(o.id), o.name)),
       achievements: game.achievements.filter((a) => filterFnInner(createAchievementId(a.id), a.name, a.description)),
@@ -1101,7 +1395,9 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
   const totalAll =
     game.mainQuests.length + game.investigations.length + game.contracts.length + game.tales.length +
     game.enigmas.length + game.historicalSites.length + game.lostBooks.length +
-    game.curios.length + game.weapons.length + game.outfits.length + game.achievements.length;
+    game.curios.length + game.shards.length + game.viewpoints.length +
+    game.folktales.length + game.oudMelodies.length + game.stolenGoods.length + game.alulaTales.length +
+    game.weapons.length + game.outfits.length + game.achievements.length;
 
   const completedAll =
     game.mainQuests.filter((q) => collected.has(createQuestId(q.id))).length +
@@ -1112,6 +1408,12 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
     game.historicalSites.filter((s) => collected.has(createHistoricalSiteId(s.id))).length +
     game.lostBooks.filter((b) => collected.has(createLostBookId(b.id))).length +
     game.curios.filter((c) => collected.has(createCurioId(c.id))).length +
+    game.shards.filter((s) => collected.has(createShardId(s.id))).length +
+    game.viewpoints.filter((v) => collected.has(createViewpointId(v.id))).length +
+    game.folktales.filter((f) => collected.has(createFolktaleId(f.id))).length +
+    game.oudMelodies.filter((o) => collected.has(createOudMelodyId(o.id))).length +
+    game.stolenGoods.filter((s) => collected.has(createStolenGoodId(s.id))).length +
+    game.alulaTales.filter((t) => collected.has(createAlulaTaleId(t.id))).length +
     game.weapons.filter((w) => collected.has(createWeaponId(w.id))).length +
     game.outfits.filter((o) => collected.has(createOutfitId(o.id))).length +
     game.achievements.filter((a) => collected.has(createAchievementId(a.id))).length;
@@ -1297,6 +1599,132 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
               region: c.region,
             };
           })}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('shards') && sections.shards.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Mysterious Shards"
+          icon={<Diamond />}
+          iconColor="text-indigo-400"
+          totalForSection={game.shards.length}
+          totalCompleted={game.shards.filter((s) => collected.has(createShardId(s.id))).length}
+          details={sections.shards.map((s) => {
+            const d = district(s.region);
+            return {
+              collectId: createShardId(s.id),
+              title: `Shard #${s.number}`,
+              subtitle: s.location,
+              badges: d ? [{ label: d.shortName, color: d.color }] : [],
+              location: s.location,
+              district: d,
+              region: s.region,
+            };
+          })}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('viewpoints') && sections.viewpoints.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Viewpoints"
+          icon={<Telescope />}
+          iconColor="text-blue-400"
+          totalForSection={game.viewpoints.length}
+          totalCompleted={game.viewpoints.filter((v) => collected.has(createViewpointId(v.id))).length}
+          details={sections.viewpoints.map((v) => {
+            const d = district(v.region);
+            return {
+              collectId: createViewpointId(v.id),
+              title: v.name,
+              badges: d ? [{ label: d.shortName, color: d.color }] : [],
+              district: d,
+              region: v.region,
+            };
+          })}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('folktales') && sections.folktales.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Folktales (DLC)"
+          icon={<Feather />}
+          iconColor="text-teal-400"
+          totalForSection={game.folktales.length}
+          totalCompleted={game.folktales.filter((f) => collected.has(createFolktaleId(f.id))).length}
+          details={sections.folktales.map((f) => ({
+            collectId: createFolktaleId(f.id),
+            title: f.name,
+            subtitle: f.location,
+            badges: [{ label: 'DLC', color: '#facc15' }],
+            location: f.location,
+          }))}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('oud-melodies') && sections.oudMelodies.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Oud Melodies (DLC)"
+          icon={<Music2 />}
+          iconColor="text-lime-400"
+          totalForSection={game.oudMelodies.length}
+          totalCompleted={game.oudMelodies.filter((o) => collected.has(createOudMelodyId(o.id))).length}
+          details={sections.oudMelodies.map((o) => ({
+            collectId: createOudMelodyId(o.id),
+            title: o.name,
+            subtitle: o.location,
+            badges: [
+              { label: 'DLC', color: '#facc15' },
+              ...(o.isQuestReward ? [{ label: 'quest', color: '#a3e635' }] : []),
+            ],
+            location: o.location,
+          }))}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('stolen-goods') && sections.stolenGoods.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Stolen Goods (DLC)"
+          icon={<Package />}
+          iconColor="text-rose-400"
+          totalForSection={game.stolenGoods.length}
+          totalCompleted={game.stolenGoods.filter((s) => collected.has(createStolenGoodId(s.id))).length}
+          details={sections.stolenGoods.map((s) => ({
+            collectId: createStolenGoodId(s.id),
+            title: s.name,
+            subtitle: s.location,
+            badges: [{ label: 'DLC', color: '#facc15' }],
+            location: s.location,
+          }))}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('alula-tales') && sections.alulaTales.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Tales of AlUla (DLC)"
+          icon={<Scroll />}
+          iconColor="text-emerald-400"
+          totalForSection={game.alulaTales.length}
+          totalCompleted={game.alulaTales.filter((t) => collected.has(createAlulaTaleId(t.id))).length}
+          details={sections.alulaTales.map((t) => ({
+            collectId: createAlulaTaleId(t.id),
+            title: t.name,
+            subtitle: t.location,
+            badges: [{ label: 'DLC', color: '#facc15' }],
+            description: t.description,
+            location: t.location,
+          }))}
           onSelect={onSelect}
         />
       )}

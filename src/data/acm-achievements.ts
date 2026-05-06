@@ -71,4 +71,17 @@ export const acmAchievements: ACMirageAchievement[] = [
   { id: 'spread-the-news', name: 'Spread the News', description: 'Use the services of a Munadi 3 times.', rarity: 'bronze' },
   { id: 'true-hidden-one', name: 'A True Hidden One', description: 'Assassinate 10 guards in a row without triggering open conflict.', rarity: 'bronze' },
   { id: 'street-cleaner', name: 'Street Cleaner', description: 'Hide 5 bodies in bales of hay.', rarity: 'bronze' },
+
+  // ============ Valley of Memory DLC trophies (11 total) ============
+  { id: 'lost-and-found', name: 'Lost and Found', description: 'Return all stolen goods to Hind.', rarity: 'silver' },
+  { id: 'once-upon-a-time', name: 'Once Upon a Time', description: 'Listen to all folktales.', rarity: 'silver' },
+  { id: 'pro-musician', name: 'Pro Musician', description: 'Collect all Oud melodies.', rarity: 'silver' },
+  { id: 'if-i-recall-correctly', name: 'If I Recall Correctly', description: 'Replay an Animus Sequence.', rarity: 'bronze' },
+  { id: 'perfect-memory', name: 'Perfect Memory', description: 'Complete all sequence challenges.', rarity: 'silver' },
+  { id: 'playback', name: 'Playback', description: 'Unlock all Animus Sequence rewards.', rarity: 'silver' },
+  { id: 'taste-your-own-medicine', name: 'Taste Your Own Medicine', description: 'Poison a Poisoner.', rarity: 'bronze' },
+  { id: 'like-a-local', name: 'Like a Local', description: 'Complete all the AlUla territories.', rarity: 'silver' },
+  { id: 'make-a-break', name: 'Make a Break', description: 'Escape the AlUla prison.', rarity: 'bronze' },
+  { id: 'turn-the-page', name: 'Turn the Page', description: "Say goodbye to Is'haq.", rarity: 'silver' },
+  { id: 'give-it-the-slip', name: 'Give it the Slip', description: 'Escape the AlUla prison undetected.', rarity: 'bronze' },
 ];

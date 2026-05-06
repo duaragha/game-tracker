@@ -53,6 +53,12 @@ import { acmEnigmas } from './acm-enigmas';
 import { acmHistoricalSites } from './acm-historical-sites';
 import { acmLostBooks } from './acm-lost-books';
 import { acmCurios } from './acm-curios';
+import { acmMysteriousShards } from './acm-shards';
+import { acmViewpoints } from './acm-viewpoints';
+import { acmFolktales } from './acm-folktales';
+import { acmOudMelodies } from './acm-oud-melodies';
+import { acmStolenGoods } from './acm-stolen-goods';
+import { acmAlulaTales } from './acm-alula-tales';
 import { acmWeapons } from './acm-weapons';
 import { acmOutfits } from './acm-outfits';
 import { acmAchievements } from './acm-achievements';
@@ -294,6 +300,12 @@ export const acMirage: ACMirageGame = {
   historicalSites: acmHistoricalSites,
   lostBooks: acmLostBooks,
   curios: acmCurios,
+  shards: acmMysteriousShards,
+  viewpoints: acmViewpoints,
+  folktales: acmFolktales,
+  oudMelodies: acmOudMelodies,
+  stolenGoods: acmStolenGoods,
+  alulaTales: acmAlulaTales,
   weapons: acmWeapons,
   outfits: acmOutfits,
   achievements: acmAchievements,
@@ -316,6 +328,12 @@ export { acmEnigmas } from './acm-enigmas';
 export { acmHistoricalSites } from './acm-historical-sites';
 export { acmLostBooks } from './acm-lost-books';
 export { acmCurios } from './acm-curios';
+export { acmMysteriousShards } from './acm-shards';
+export { acmViewpoints } from './acm-viewpoints';
+export { acmFolktales } from './acm-folktales';
+export { acmOudMelodies } from './acm-oud-melodies';
+export { acmStolenGoods } from './acm-stolen-goods';
+export { acmAlulaTales } from './acm-alula-tales';
 export { acmWeapons } from './acm-weapons';
 export { acmOutfits } from './acm-outfits';
 export { acmAchievements } from './acm-achievements';

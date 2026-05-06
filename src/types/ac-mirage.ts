@@ -58,6 +58,58 @@ export interface ACMirageInvestigation {
   imageUrl?: string;
 }
 
+// Viewpoint — climbable tower for synchronization
+export interface ACMirageViewpoint {
+  id: string;
+  name: string;
+  region: ACMirageRegion;
+  description?: string;
+  imageUrl?: string;
+}
+
+// Mysterious Shard — pickpocketed from black-robed NPCs (10 total)
+export interface ACMirageMysteriousShard {
+  id: string;
+  number: number;
+  region: ACMirageRegion;
+  location?: string;
+  imageUrl?: string;
+}
+
+// Folktale (DLC) — listen on a bench
+export interface ACMirageFolktale {
+  id: string;
+  name: string;
+  location: string;
+  imageUrl?: string;
+}
+
+// Oud Melody (DLC) — parkour collectible
+export interface ACMirageOudMelody {
+  id: string;
+  name: string;
+  location?: string;
+  isQuestReward?: boolean;
+  imageUrl?: string;
+}
+
+// Stolen Good (DLC) — return to Hind at Nimlot's Estate
+export interface ACMirageStolenGood {
+  id: string;
+  name: string;
+  location?: string;
+  imageUrl?: string;
+}
+
+// Tale of AlUla (DLC side story)
+export interface ACMirageAlulaTale {
+  id: string;
+  name: string;
+  location: string;
+  description?: string;
+  imageUrl?: string;
+}
+
 // Bureau Contract — issued by one of the three factions
 export type ContractFaction = 'scholars' | 'merchants' | 'soldiers';
 
@@ -167,6 +219,12 @@ export type ACMirageSection =
   | 'historical-sites'
   | 'lost-books'
   | 'curios'
+  | 'shards'
+  | 'viewpoints'
+  | 'folktales'
+  | 'oud-melodies'
+  | 'stolen-goods'
+  | 'alula-tales'
   | 'weapons'
   | 'outfits'
   | 'achievements'
@@ -186,6 +244,12 @@ export interface ACMirageGame {
   historicalSites: ACMirageHistoricalSite[];
   lostBooks: ACMirageLostBook[];
   curios: ACMirageCurio[];
+  shards: ACMirageMysteriousShard[];
+  viewpoints: ACMirageViewpoint[];
+  folktales: ACMirageFolktale[];
+  oudMelodies: ACMirageOudMelody[];
+  stolenGoods: ACMirageStolenGood[];
+  alulaTales: ACMirageAlulaTale[];
   weapons: ACMirageWeapon[];
   outfits: ACMirageOutfit[];
   achievements: ACMirageAchievement[];
@@ -197,6 +261,12 @@ export const isACMirageGame = (gameId: string): boolean => gameId === 'ac-mirage
 export const createQuestId = (id: string): string => `acm-quest-${id}`;
 export const createInvestigationId = (id: string): string => `acm-investigation-${id}`;
 export const createContractId = (id: string): string => `acm-contract-${id}`;
+export const createShardId = (id: string): string => `acm-shard-${id}`;
+export const createViewpointId = (id: string): string => `acm-viewpoint-${id}`;
+export const createFolktaleId = (id: string): string => `acm-folktale-${id}`;
+export const createOudMelodyId = (id: string): string => `acm-oud-${id}`;
+export const createStolenGoodId = (id: string): string => `acm-stolen-${id}`;
+export const createAlulaTaleId = (id: string): string => `acm-alula-tale-${id}`;
 export const createTaleId = (id: string): string => `acm-tale-${id}`;
 export const createEnigmaId = (id: string): string => `acm-enigma-${id}`;
 export const createHistoricalSiteId = (id: string): string => `acm-site-${id}`;
