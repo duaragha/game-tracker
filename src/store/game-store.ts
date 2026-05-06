@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AppState, FilterState, UserProgress, Collectible, PokemonSection, MarioKartSection, MKModeFilter, PKMNSectionFilter } from '@/types';
+import { AppState, FilterState, UserProgress, Collectible, PokemonSection, MarioKartSection, ACMirageSection, MKModeFilter, PKMNSectionFilter, ACMSectionFilter } from '@/types';
 
 // Cloud sync functions
 async function loadFromCloud(): Promise<Record<string, { collected: string[]; notes: Record<string, string>; lastUpdated: string }> | null> {
@@ -66,21 +66,25 @@ export const useGameStore = create<AppState>()(
       currentKingdom: null,
       currentPokemonSection: null,
       currentMarioKartSection: null,
+      currentACMirageSection: null,
       progress: {},
       filters: defaultFilters,
       selectedCollectible: null,
       sidebarOpen: true,
       activeMKModes: new Set<MKModeFilter>(['gp', 'tt', 'ko']),
       activePKMNSections: new Set<PKMNSectionFilter>(['story', 'legendaries', 'pokedex', 'raids', 'post-game', 'dlc', 'collectibles', 'recipes', 'cosmetics', 'sights', 'marks']),
+      activeACMSections: new Set<ACMSectionFilter>(['main-quests', 'investigations', 'tales', 'enigmas', 'historical-sites', 'lost-books', 'curios', 'weapons', 'outfits', 'achievements']),
 
       // Actions
-      setCurrentGame: (gameId) => set({ currentGame: gameId, currentKingdom: null, currentPokemonSection: null, currentMarioKartSection: null }),
+      setCurrentGame: (gameId) => set({ currentGame: gameId, currentKingdom: null, currentPokemonSection: null, currentMarioKartSection: null, currentACMirageSection: null }),
 
       setCurrentKingdom: (kingdomId) => set({ currentKingdom: kingdomId, selectedCollectible: null }),
 
       setCurrentPokemonSection: (section) => set({ currentPokemonSection: section, selectedCollectible: null }),
 
       setCurrentMarioKartSection: (section) => set({ currentMarioKartSection: section, selectedCollectible: null }),
+
+      setCurrentACMirageSection: (section) => set({ currentACMirageSection: section, selectedCollectible: null }),
 
       toggleCollected: (gameId, collectibleId) =>
         set((state) => {
@@ -167,6 +171,17 @@ export const useGameStore = create<AppState>()(
             newSections.add(section);
           }
           return { activePKMNSections: newSections };
+        }),
+
+      toggleACMSection: (section) =>
+        set((state) => {
+          const newSections = new Set(state.activeACMSections);
+          if (newSections.has(section)) {
+            newSections.delete(section);
+          } else {
+            newSections.add(section);
+          }
+          return { activeACMSections: newSections };
         }),
 
       resetProgress: (gameId) =>
@@ -273,6 +288,7 @@ export const useGameStore = create<AppState>()(
         currentKingdom: state.currentKingdom,
         currentPokemonSection: state.currentPokemonSection,
         currentMarioKartSection: state.currentMarioKartSection,
+        currentACMirageSection: state.currentACMirageSection,
         progress: state.progress,
         filters: state.filters,
       }),
@@ -303,9 +319,11 @@ export const useCurrentGame = () => useGameStore((s) => s.currentGame);
 export const useCurrentKingdom = () => useGameStore((s) => s.currentKingdom);
 export const useCurrentPokemonSection = () => useGameStore((s) => s.currentPokemonSection);
 export const useCurrentMarioKartSection = () => useGameStore((s) => s.currentMarioKartSection);
+export const useCurrentACMirageSection = () => useGameStore((s) => s.currentACMirageSection);
 export const useFilters = () => useGameStore((s) => s.filters);
 export const useActiveMKModes = () => useGameStore((s) => s.activeMKModes);
 export const useActivePKMNSections = () => useGameStore((s) => s.activePKMNSections);
+export const useActiveACMSections = () => useGameStore((s) => s.activeACMSections);
 
 export const useProgress = (gameId: string): UserProgress => {
   const progress = useGameStore((s) => s.progress[gameId]);

@@ -43,6 +43,18 @@ import {
   allPokedexEntries,
   pokedexCounts as pokedexEntryCounts,
 } from './pokemon-pokedex';
+import { ACMirageGame } from '@/types/ac-mirage';
+import { acmDistricts } from './acm-districts';
+import { acmMainQuests } from './acm-main-quests';
+import { acmInvestigations } from './acm-investigations';
+import { acmTales } from './acm-tales';
+import { acmEnigmas } from './acm-enigmas';
+import { acmHistoricalSites } from './acm-historical-sites';
+import { acmLostBooks } from './acm-lost-books';
+import { acmCurios } from './acm-curios';
+import { acmWeapons } from './acm-weapons';
+import { acmOutfits } from './acm-outfits';
+import { acmAchievements } from './acm-achievements';
 
 export const superMarioOdyssey: GameData = {
   id: 'smo',
@@ -263,3 +275,44 @@ export {
   allPokedexEntries,
   pokedexCounts as pokedexEntryCounts,
 } from './pokemon-pokedex';
+
+// ============================================
+// Assassin's Creed Mirage
+// ============================================
+
+export const acMirage: ACMirageGame = {
+  id: 'ac-mirage',
+  name: "Assassin's Creed Mirage",
+  shortName: 'ACM',
+  districts: acmDistricts,
+  mainQuests: acmMainQuests,
+  investigations: acmInvestigations,
+  tales: acmTales,
+  enigmas: acmEnigmas,
+  historicalSites: acmHistoricalSites,
+  lostBooks: acmLostBooks,
+  curios: acmCurios,
+  weapons: acmWeapons,
+  outfits: acmOutfits,
+  achievements: acmAchievements,
+};
+
+export const acMirageGames: ACMirageGame[] = [acMirage];
+
+export const getACMirageGame = (gameId: string): ACMirageGame | undefined =>
+  acMirageGames.find((g) => g.id === gameId);
+
+export { isACMirageGame } from '@/types/ac-mirage';
+
+// AC Mirage data exports
+export { acmDistricts } from './acm-districts';
+export { acmMainQuests } from './acm-main-quests';
+export { acmInvestigations } from './acm-investigations';
+export { acmTales } from './acm-tales';
+export { acmEnigmas } from './acm-enigmas';
+export { acmHistoricalSites } from './acm-historical-sites';
+export { acmLostBooks } from './acm-lost-books';
+export { acmCurios } from './acm-curios';
+export { acmWeapons } from './acm-weapons';
+export { acmOutfits } from './acm-outfits';
+export { acmAchievements } from './acm-achievements';

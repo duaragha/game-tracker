@@ -1,0 +1,60 @@
+import { ACMirageDistrict } from '@/types/ac-mirage';
+
+export const acmDistricts: ACMirageDistrict[] = [
+  {
+    id: 'anbar',
+    name: 'Anbar',
+    shortName: 'Anbar',
+    region: 'anbar',
+    description: 'Basim\'s home — a city north of Baghdad where the story begins.',
+    color: '#c89b6f',
+  },
+  {
+    id: 'karkh',
+    name: 'Karkh',
+    shortName: 'Karkh',
+    region: 'karkh',
+    description: 'The western district of Baghdad — the great commercial bazaar.',
+    color: '#dab84a',
+  },
+  {
+    id: 'round-city',
+    name: 'Round City',
+    shortName: 'Round City',
+    region: 'round-city',
+    description: 'The Caliph\'s seat — Baghdad\'s heavily-fortified central palace district.',
+    color: '#c45656',
+  },
+  {
+    id: 'harbiyah',
+    name: 'Harbiyah',
+    shortName: 'Harbiyah',
+    region: 'harbiyah',
+    description: 'The military district north of the Round City.',
+    color: '#7eb8c4',
+  },
+  {
+    id: 'abbasiyah',
+    name: 'Abbasiyah',
+    shortName: 'Abbasiyah',
+    region: 'abbasiyah',
+    description: 'The eastern residential and scholarly district across the Tigris.',
+    color: '#7fa463',
+  },
+  {
+    id: 'wilderness',
+    name: 'The Wilderness',
+    shortName: 'Wilderness',
+    region: 'wilderness',
+    description: 'The countryside surrounding Baghdad — Jokha, Nahrawan and outlying areas.',
+    color: '#a17d4a',
+  },
+  {
+    id: 'alamut',
+    name: 'Alamut',
+    shortName: 'Alamut',
+    region: 'alamut',
+    description: 'The mountain fortress of the Hidden Ones.',
+    color: '#8a7fb5',
+  },
+];

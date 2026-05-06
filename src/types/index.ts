@@ -81,11 +81,38 @@ export type PokemonSection =
 // Mario Kart section types for sidebar navigation
 export type MarioKartSection = 'grand-prix' | 'time-trials' | 'knockout' | null;
 
+// AC Mirage section types for sidebar navigation
+export type ACMirageSection =
+  | 'main-quests'
+  | 'investigations'
+  | 'tales'
+  | 'enigmas'
+  | 'historical-sites'
+  | 'lost-books'
+  | 'curios'
+  | 'weapons'
+  | 'outfits'
+  | 'achievements'
+  | null;
+
 // Mario Kart mode filter types
 export type MKModeFilter = 'gp' | 'tt' | 'ko';
 
 // Pokemon section filter types
 export type PKMNSectionFilter = 'story' | 'legendaries' | 'pokedex' | 'raids' | 'post-game' | 'dlc' | 'collectibles' | 'recipes' | 'cosmetics' | 'sights' | 'marks';
+
+// AC Mirage section filter types (for chip toggles in the header)
+export type ACMSectionFilter =
+  | 'main-quests'
+  | 'investigations'
+  | 'tales'
+  | 'enigmas'
+  | 'historical-sites'
+  | 'lost-books'
+  | 'curios'
+  | 'weapons'
+  | 'outfits'
+  | 'achievements';
 
 export interface AppState {
   // Current selection
@@ -93,6 +120,7 @@ export interface AppState {
   currentKingdom: string | null;
   currentPokemonSection: PokemonSection;
   currentMarioKartSection: MarioKartSection;
+  currentACMirageSection: ACMirageSection;
 
   // Progress data (persisted)
   progress: Record<string, UserProgress>; // gameId -> progress
@@ -103,12 +131,14 @@ export interface AppState {
   sidebarOpen: boolean;
   activeMKModes: Set<MKModeFilter>;
   activePKMNSections: Set<PKMNSectionFilter>;
+  activeACMSections: Set<ACMSectionFilter>;
 
   // Actions
   setCurrentGame: (gameId: string | null) => void;
   setCurrentKingdom: (kingdomId: string | null) => void;
   setCurrentPokemonSection: (section: PokemonSection) => void;
   setCurrentMarioKartSection: (section: MarioKartSection) => void;
+  setCurrentACMirageSection: (section: ACMirageSection) => void;
   toggleCollected: (gameId: string, collectibleId: string) => void;
   setNote: (gameId: string, collectibleId: string, note: string) => void;
   setFilters: (filters: Partial<FilterState>) => void;
@@ -116,6 +146,7 @@ export interface AppState {
   setSidebarOpen: (open: boolean) => void;
   toggleMKMode: (mode: MKModeFilter) => void;
   togglePKMNSection: (section: PKMNSectionFilter) => void;
+  toggleACMSection: (section: ACMSectionFilter) => void;
   resetProgress: (gameId: string) => void;
   exportProgress: () => string;
   importProgress: (data: string) => boolean;

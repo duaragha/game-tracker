@@ -1,0 +1,81 @@
+import { ACMirageHistoricalSite } from '@/types/ac-mirage';
+
+// All 66 Historical Sites in AC Mirage. White glowing spheres that add a Codex
+// entry under "History of Baghdad". Required for Explorer trophy + 100% region.
+export const acmHistoricalSites: ACMirageHistoricalSite[] = [
+  // Harbiyah (13)
+  { id: 'h-alcohol-production', name: 'Alcohol Production and Consumption', region: 'harbiyah' },
+  { id: 'h-maritime-trading', name: 'Maritime Trading', region: 'harbiyah' },
+  { id: 'h-expansion-of-islam', name: 'Expansion of Islam Through Trade', region: 'harbiyah' },
+  { id: 'h-greeks-bearing-gifts', name: 'Greeks Bearing Gifts', region: 'harbiyah' },
+  { id: 'h-difficult-succession', name: 'A Difficult Succession', region: 'harbiyah' },
+  { id: 'h-banu-musa-brothers', name: 'The Banu Musa Brothers', region: 'harbiyah' },
+  { id: 'h-ceramics-lustrewares', name: 'Ceramics and Lustrewares', region: 'harbiyah' },
+  { id: 'h-emporium-of-the-world', name: 'Emporium of the World', region: 'harbiyah' },
+  { id: 'h-prisons', name: 'Prisons', region: 'harbiyah' },
+  { id: 'h-pillars-of-islam', name: 'Pillars of Islam', region: 'harbiyah' },
+  { id: 'h-hajj', name: 'Hajj (Pilgrimage to Mecca)', region: 'harbiyah' },
+  { id: 'h-kalila-and-dimna', name: 'Kalila and Dimna', region: 'harbiyah' },
+  { id: 'h-abbasid-revolution', name: 'Abbasid Revolution', region: 'harbiyah' },
+
+  // Abbasiyah (15)
+  { id: 'a-papermaking', name: 'Papermaking', region: 'abbasiyah' },
+  { id: 'a-slavery', name: 'Slavery', region: 'abbasiyah' },
+  { id: 'a-muhtasib', name: 'Muhtasib (Market Inspector)', region: 'abbasiyah' },
+  { id: 'a-abbasid-style', name: 'Abbasid Style', region: 'abbasiyah' },
+  { id: 'a-hammam', name: 'Hammam', region: 'abbasiyah' },
+  { id: 'a-arabic-cultural-unifier', name: 'Arabic as a Cultural Unifier', region: 'abbasiyah' },
+  { id: 'a-translation-movement', name: 'Translation Movement', region: 'abbasiyah' },
+  { id: 'a-astronomy-astrology', name: 'Astronomy and Astrology', region: 'abbasiyah' },
+  { id: 'a-astronomical-instruments', name: 'Astronomical Instruments', region: 'abbasiyah' },
+  { id: 'a-majlis', name: 'Majlis (Intellectual Salon)', region: 'abbasiyah' },
+  { id: 'a-scientific-method', name: 'Scientific Method', region: 'abbasiyah' },
+  { id: 'a-earths-circumference', name: "Calculating the Earth's Circumference", region: 'abbasiyah' },
+  { id: 'a-house-of-wisdom', name: 'House of Wisdom', region: 'abbasiyah' },
+  { id: 'a-healthcare', name: 'Healthcare', region: 'abbasiyah' },
+  { id: 'a-dome-of-the-ass', name: 'Dome of the Ass (Donkey)', region: 'abbasiyah' },
+
+  // Karkh (11)
+  { id: 'k-dhimmi', name: 'Dhimmi (Non-Muslims)', region: 'karkh' },
+  { id: 'k-perfumes', name: 'Perfumes', region: 'karkh' },
+  { id: 'k-abbasid-army', name: 'Abbasid Army', region: 'karkh' },
+  { id: 'k-table-manners', name: 'Table Manners', region: 'karkh' },
+  { id: 'k-textiles', name: 'Textiles', region: 'karkh' },
+  { id: 'k-bazaar', name: 'Bazaar', region: 'karkh' },
+  { id: 'k-center-of-the-world', name: 'Center of the World', region: 'karkh' },
+  { id: 'k-taxes', name: 'Taxes', region: 'karkh' },
+  { id: 'k-ghilman', name: 'Ghilman (Servant Soldiers)', region: 'karkh' },
+  { id: 'k-abbasids-and-rivals', name: 'The Abbasids and their Rivals', region: 'karkh' },
+  { id: 'k-baghdadi-exports', name: 'Baghdadi Exports', region: 'karkh' },
+
+  // Round City (14)
+  { id: 'rc-judges-judicial', name: 'Judges and Judicial System', region: 'round-city' },
+  { id: 'rc-education-system', name: 'Education System', region: 'round-city' },
+  { id: 'rc-shurta', name: 'Shurta (Police)', region: 'round-city' },
+  { id: 'rc-animals-at-court', name: 'Animals at Court', region: 'round-city' },
+  { id: 'rc-eunuchs', name: 'Eunuchs', region: 'round-city' },
+  { id: 'rc-caliphs-mother', name: "Caliph's Mother", region: 'round-city' },
+  { id: 'rc-harem', name: 'Harem', region: 'round-city' },
+  { id: 'rc-gardens-and-power', name: 'Gardens and Power', region: 'round-city' },
+  { id: 'rc-powers-of-a-caliph', name: 'Powers of a Caliph', region: 'round-city' },
+  { id: 'rc-qiyan', name: 'Qiyan (Singing Girls)', region: 'round-city' },
+  { id: 'rc-marriage-and-divorce', name: 'Marriage and Divorce', region: 'round-city' },
+  { id: 'rc-al-jahiz', name: 'Al-Jahiz', region: 'round-city' },
+  { id: 'rc-singing-and-poetry', name: 'Singing and Poetry', region: 'round-city' },
+  { id: 'rc-barid', name: 'Barid (Postal System)', region: 'round-city' },
+
+  // Wilderness (13)
+  { id: 'w-other-palaces', name: 'Other Palaces', region: 'wilderness' },
+  { id: 'w-dur-kurigalzu', name: 'Dur-Kurigalzu', region: 'wilderness' },
+  { id: 'w-founding-of-baghdad', name: 'Founding of Baghdad', region: 'wilderness' },
+  { id: 'w-baghdads-canals', name: "Baghdad's Canals", region: 'wilderness' },
+  { id: 'w-agriculture', name: 'Agriculture', region: 'wilderness' },
+  { id: 'w-gates-of-baghdad', name: 'Gates of Baghdad', region: 'wilderness' },
+  { id: 'w-zubaydah', name: 'Zubaydah bint Ja\'far', region: 'wilderness' },
+  { id: 'w-caravanserai', name: 'Caravanserai', region: 'wilderness' },
+  { id: 'w-camels', name: 'Camels', region: 'wilderness' },
+  { id: 'w-1001-nights', name: 'The One Thousand and One Nights', region: 'wilderness' },
+  { id: 'w-death-and-afterlife', name: 'Death and Afterlife', region: 'wilderness' },
+  { id: 'w-silk-roads', name: 'Silk Roads', region: 'wilderness' },
+  { id: 'w-seleucia', name: 'Seleucia-on-the-Tigris', region: 'wilderness' },
+];

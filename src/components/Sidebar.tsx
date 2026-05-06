@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useGameStore, useCurrentGame, useCurrentKingdom, useCurrentPokemonSection, useCurrentMarioKartSection, useProgress, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
-import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
+import { useGameStore, useCurrentGame, useCurrentKingdom, useCurrentPokemonSection, useCurrentMarioKartSection, useCurrentACMirageSection, useProgress, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
+import { games, getGame, getCollectiblesForKingdom, getGameStats, marioKartGames, getMarioKartGame, isMarioKartGame, pokemonGames, getPokemonGame, isPokemonGame, acMirageGames, getACMirageGame, isACMirageGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns } from '@/data';
 import { Kingdom } from '@/types';
 import { createCupCompletionId } from '@/types/mario-kart';
 import {
@@ -12,8 +12,20 @@ import {
   createTableclothId, createSightId, createWonderId, createMarkId, createRibbonId,
   createLeagueOfficialId, createMiniGameId, createPokedexId, createShinyId, createHiddenAbilityId,
 } from '@/types/pokemon';
+import {
+  createQuestId as acmCreateQuestId,
+  createInvestigationId as acmCreateInvestigationId,
+  createTaleId as acmCreateTaleId,
+  createEnigmaId as acmCreateEnigmaId,
+  createHistoricalSiteId as acmCreateSiteId,
+  createLostBookId as acmCreateBookId,
+  createCurioId as acmCreateCurioId,
+  createWeaponId as acmCreateWeaponId,
+  createOutfitId as acmCreateOutfitId,
+  createAchievementId as acmCreateAchievementId,
+} from '@/types/ac-mirage';
 import { allPokedexEntries } from '@/data';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe } from 'lucide-react';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, ScrollText, Skull, Library, Landmark, Gem, PackageOpen, Sword, Shirt } from 'lucide-react';
 
 function PercentBadge({ completed, total }: { completed: number; total: number }) {
   if (total <= 0) return null;
@@ -33,10 +45,12 @@ export function Sidebar() {
   const currentKingdom = useCurrentKingdom();
   const currentPokemonSection = useCurrentPokemonSection();
   const currentMarioKartSection = useCurrentMarioKartSection();
+  const currentACMirageSection = useCurrentACMirageSection();
   const setCurrentGame = useGameStore((s) => s.setCurrentGame);
   const setCurrentKingdom = useGameStore((s) => s.setCurrentKingdom);
   const setCurrentPokemonSection = useGameStore((s) => s.setCurrentPokemonSection);
   const setCurrentMarioKartSection = useGameStore((s) => s.setCurrentMarioKartSection);
+  const setCurrentACMirageSection = useGameStore((s) => s.setCurrentACMirageSection);
   const sidebarOpen = useGameStore((s) => s.sidebarOpen);
   const setSidebarOpen = useGameStore((s) => s.setSidebarOpen);
   const progress = useProgress(currentGame || '');
@@ -46,10 +60,12 @@ export function Sidebar() {
 
   const isMK = currentGame ? isMarioKartGame(currentGame) : false;
   const isPKMN = currentGame ? isPokemonGame(currentGame) : false;
-  const game = currentGame && !isMK && !isPKMN ? getGame(currentGame) : null;
+  const isACM = currentGame ? isACMirageGame(currentGame) : false;
+  const game = currentGame && !isMK && !isPKMN && !isACM ? getGame(currentGame) : null;
   const mkGame = currentGame && isMK ? getMarioKartGame(currentGame) : null;
   const pkmnGame = currentGame && isPKMN ? getPokemonGame(currentGame) : null;
-  const stats = currentGame && !isMK && !isPKMN ? getGameStats(currentGame) : null;
+  const acmGame = currentGame && isACM ? getACMirageGame(currentGame) : null;
+  const stats = currentGame && !isMK && !isPKMN && !isACM ? getGameStats(currentGame) : null;
 
   // Calculate Mario Kart stats (with section breakdown)
   const mkStats = (() => {
@@ -207,10 +223,67 @@ export function Sidebar() {
     };
   })();
 
+  // Calculate AC Mirage stats
+  const acmStats = (() => {
+    const defaultStats = {
+      collected: 0,
+      total: 0,
+      percentage: 0,
+      mainQuests: { completed: 0, total: 0 },
+      investigations: { completed: 0, total: 0 },
+      tales: { completed: 0, total: 0 },
+      enigmas: { completed: 0, total: 0 },
+      historicalSites: { completed: 0, total: 0 },
+      lostBooks: { completed: 0, total: 0 },
+      curios: { completed: 0, total: 0 },
+      weapons: { completed: 0, total: 0 },
+      outfits: { completed: 0, total: 0 },
+      achievements: { completed: 0, total: 0 },
+    };
+    if (!acmGame) return defaultStats;
+
+    const col = progress.collected;
+
+    const count = <T extends { id: string }>(items: T[], creator: (id: string) => string) => ({
+      completed: items.filter((i) => col.has(creator(i.id))).length,
+      total: items.length,
+    });
+
+    const mainQuests = count(acmGame.mainQuests, acmCreateQuestId);
+    const investigations = count(acmGame.investigations, acmCreateInvestigationId);
+    const tales = count(acmGame.tales, acmCreateTaleId);
+    const enigmas = count(acmGame.enigmas, acmCreateEnigmaId);
+    const historicalSites = count(acmGame.historicalSites, acmCreateSiteId);
+    const lostBooks = count(acmGame.lostBooks, acmCreateBookId);
+    const curios = count(acmGame.curios, acmCreateCurioId);
+    const weapons = count(acmGame.weapons, acmCreateWeaponId);
+    const outfits = count(acmGame.outfits, acmCreateOutfitId);
+    const achievements = count(acmGame.achievements, acmCreateAchievementId);
+
+    const total =
+      mainQuests.total + investigations.total + tales.total + enigmas.total +
+      historicalSites.total + lostBooks.total + curios.total +
+      weapons.total + outfits.total + achievements.total;
+    const completed =
+      mainQuests.completed + investigations.completed + tales.completed + enigmas.completed +
+      historicalSites.completed + lostBooks.completed + curios.completed +
+      weapons.completed + outfits.completed + achievements.completed;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    return {
+      collected: completed,
+      total,
+      percentage,
+      mainQuests, investigations, tales, enigmas, historicalSites, lostBooks,
+      curios, weapons, outfits, achievements,
+    };
+  })();
+
   // Calculate overall value-based progress (Multi Moons count as 3)
   const overallStats = (() => {
     if (isMK) return mkStats;
     if (isPKMN) return pkmnStats;
+    if (isACM) return acmStats;
     if (!game || !stats) return { collected: 0, total: 0, percentage: 0 };
 
     const moonCollectibles = game.collectibles.filter((c) => c.type === 'moon');
@@ -322,6 +395,30 @@ export function Sidebar() {
       pcts[pkG.id] = total > 0 ? (collected / total) * 100 : 0;
     }
 
+    // AC Mirage games
+    for (const acmG of acMirageGames) {
+      const col = allProgress[acmG.id]?.collected ?? new Set<string>();
+      const countDone = <T extends { id: string }>(items: T[], creator: (id: string) => string) =>
+        items.filter((i) => col.has(creator(i.id))).length;
+      const collected =
+        countDone(acmG.mainQuests, acmCreateQuestId) +
+        countDone(acmG.investigations, acmCreateInvestigationId) +
+        countDone(acmG.tales, acmCreateTaleId) +
+        countDone(acmG.enigmas, acmCreateEnigmaId) +
+        countDone(acmG.historicalSites, acmCreateSiteId) +
+        countDone(acmG.lostBooks, acmCreateBookId) +
+        countDone(acmG.curios, acmCreateCurioId) +
+        countDone(acmG.weapons, acmCreateWeaponId) +
+        countDone(acmG.outfits, acmCreateOutfitId) +
+        countDone(acmG.achievements, acmCreateAchievementId);
+      const total =
+        acmG.mainQuests.length + acmG.investigations.length + acmG.tales.length +
+        acmG.enigmas.length + acmG.historicalSites.length + acmG.lostBooks.length +
+        acmG.curios.length +
+        acmG.weapons.length + acmG.outfits.length + acmG.achievements.length;
+      pcts[acmG.id] = total > 0 ? (collected / total) * 100 : 0;
+    }
+
     return pcts;
   }, [allProgress]);
 
@@ -330,6 +427,7 @@ export function Sidebar() {
     filters: false,
     pokemonSections: true,
     marioKartSections: true,
+    acmSections: true,
   });
 
   const toggleSection = (section: string) => {
@@ -447,14 +545,37 @@ export function Sidebar() {
               <span className={`text-[11px] shrink-0 ${currentGame === g.id ? 'text-violet-400' : 'text-zinc-500'}`}>{(gamePercentages[g.id] ?? 0).toFixed(1)}%</span>
             </button>
           ))}
+          {/* AC Mirage Games */}
+          {acMirageGames.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => {
+                setCurrentGame(g.id);
+                setCurrentKingdom(null);
+              }}
+              className={`w-full px-2 py-1.5 rounded text-left text-sm transition-colors flex items-center gap-2 ${
+                currentGame === g.id
+                  ? 'bg-orange-500/20 text-orange-400 font-medium'
+                  : 'hover:bg-zinc-800 text-zinc-300'
+              }`}
+            >
+              <Skull className="w-3 h-3 shrink-0" />
+              <span className="flex-1 truncate">{g.name}</span>
+              <span className={`text-[11px] shrink-0 ${currentGame === g.id ? 'text-orange-400' : 'text-zinc-500'}`}>{(gamePercentages[g.id] ?? 0).toFixed(1)}%</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Game Info */}
-      {(game || mkGame || pkmnGame) && (
+      {(game || mkGame || pkmnGame || acmGame) && (
         <div className="px-3 py-2 border-b border-zinc-800">
-          <h2 className={`font-semibold text-sm ${isPKMN ? 'text-violet-400' : 'text-yellow-400'}`}>
-            {game?.name || mkGame?.name || pkmnGame?.name}
+          <h2 className={`font-semibold text-sm ${
+            isPKMN ? 'text-violet-400' :
+            isACM ? 'text-orange-400' :
+            'text-yellow-400'
+          }`}>
+            {game?.name || mkGame?.name || pkmnGame?.name || acmGame?.name}
           </h2>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-zinc-400">
@@ -462,7 +583,11 @@ export function Sidebar() {
             </span>
             <div className="flex-1 bg-zinc-800 rounded-full h-1.5">
               <div
-                className={`${isPKMN ? 'bg-violet-500' : 'bg-yellow-500'} h-1.5 rounded-full transition-all duration-300`}
+                className={`${
+                  isPKMN ? 'bg-violet-500' :
+                  isACM ? 'bg-orange-500' :
+                  'bg-yellow-500'
+                } h-1.5 rounded-full transition-all duration-300`}
                 style={{
                   width: `${overallStats.total > 0 ? (overallStats.collected / overallStats.total) * 100 : 0}%`,
                 }}
@@ -474,7 +599,7 @@ export function Sidebar() {
 
       {/* Kingdoms List - Only for SMO games */}
       <div className="flex-1 overflow-y-auto">
-        {!isMK && !isPKMN && (
+        {!isMK && !isPKMN && !isACM && (
           <button
             onClick={() => toggleSection('kingdoms')}
             className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800 transition-colors"
@@ -488,7 +613,7 @@ export function Sidebar() {
           </button>
         )}
 
-        {!isMK && !isPKMN && expandedSections.kingdoms && game && (
+        {!isMK && !isPKMN && !isACM && expandedSections.kingdoms && game && (
           <div className="px-2 pb-2">
             {/* All Collectibles Option */}
             <button
@@ -925,6 +1050,257 @@ export function Sidebar() {
                     </div>
                   </div>
                   <PercentBadge completed={pkmnStats.marksRibbons.completed} total={pkmnStats.marksRibbons.total} />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* AC Mirage Sections */}
+        {isACM && acmGame && (
+          <>
+            <button
+              onClick={() => toggleSection('acmSections')}
+              className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800 transition-colors"
+            >
+              <span className="font-medium text-sm">Sections</span>
+              {expandedSections.acmSections ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+
+            {expandedSections.acmSections && (
+              <div className="px-2 pb-2">
+                {/* All Items */}
+                <button
+                  onClick={() => setCurrentACMirageSection(null)}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === null
+                      ? 'bg-orange-500/20 text-orange-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                    <Search className="w-3 h-3 text-white" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">All Items</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.collected}/{acmStats.total}
+                    </div>
+                  </div>
+                </button>
+
+                {/* Main Quests */}
+                <button
+                  onClick={() => setCurrentACMirageSection('main-quests')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'main-quests'
+                      ? 'bg-amber-500/20 text-amber-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-amber-500/40 flex items-center justify-center">
+                    <ScrollText className="w-3 h-3 text-amber-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Main Story</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.mainQuests.completed}/{acmStats.mainQuests.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.mainQuests.completed} total={acmStats.mainQuests.total} />
+                </button>
+
+                {/* Investigations */}
+                <button
+                  onClick={() => setCurrentACMirageSection('investigations')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'investigations'
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-red-500/40 flex items-center justify-center">
+                    <Skull className="w-3 h-3 text-red-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Investigations</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.investigations.completed}/{acmStats.investigations.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.investigations.completed} total={acmStats.investigations.total} />
+                </button>
+
+                {/* Tales */}
+                <button
+                  onClick={() => setCurrentACMirageSection('tales')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'tales'
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-emerald-500/40 flex items-center justify-center">
+                    <BookOpen className="w-3 h-3 text-emerald-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Tales of Baghdad</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.tales.completed}/{acmStats.tales.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.tales.completed} total={acmStats.tales.total} />
+                </button>
+
+                {/* Enigmas */}
+                <button
+                  onClick={() => setCurrentACMirageSection('enigmas')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'enigmas'
+                      ? 'bg-fuchsia-500/20 text-fuchsia-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-fuchsia-500/40 flex items-center justify-center">
+                    <Sparkles className="w-3 h-3 text-fuchsia-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Enigmas</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.enigmas.completed}/{acmStats.enigmas.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.enigmas.completed} total={acmStats.enigmas.total} />
+                </button>
+
+                {/* Historical Sites */}
+                <button
+                  onClick={() => setCurrentACMirageSection('historical-sites')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'historical-sites'
+                      ? 'bg-sky-500/20 text-sky-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-sky-500/40 flex items-center justify-center">
+                    <Landmark className="w-3 h-3 text-sky-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Historical Sites</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.historicalSites.completed}/{acmStats.historicalSites.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.historicalSites.completed} total={acmStats.historicalSites.total} />
+                </button>
+
+                {/* Lost Books */}
+                <button
+                  onClick={() => setCurrentACMirageSection('lost-books')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'lost-books'
+                      ? 'bg-amber-300/20 text-amber-300'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-amber-300/40 flex items-center justify-center">
+                    <Library className="w-3 h-3 text-amber-300" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Lost Books</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.lostBooks.completed}/{acmStats.lostBooks.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.lostBooks.completed} total={acmStats.lostBooks.total} />
+                </button>
+
+                {/* Curios (Dervis Artifacts) */}
+                <button
+                  onClick={() => setCurrentACMirageSection('curios')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'curios'
+                      ? 'bg-violet-500/20 text-violet-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-violet-500/40 flex items-center justify-center">
+                    <Gem className="w-3 h-3 text-violet-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Dervis&apos; Curios</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.curios.completed}/{acmStats.curios.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.curios.completed} total={acmStats.curios.total} />
+                </button>
+
+                {/* Weapons */}
+                <button
+                  onClick={() => setCurrentACMirageSection('weapons')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'weapons'
+                      ? 'bg-rose-500/20 text-rose-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-rose-500/40 flex items-center justify-center">
+                    <Sword className="w-3 h-3 text-rose-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Weapons</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.weapons.completed}/{acmStats.weapons.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.weapons.completed} total={acmStats.weapons.total} />
+                </button>
+
+                {/* Outfits */}
+                <button
+                  onClick={() => setCurrentACMirageSection('outfits')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'outfits'
+                      ? 'bg-pink-500/20 text-pink-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-pink-500/40 flex items-center justify-center">
+                    <Shirt className="w-3 h-3 text-pink-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Outfits</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.outfits.completed}/{acmStats.outfits.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.outfits.completed} total={acmStats.outfits.total} />
+                </button>
+
+                {/* Achievements */}
+                <button
+                  onClick={() => setCurrentACMirageSection('achievements')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'achievements'
+                      ? 'bg-yellow-400/20 text-yellow-300'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-yellow-400/40 flex items-center justify-center">
+                    <Trophy className="w-3 h-3 text-yellow-300" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Achievements</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.achievements.completed}/{acmStats.achievements.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.achievements.completed} total={acmStats.achievements.total} />
                 </button>
               </div>
             )}

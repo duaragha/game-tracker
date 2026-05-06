@@ -1,12 +1,24 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useProgress, useGameStore, useFilters, useActiveMKModes, useActivePKMNSections, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
-import { getGame, getGameStats, isMarioKartGame, isPokemonGame, getMarioKartGame, getPokemonGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns, allSixStarRaids, sandwichRecipes, rotomPhoneCases, emotes, tablecloths, paldeaSights, kitakamiWonders, pokemonMarks, pokemonRibbons, leagueOfficials, miniGames, allPokedexEntries } from '@/data';
+import { useProgress, useGameStore, useFilters, useActiveMKModes, useActivePKMNSections, useActiveACMSections, calculateCollectedValue, calculateTotalValue } from '@/store/game-store';
+import { getGame, getGameStats, isMarioKartGame, isPokemonGame, isACMirageGame, getMarioKartGame, getPokemonGame, getACMirageGame, allStakes, gimmighoulTowers, wildTeraPokemon, flyingTaxiPoints, pokemonCenters, dittoSpawns, allSixStarRaids, sandwichRecipes, rotomPhoneCases, emotes, tablecloths, paldeaSights, kitakamiWonders, pokemonMarks, pokemonRibbons, leagueOfficials, miniGames, allPokedexEntries } from '@/data';
 import { createCupCompletionId } from '@/types/mario-kart';
 import { createStoryId, createLegendaryId, createPostGameId, createDLCId, createStakeId, createTowerId, createTeraId, createTaxiId, createCenterId, createDittoId, createRaidId, createRecipeId, createCaseId, createEmoteId, createTableclothId, createSightId, createWonderId, createMarkId, createRibbonId, createLeagueOfficialId, createMiniGameId, createPokedexId } from '@/types/pokemon';
-import { CollectibleType, MKModeFilter, PKMNSectionFilter } from '@/types';
-import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  createQuestId as acmCreateQuestId,
+  createInvestigationId as acmCreateInvestigationId,
+  createTaleId as acmCreateTaleId,
+  createEnigmaId as acmCreateEnigmaId,
+  createHistoricalSiteId as acmCreateSiteId,
+  createLostBookId as acmCreateBookId,
+  createCurioId as acmCreateCurioId,
+  createWeaponId as acmCreateWeaponId,
+  createOutfitId as acmCreateOutfitId,
+  createAchievementId as acmCreateAchievementId,
+} from '@/types/ac-mirage';
+import { CollectibleType, MKModeFilter, PKMNSectionFilter, ACMSectionFilter } from '@/types';
+import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight, ScrollText, Skull, Library, Landmark, Gem, PackageOpen, Sword, Sparkles } from 'lucide-react';
 
 interface GameHeaderProps {
   gameId: string;
@@ -17,6 +29,20 @@ const mkModeConfig: Record<MKModeFilter, { label: string; icon: React.ReactNode;
   gp: { label: 'Grand Prix', icon: <Trophy className="w-4 h-4" />, color: 'yellow' },
   tt: { label: 'Time Trials', icon: <Timer className="w-4 h-4" />, color: 'blue' },
   ko: { label: 'Knockout', icon: <Crown className="w-4 h-4" />, color: 'purple' },
+};
+
+// AC Mirage section filter config
+const acmSectionConfig: Record<ACMSectionFilter, { label: string; icon: React.ReactNode; color: string }> = {
+  'main-quests':       { label: 'Story',      icon: <ScrollText className="w-4 h-4" />, color: 'amber' },
+  'investigations':    { label: 'Order',      icon: <Skull className="w-4 h-4" />,      color: 'red' },
+  'tales':             { label: 'Tales',      icon: <BookOpen className="w-4 h-4" />,   color: 'emerald' },
+  'enigmas':           { label: 'Enigmas',    icon: <Sparkles className="w-4 h-4" />,   color: 'pink' },
+  'historical-sites':  { label: 'Sites',      icon: <Landmark className="w-4 h-4" />,   color: 'cyan' },
+  'lost-books':        { label: 'Books',      icon: <Library className="w-4 h-4" />,    color: 'amber' },
+  'curios':            { label: 'Curios',     icon: <Gem className="w-4 h-4" />,        color: 'violet' },
+  'weapons':           { label: 'Weapons',    icon: <Sword className="w-4 h-4" />,      color: 'rose' },
+  'outfits':           { label: 'Outfits',    icon: <Shirt className="w-4 h-4" />,      color: 'pink' },
+  'achievements':      { label: 'Trophies',   icon: <Trophy className="w-4 h-4" />,     color: 'yellow' },
 };
 
 // Pokemon section filter config
@@ -190,6 +216,55 @@ function useMarioKartStats(gameId: string): { stats: StatItem[]; overall: { coll
   }, [game, progress, collectedSize]);
 }
 
+// Calculate AC Mirage stats
+function useACMirageStats(gameId: string): { stats: StatItem[]; overall: { collected: number; total: number } } | null {
+  const game = getACMirageGame(gameId);
+  const progress = useGameStore((s) => s.progress[gameId]);
+  const collectedSize = useGameStore((s) => s.progress[gameId]?.collected?.size ?? 0);
+
+  return useMemo(() => {
+    if (!game) return null;
+
+    const collected = progress?.collected ?? new Set<string>();
+    const count = <T extends { id: string }>(items: T[], creator: (id: string) => string) => ({
+      done: items.filter((i) => collected.has(creator(i.id))).length,
+      total: items.length,
+    });
+
+    const mq = count(game.mainQuests, acmCreateQuestId);
+    const inv = count(game.investigations, acmCreateInvestigationId);
+    const tales = count(game.tales, acmCreateTaleId);
+    const enigmas = count(game.enigmas, acmCreateEnigmaId);
+    const sites = count(game.historicalSites, acmCreateSiteId);
+    const books = count(game.lostBooks, acmCreateBookId);
+    const curios = count(game.curios, acmCreateCurioId);
+    const weapons = count(game.weapons, acmCreateWeaponId);
+    const outfits = count(game.outfits, acmCreateOutfitId);
+    const achievements = count(game.achievements, acmCreateAchievementId);
+
+    const totalItems = mq.total + inv.total + tales.total + enigmas.total + sites.total +
+      books.total + curios.total + weapons.total + outfits.total + achievements.total;
+    const totalCompleted = mq.done + inv.done + tales.done + enigmas.done + sites.done +
+      books.done + curios.done + weapons.done + outfits.done + achievements.done;
+
+    return {
+      stats: [
+        { label: 'Main Story', icon: <ScrollText className="w-5 h-5" />, collected: mq.done, total: mq.total, color: 'amber' },
+        { label: 'Order', icon: <Skull className="w-5 h-5" />, collected: inv.done, total: inv.total, color: 'red' },
+        { label: 'Tales', icon: <BookOpen className="w-5 h-5" />, collected: tales.done, total: tales.total, color: 'emerald' },
+        { label: 'Enigmas', icon: <Sparkles className="w-5 h-5" />, collected: enigmas.done, total: enigmas.total, color: 'pink' },
+        { label: 'Sites', icon: <Landmark className="w-5 h-5" />, collected: sites.done, total: sites.total, color: 'cyan' },
+        { label: 'Lost Books', icon: <Library className="w-5 h-5" />, collected: books.done, total: books.total, color: 'amber' },
+        { label: 'Curios', icon: <Gem className="w-5 h-5" />, collected: curios.done, total: curios.total, color: 'violet' },
+        { label: 'Weapons', icon: <Sword className="w-5 h-5" />, collected: weapons.done, total: weapons.total, color: 'rose' },
+        { label: 'Outfits', icon: <Shirt className="w-5 h-5" />, collected: outfits.done, total: outfits.total, color: 'pink' },
+        { label: 'Trophies', icon: <Trophy className="w-5 h-5" />, collected: achievements.done, total: achievements.total, color: 'yellow' },
+      ],
+      overall: { collected: totalCompleted, total: totalItems },
+    };
+  }, [game, progress, collectedSize]);
+}
+
 // Calculate Pokemon stats
 function usePokemonStats(gameId: string): { stats: StatItem[]; overall: { collected: number; total: number } } | null {
   const game = getPokemonGame(gameId);
@@ -278,11 +353,14 @@ export function GameHeader({ gameId }: GameHeaderProps) {
   const setFilters = useGameStore((s) => s.setFilters);
   const activeMKModes = useActiveMKModes();
   const activePKMNSections = useActivePKMNSections();
+  const activeACMSections = useActiveACMSections();
   const toggleMKMode = useGameStore((s) => s.toggleMKMode);
   const togglePKMNSection = useGameStore((s) => s.togglePKMNSection);
+  const toggleACMSection = useGameStore((s) => s.toggleACMSection);
 
   const isMK = isMarioKartGame(gameId);
   const isPKMN = isPokemonGame(gameId);
+  const isACM = isACMirageGame(gameId);
 
   // Get available MK modes (knockout only for MK World)
   const mkGame = isMK ? getMarioKartGame(gameId) : null;
@@ -293,8 +371,9 @@ export function GameHeader({ gameId }: GameHeaderProps) {
   const smoStats = useSMOStats(gameId);
   const mkStats = useMarioKartStats(gameId);
   const pkmnStats = usePokemonStats(gameId);
+  const acmStats = useACMirageStats(gameId);
 
-  const data = isMK ? mkStats : isPKMN ? pkmnStats : smoStats;
+  const data = isMK ? mkStats : isPKMN ? pkmnStats : isACM ? acmStats : smoStats;
 
   if (!data) return null;
 
@@ -320,6 +399,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
             isMK ? 'bg-gradient-to-br from-red-500 to-red-600' :
             isPKMN ? 'bg-gradient-to-br from-violet-500 to-purple-600' :
+            isACM ? 'bg-gradient-to-br from-orange-500 to-amber-600' :
             'bg-gradient-to-br from-yellow-500 to-orange-500'
           }`}>
             <Trophy className="w-4 h-4 text-white" />
@@ -336,6 +416,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               className={`h-2 rounded-full transition-all duration-500 ${
                 isMK ? 'bg-gradient-to-r from-red-500 to-green-500' :
                 isPKMN ? 'bg-gradient-to-r from-violet-500 to-green-500' :
+                isACM ? 'bg-gradient-to-r from-orange-500 to-green-500' :
                 'bg-gradient-to-r from-yellow-500 to-green-500'
               }`}
               style={{ width: `${overallPercentage}%` }}
@@ -344,7 +425,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
         </div>
         <div className="flex items-center gap-3">
           <span className={`text-lg font-bold ${
-            isMK ? 'text-red-400' : isPKMN ? 'text-violet-400' : 'text-yellow-400'
+            isMK ? 'text-red-400' : isPKMN ? 'text-violet-400' : isACM ? 'text-orange-400' : 'text-yellow-400'
           }`}>
             {overallPercentage.toFixed(1)}%
           </span>
@@ -361,6 +442,7 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               className={`h-2 rounded-full transition-all duration-500 ${
                 isMK ? 'bg-gradient-to-r from-red-500 via-green-500 to-emerald-500' :
                 isPKMN ? 'bg-gradient-to-r from-violet-500 via-green-500 to-emerald-500' :
+                isACM ? 'bg-gradient-to-r from-orange-500 via-green-500 to-emerald-500' :
                 'bg-gradient-to-r from-yellow-500 via-green-500 to-emerald-500'
               }`}
               style={{ width: `${overallPercentage}%` }}
@@ -371,7 +453,9 @@ export function GameHeader({ gameId }: GameHeaderProps) {
           <div className={`grid gap-2 ${
             stats.length <= 3 ? 'grid-cols-3' :
             stats.length <= 6 ? 'grid-cols-3 md:grid-cols-6' :
-            'grid-cols-3 md:grid-cols-5 lg:grid-cols-9'
+            stats.length <= 9 ? 'grid-cols-3 md:grid-cols-5 lg:grid-cols-9' :
+            stats.length <= 10 ? 'grid-cols-3 md:grid-cols-5 lg:grid-cols-10' :
+            'grid-cols-3 md:grid-cols-6 lg:grid-cols-11'
           }`}>
             {stats.map((item) => {
               const colors = colorClasses[item.color];
@@ -496,8 +580,28 @@ export function GameHeader({ gameId }: GameHeaderProps) {
               );
             })}
 
+            {/* AC Mirage Section Filters */}
+            {isACM && (Object.keys(acmSectionConfig) as ACMSectionFilter[]).map((section) => {
+              const config = acmSectionConfig[section];
+              const isActive = activeACMSections.has(section);
+              return (
+                <button
+                  key={section}
+                  onClick={() => toggleACMSection(section)}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md border transition-colors text-xs ${
+                    isActive
+                      ? filterColorClasses[config.color]
+                      : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                  }`}
+                >
+                  <span className="[&>svg]:w-3.5 [&>svg]:h-3.5">{config.icon}</span>
+                  <span className="hidden sm:inline">{config.label}</span>
+                </button>
+              );
+            })}
+
             {/* SMO Type Filters */}
-            {!isMK && !isPKMN && (Object.entries(smoTypeConfig) as [CollectibleType, { label: string; icon: React.ReactNode; color: string }][]).map(
+            {!isMK && !isPKMN && !isACM && (Object.entries(smoTypeConfig) as [CollectibleType, { label: string; icon: React.ReactNode; color: string }][]).map(
               ([type, config]) => (
                 <button
                   key={type}
