@@ -1,59 +1,72 @@
 import {
-  superMarioOdyssey,
+  games as basicGames,
   luigisMansion2,
-  marioKart8Deluxe,
-  marioKartWorld,
-  pokemonViolet,
-  acMirage,
+  marioKartGames,
+  pokemonGames,
+  acMirageGames,
   completionCounts as pokemonCompletionCounts,
 } from '@/data';
 import { pokedexCounts as pokemonPokedexCounts } from '@/data/pokemon-pokedex';
 
+import type { GameData } from '@/types';
+import type { MarioKartGame } from '@/types/mario-kart';
+import type { PokemonGame } from '@/types/pokemon';
+import type { ACMirageGame } from '@/types/ac-mirage';
+
 // ============================================================================
 // TOTAL-COLLECTIBLE COUNTS
 //
-// Per-game canonical totals. The "collected" array length / total =
-// percent. Different game shapes (collectible list vs cup-completion
-// matrix vs Pokémon meta-stats) are normalized here so downstream
-// consumers (full_tracker reconciler, /api/games-summary) get a
-// single number per game.
+// Auto-derived from the game arrays exported by `@/data`. Adding a
+// new game to the tracker (export it from data/index.ts) means it
+// shows up here automatically — no second hand-maintained list.
 //
-// Updating a game's total: edit the function below. There is no
-// implicit fallback — unmapped IDs return null so a missing game is
-// loud, not silent.
+// Each game-shape gets its own count function below; dispatch is by
+// game id so a "where does this number come from" lookup is one grep.
 // ============================================================================
 
-interface GameMeta {
-  id: string;
-  name: string;
-  total: number;
+export interface GameMeta {
+  id: string
+  name: string
+  total: number
 }
 
-const POKEMON_TOTAL = (() => {
+const POKEMON_TOTAL_BY_ID: Record<string, number> = (() => {
+  // Pokémon games share the completion + pokedex aggregation. Today
+  // there's only Violet but the table form means a future entry
+  // doesn't need a code change.
   const completion = Object.values(pokemonCompletionCounts).reduce(
     (acc, n) => acc + n,
     0,
-  );
-  // National pokedex is the canonical "main" target most users care
-  // about. Plus story checkpoints + legendaries + DLC + areas surface
-  // separately, but those map to per-area progress not whole-game %.
-  const pokedex = pokemonPokedexCounts.national ?? 0;
-  return completion + pokedex
-}) ()
+  )
+  const pokedex = pokemonPokedexCounts.national ?? 0
+  return Object.fromEntries(
+    pokemonGames.map((g) => [g.id, completion + pokedex]),
+  )
+})()
 
-/**
- * Mirrors the percent calculation in `Sidebar.tsx` (the Mario Kart
- * UI source of truth). Total = GP cup×class + KO rally×class +
- * tracks × time-trial classes.
- *
- * Time-trial class set differs by game:
- *   mkworld  → ['150cc']                  (1 class)
- *   mk8dx    → ['150cc', '200cc']         (2 classes)
- */
-/** Mirrors the AC Mirage percent calc in Sidebar.tsx — sum of all 10
- *  tickable item arrays (districts and shards are spatial / cosmetic
- *  filters, not progress targets). */
-function acMirageTotal(g: typeof acMirage): number {
+function basicGameTotal(g: GameData): number {
+  return g.collectibles.length
+}
+
+/** GP cup×class + KO rally×class + tracks × time-trial classes.
+ *  Mirrors `Sidebar.tsx` so percent matches the in-app display. */
+function marioKartTotal(g: MarioKartGame): number {
+  const gp = g.cups.length * g.engineClasses.length
+  const ko =
+    (g.knockoutRallies?.length ?? 0) * (g.knockoutEngineClasses?.length ?? 0)
+  const tracksTotal = g.cups.reduce((sum, c) => sum + c.tracks.length, 0)
+  const ttClasses = g.id === 'mkworld' ? 1 : 2
+  const tt = g.hasTimeTrials ? tracksTotal * ttClasses : 0
+  return gp + ko + tt
+}
+
+function pokemonTotal(g: PokemonGame): number {
+  return POKEMON_TOTAL_BY_ID[g.id] ?? 0
+}
+
+/** Sum of all 10 tickable item arrays (mirrors `acmStats` in
+ *  Sidebar.tsx). Districts and shards aren't progress targets. */
+function acMirageTotal(g: ACMirageGame): number {
   return (
     g.mainQuests.length +
     g.investigations.length +
@@ -65,66 +78,52 @@ function acMirageTotal(g: typeof acMirage): number {
     g.weapons.length +
     g.outfits.length +
     g.achievements.length
-  );
+  )
 }
 
-function marioKartTotal(g: typeof marioKart8Deluxe): number {
-  const gp = g.cups.length * g.engineClasses.length;
-  const ko =
-    (g.knockoutRallies?.length ?? 0) * (g.knockoutEngineClasses?.length ?? 0);
+// ---------- assembly ----------
 
-  const tracksTotal = g.cups.reduce((sum, c) => sum + c.tracks.length, 0);
-  const ttClasses = g.id === "mkworld" ? 1 : 2;
-  const tt = g.hasTimeTrials ? tracksTotal * ttClasses : 0;
+const TABLE: Map<string, GameMeta> = new Map()
 
-  return gp + ko + tt;
+for (const g of basicGames) {
+  TABLE.set(g.id, { id: g.id, name: g.name, total: basicGameTotal(g) })
+}
+// LM2 ships as a standalone export (not in `games[]`); still surface
+// it to the integration layer.
+TABLE.set(luigisMansion2.id, {
+  id: luigisMansion2.id,
+  name: luigisMansion2.name,
+  total: basicGameTotal(luigisMansion2),
+})
+for (const g of marioKartGames) {
+  TABLE.set(g.id, { id: g.id, name: g.name, total: marioKartTotal(g) })
+}
+for (const g of pokemonGames) {
+  TABLE.set(g.id, { id: g.id, name: g.name, total: pokemonTotal(g) })
+}
+for (const g of acMirageGames) {
+  TABLE.set(g.id, { id: g.id, name: g.name, total: acMirageTotal(g) })
 }
 
-const TABLE: Record<string, GameMeta> = {
-  smo: {
-    id: 'smo',
-    name: superMarioOdyssey.name,
-    total: superMarioOdyssey.collectibles.length,
-  },
-  lm2: {
-    id: 'lm2',
-    name: luigisMansion2.name,
-    total: luigisMansion2.collectibles.length,
-  },
-  mk8dx: {
-    id: marioKart8Deluxe.id,
-    name: marioKart8Deluxe.name,
-    total: marioKartTotal(marioKart8Deluxe),
-  },
-  mkworld: {
-    id: marioKartWorld.id,
-    name: marioKartWorld.name,
-    total: marioKartTotal(marioKartWorld),
-  },
-  'pokemon-violet': {
-    id: pokemonViolet.id,
-    name: pokemonViolet.name,
-    total: POKEMON_TOTAL,
-  },
-  // BOTW is in user_progress but has no static collectible data file —
-  // fall back to a manual total so percent at least reads zero/full.
-  // Update this if a BOTW data module is added.
-  botw: {
+// Manual fallbacks for ids that exist in user_progress but have no
+// static data file (legacy entries; harmless when collected=0). Add
+// rows here only as a stopgap before promoting the game to a real
+// data module.
+const FALLBACKS: ReadonlyArray<GameMeta> = [
+  {
     id: 'botw',
     name: 'The Legend of Zelda: Breath of the Wild',
     total: 0,
   },
-  'ac-mirage': {
-    id: acMirage.id,
-    name: acMirage.name,
-    total: acMirageTotal(acMirage),
-  },
+]
+for (const f of FALLBACKS) {
+  if (!TABLE.has(f.id)) TABLE.set(f.id, f)
 }
 
 export function getGameMeta(gameId: string): GameMeta | null {
-  return TABLE[gameId] ?? null
+  return TABLE.get(gameId) ?? null
 }
 
 export function getAllGameMetas(): GameMeta[] {
-  return Object.values(TABLE)
+  return Array.from(TABLE.values())
 }
