@@ -38,6 +38,7 @@ export interface ACMirageQuest {
   name: string;
   arc: StoryArc;
   order: number;
+  region?: ACMirageRegion;
   description?: string;
   imageUrl?: string;
 }
