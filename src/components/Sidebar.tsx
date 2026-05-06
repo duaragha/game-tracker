@@ -15,6 +15,7 @@ import {
 import {
   createQuestId as acmCreateQuestId,
   createInvestigationId as acmCreateInvestigationId,
+  createContractId as acmCreateContractId,
   createTaleId as acmCreateTaleId,
   createEnigmaId as acmCreateEnigmaId,
   createHistoricalSiteId as acmCreateSiteId,
@@ -25,7 +26,7 @@ import {
   createAchievementId as acmCreateAchievementId,
 } from '@/types/ac-mirage';
 import { allPokedexEntries } from '@/data';
-import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, ScrollText, Skull, Library, Landmark, Gem, PackageOpen, Sword, Shirt } from 'lucide-react';
+import { ChevronDown, ChevronRight, Map, Moon, Coins, Search, Menu, X, Gamepad2, Trophy, Flag, Sparkles, Swords, Crown, Star, Gift, Milestone, Timer, Zap, UtensilsCrossed, Smartphone, Eye, Medal, BookOpen, Globe, ScrollText, Skull, Library, Landmark, Gem, Sword, Shirt, Handshake } from 'lucide-react';
 
 function PercentBadge({ completed, total }: { completed: number; total: number }) {
   if (total <= 0) return null;
@@ -231,6 +232,7 @@ export function Sidebar() {
       percentage: 0,
       mainQuests: { completed: 0, total: 0 },
       investigations: { completed: 0, total: 0 },
+      contracts: { completed: 0, total: 0 },
       tales: { completed: 0, total: 0 },
       enigmas: { completed: 0, total: 0 },
       historicalSites: { completed: 0, total: 0 },
@@ -251,6 +253,7 @@ export function Sidebar() {
 
     const mainQuests = count(acmGame.mainQuests, acmCreateQuestId);
     const investigations = count(acmGame.investigations, acmCreateInvestigationId);
+    const contracts = count(acmGame.contracts, acmCreateContractId);
     const tales = count(acmGame.tales, acmCreateTaleId);
     const enigmas = count(acmGame.enigmas, acmCreateEnigmaId);
     const historicalSites = count(acmGame.historicalSites, acmCreateSiteId);
@@ -261,11 +264,11 @@ export function Sidebar() {
     const achievements = count(acmGame.achievements, acmCreateAchievementId);
 
     const total =
-      mainQuests.total + investigations.total + tales.total + enigmas.total +
+      mainQuests.total + investigations.total + contracts.total + tales.total + enigmas.total +
       historicalSites.total + lostBooks.total + curios.total +
       weapons.total + outfits.total + achievements.total;
     const completed =
-      mainQuests.completed + investigations.completed + tales.completed + enigmas.completed +
+      mainQuests.completed + investigations.completed + contracts.completed + tales.completed + enigmas.completed +
       historicalSites.completed + lostBooks.completed + curios.completed +
       weapons.completed + outfits.completed + achievements.completed;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -274,7 +277,7 @@ export function Sidebar() {
       collected: completed,
       total,
       percentage,
-      mainQuests, investigations, tales, enigmas, historicalSites, lostBooks,
+      mainQuests, investigations, contracts, tales, enigmas, historicalSites, lostBooks,
       curios, weapons, outfits, achievements,
     };
   })();
@@ -403,6 +406,7 @@ export function Sidebar() {
       const collected =
         countDone(acmG.mainQuests, acmCreateQuestId) +
         countDone(acmG.investigations, acmCreateInvestigationId) +
+        countDone(acmG.contracts, acmCreateContractId) +
         countDone(acmG.tales, acmCreateTaleId) +
         countDone(acmG.enigmas, acmCreateEnigmaId) +
         countDone(acmG.historicalSites, acmCreateSiteId) +
@@ -412,7 +416,7 @@ export function Sidebar() {
         countDone(acmG.outfits, acmCreateOutfitId) +
         countDone(acmG.achievements, acmCreateAchievementId);
       const total =
-        acmG.mainQuests.length + acmG.investigations.length + acmG.tales.length +
+        acmG.mainQuests.length + acmG.investigations.length + acmG.contracts.length + acmG.tales.length +
         acmG.enigmas.length + acmG.historicalSites.length + acmG.lostBooks.length +
         acmG.curios.length +
         acmG.weapons.length + acmG.outfits.length + acmG.achievements.length;
@@ -1133,6 +1137,27 @@ export function Sidebar() {
                     </div>
                   </div>
                   <PercentBadge completed={acmStats.investigations.completed} total={acmStats.investigations.total} />
+                </button>
+
+                {/* Contracts */}
+                <button
+                  onClick={() => setCurrentACMirageSection('contracts')}
+                  className={`w-full px-2 py-1.5 rounded-md flex items-center gap-2 transition-colors ${
+                    currentACMirageSection === 'contracts'
+                      ? 'bg-orange-500/20 text-orange-400'
+                      : 'hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="w-6 h-6 rounded bg-orange-500/40 flex items-center justify-center">
+                    <Handshake className="w-3 h-3 text-orange-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-sm">Contracts</div>
+                    <div className="text-[10px] text-zinc-400">
+                      {acmStats.contracts.completed}/{acmStats.contracts.total}
+                    </div>
+                  </div>
+                  <PercentBadge completed={acmStats.contracts.completed} total={acmStats.contracts.total} />
                 </button>
 
                 {/* Tales */}

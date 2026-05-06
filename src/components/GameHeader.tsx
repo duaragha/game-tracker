@@ -8,6 +8,7 @@ import { createStoryId, createLegendaryId, createPostGameId, createDLCId, create
 import {
   createQuestId as acmCreateQuestId,
   createInvestigationId as acmCreateInvestigationId,
+  createContractId as acmCreateContractId,
   createTaleId as acmCreateTaleId,
   createEnigmaId as acmCreateEnigmaId,
   createHistoricalSiteId as acmCreateSiteId,
@@ -18,7 +19,7 @@ import {
   createAchievementId as acmCreateAchievementId,
 } from '@/types/ac-mirage';
 import { CollectibleType, MKModeFilter, PKMNSectionFilter, ACMSectionFilter } from '@/types';
-import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight, ScrollText, Skull, Library, Landmark, Gem, PackageOpen, Sword, Sparkles } from 'lucide-react';
+import { Trophy, Moon, Coins, Camera, Shirt, Flag, Image, Gift, Sticker, Music, Search, Eye, EyeOff, X, Timer, Crown, Swords, Star, Milestone, Zap, BookOpen, UtensilsCrossed, Smartphone, Medal, ChevronDown, ChevronRight, ScrollText, Skull, Library, Landmark, Gem, Sword, Sparkles, Handshake } from 'lucide-react';
 
 interface GameHeaderProps {
   gameId: string;
@@ -35,6 +36,7 @@ const mkModeConfig: Record<MKModeFilter, { label: string; icon: React.ReactNode;
 const acmSectionConfig: Record<ACMSectionFilter, { label: string; icon: React.ReactNode; color: string }> = {
   'main-quests':       { label: 'Story',      icon: <ScrollText className="w-4 h-4" />, color: 'amber' },
   'investigations':    { label: 'Order',      icon: <Skull className="w-4 h-4" />,      color: 'red' },
+  'contracts':         { label: 'Contracts',  icon: <Handshake className="w-4 h-4" />,  color: 'orange' },
   'tales':             { label: 'Tales',      icon: <BookOpen className="w-4 h-4" />,   color: 'emerald' },
   'enigmas':           { label: 'Enigmas',    icon: <Sparkles className="w-4 h-4" />,   color: 'pink' },
   'historical-sites':  { label: 'Sites',      icon: <Landmark className="w-4 h-4" />,   color: 'cyan' },
@@ -233,6 +235,7 @@ function useACMirageStats(gameId: string): { stats: StatItem[]; overall: { colle
 
     const mq = count(game.mainQuests, acmCreateQuestId);
     const inv = count(game.investigations, acmCreateInvestigationId);
+    const contracts = count(game.contracts, acmCreateContractId);
     const tales = count(game.tales, acmCreateTaleId);
     const enigmas = count(game.enigmas, acmCreateEnigmaId);
     const sites = count(game.historicalSites, acmCreateSiteId);
@@ -242,15 +245,16 @@ function useACMirageStats(gameId: string): { stats: StatItem[]; overall: { colle
     const outfits = count(game.outfits, acmCreateOutfitId);
     const achievements = count(game.achievements, acmCreateAchievementId);
 
-    const totalItems = mq.total + inv.total + tales.total + enigmas.total + sites.total +
+    const totalItems = mq.total + inv.total + contracts.total + tales.total + enigmas.total + sites.total +
       books.total + curios.total + weapons.total + outfits.total + achievements.total;
-    const totalCompleted = mq.done + inv.done + tales.done + enigmas.done + sites.done +
+    const totalCompleted = mq.done + inv.done + contracts.done + tales.done + enigmas.done + sites.done +
       books.done + curios.done + weapons.done + outfits.done + achievements.done;
 
     return {
       stats: [
         { label: 'Main Story', icon: <ScrollText className="w-5 h-5" />, collected: mq.done, total: mq.total, color: 'amber' },
         { label: 'Order', icon: <Skull className="w-5 h-5" />, collected: inv.done, total: inv.total, color: 'red' },
+        { label: 'Contracts', icon: <Handshake className="w-5 h-5" />, collected: contracts.done, total: contracts.total, color: 'orange' },
         { label: 'Tales', icon: <BookOpen className="w-5 h-5" />, collected: tales.done, total: tales.total, color: 'emerald' },
         { label: 'Enigmas', icon: <Sparkles className="w-5 h-5" />, collected: enigmas.done, total: enigmas.total, color: 'pink' },
         { label: 'Sites', icon: <Landmark className="w-5 h-5" />, collected: sites.done, total: sites.total, color: 'cyan' },

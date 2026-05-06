@@ -85,6 +85,7 @@ export type MarioKartSection = 'grand-prix' | 'time-trials' | 'knockout' | null;
 export type ACMirageSection =
   | 'main-quests'
   | 'investigations'
+  | 'contracts'
   | 'tales'
   | 'enigmas'
   | 'historical-sites'
@@ -105,6 +106,7 @@ export type PKMNSectionFilter = 'story' | 'legendaries' | 'pokedex' | 'raids' | 
 export type ACMSectionFilter =
   | 'main-quests'
   | 'investigations'
+  | 'contracts'
   | 'tales'
   | 'enigmas'
   | 'historical-sites'

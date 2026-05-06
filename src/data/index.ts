@@ -47,6 +47,7 @@ import { ACMirageGame } from '@/types/ac-mirage';
 import { acmDistricts } from './acm-districts';
 import { acmMainQuests } from './acm-main-quests';
 import { acmInvestigations } from './acm-investigations';
+import { acmContracts } from './acm-contracts';
 import { acmTales } from './acm-tales';
 import { acmEnigmas } from './acm-enigmas';
 import { acmHistoricalSites } from './acm-historical-sites';
@@ -287,6 +288,7 @@ export const acMirage: ACMirageGame = {
   districts: acmDistricts,
   mainQuests: acmMainQuests,
   investigations: acmInvestigations,
+  contracts: acmContracts,
   tales: acmTales,
   enigmas: acmEnigmas,
   historicalSites: acmHistoricalSites,
@@ -308,6 +310,7 @@ export { isACMirageGame } from '@/types/ac-mirage';
 export { acmDistricts } from './acm-districts';
 export { acmMainQuests } from './acm-main-quests';
 export { acmInvestigations } from './acm-investigations';
+export { acmContracts } from './acm-contracts';
 export { acmTales } from './acm-tales';
 export { acmEnigmas } from './acm-enigmas';
 export { acmHistoricalSites } from './acm-historical-sites';

@@ -58,6 +58,18 @@ export interface ACMirageInvestigation {
   imageUrl?: string;
 }
 
+// Bureau Contract — issued by one of the three factions
+export type ContractFaction = 'scholars' | 'merchants' | 'soldiers';
+
+export interface ACMirageContract {
+  id: string;
+  name: string;
+  faction: ContractFaction;
+  reward: string;
+  description?: string;
+  imageUrl?: string;
+}
+
 // Tale of Baghdad (side quest)
 export interface ACMirageTale {
   id: string;
@@ -149,6 +161,7 @@ export interface ACMirageAchievement {
 export type ACMirageSection =
   | 'main-quests'
   | 'investigations'
+  | 'contracts'
   | 'tales'
   | 'enigmas'
   | 'historical-sites'
@@ -167,6 +180,7 @@ export interface ACMirageGame {
   districts: ACMirageDistrict[];
   mainQuests: ACMirageQuest[];
   investigations: ACMirageInvestigation[];
+  contracts: ACMirageContract[];
   tales: ACMirageTale[];
   enigmas: ACMirageEnigma[];
   historicalSites: ACMirageHistoricalSite[];
@@ -182,6 +196,7 @@ export const isACMirageGame = (gameId: string): boolean => gameId === 'ac-mirage
 // ID creators
 export const createQuestId = (id: string): string => `acm-quest-${id}`;
 export const createInvestigationId = (id: string): string => `acm-investigation-${id}`;
+export const createContractId = (id: string): string => `acm-contract-${id}`;
 export const createTaleId = (id: string): string => `acm-tale-${id}`;
 export const createEnigmaId = (id: string): string => `acm-enigma-${id}`;
 export const createHistoricalSiteId = (id: string): string => `acm-site-${id}`;

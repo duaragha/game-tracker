@@ -15,8 +15,10 @@ import {
   WeaponSlot,
   AchievementRarity,
   StoryArc,
+  ContractFaction,
   createQuestId,
   createInvestigationId,
+  createContractId,
   createTaleId,
   createEnigmaId,
   createHistoricalSiteId,
@@ -37,6 +39,7 @@ import {
   Sword,
   Shirt,
   Trophy,
+  Handshake,
   Check,
   X,
   MapPin,
@@ -82,6 +85,7 @@ export function ACMirageTracker({ gameId }: ACMirageTrackerProps) {
       {section === 'all-items' && <AllItemsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'main-quests' && <MainQuestsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'investigations' && <InvestigationsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
+      {section === 'contracts' && <ContractsView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'tales' && <TalesView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'enigmas' && <EnigmasView gameId={gameId} game={game} onSelect={setActiveDetail} />}
       {section === 'historical-sites' && <HistoricalSitesView gameId={gameId} game={game} onSelect={setActiveDetail} />}
@@ -538,6 +542,83 @@ function InvestigationsView({ gameId, game, onSelect }: ViewProps) {
       {renderRank('blood', 'The 5 Bloods (Story Targets)', '#f87171')}
       {renderRank('finger', 'Lesser Order Members (Fingers)', '#fb923c')}
       {renderRank('father', 'Father of Understanding', '#c084fc')}
+      {filtered.length === 0 && <TrackerEmptyState />}
+    </TrackerLayout>
+  );
+}
+
+// ============================================
+// CONTRACTS
+// ============================================
+
+const factionColors: Record<ContractFaction, string> = {
+  scholars: '#60a5fa',
+  merchants: '#34d399',
+  soldiers: '#f87171',
+};
+
+const factionLabels: Record<ContractFaction, string> = {
+  scholars: 'Scholars',
+  merchants: 'Merchants',
+  soldiers: 'Soldiers',
+};
+
+function ContractsView({ gameId, game, onSelect }: ViewProps) {
+  const collected = useCollected(gameId);
+  const { showCollected, showUncollected } = useCompletionFilter();
+  const filters = useFilters();
+
+  const filtered = useMemo(
+    () =>
+      game.contracts.filter((c) => {
+        const isComplete = collected.has(createContractId(c.id));
+        if (isComplete && !showCollected) return false;
+        if (!isComplete && !showUncollected) return false;
+        return searchMatches(filters.searchQuery, c.name, c.reward, c.description);
+      }),
+    [game.contracts, collected, showCollected, showUncollected, filters.searchQuery]
+  );
+
+  const completed = game.contracts.filter((c) => collected.has(createContractId(c.id))).length;
+
+  const renderFaction = (faction: ContractFaction) => {
+    const items = filtered.filter((c) => c.faction === faction);
+    const totalFaction = game.contracts.filter((c) => c.faction === faction).length;
+    const doneFaction = game.contracts.filter(
+      (c) => c.faction === faction && collected.has(createContractId(c.id))
+    ).length;
+    if (totalFaction === 0) return null;
+
+    const details: ItemDetail[] = items.map((c) => ({
+      collectId: createContractId(c.id),
+      title: c.name,
+      subtitle: `Reward: ${c.reward}`,
+      badges: [{ label: factionLabels[c.faction], color: factionColors[c.faction] }],
+      description: c.description,
+      source: c.reward,
+      imageUrl: c.imageUrl,
+    }));
+
+    return (
+      <ItemListSection
+        key={faction}
+        gameId={gameId}
+        label={factionLabels[faction]}
+        icon={<Handshake />}
+        iconColor="text-orange-400"
+        details={details}
+        totalForSection={totalFaction}
+        totalCompleted={doneFaction}
+        onSelect={onSelect}
+      />
+    );
+  };
+
+  return (
+    <TrackerLayout title="Bureau Contracts" totalItems={game.contracts.length} completedItems={completed}>
+      {renderFaction('scholars')}
+      {renderFaction('merchants')}
+      {renderFaction('soldiers')}
       {filtered.length === 0 && <TrackerEmptyState />}
     </TrackerLayout>
   );
@@ -1005,6 +1086,7 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
     return {
       quests: game.mainQuests.filter((q) => filterFnInner(createQuestId(q.id), q.name)),
       investigations: game.investigations.filter((i) => filterFnInner(createInvestigationId(i.id), i.codename, i.realName)),
+      contracts: game.contracts.filter((c) => filterFnInner(createContractId(c.id), c.name, c.reward)),
       tales: game.tales.filter((t) => filterFnInner(createTaleId(t.id), t.name, t.location)),
       enigmas: game.enigmas.filter((e) => filterFnInner(createEnigmaId(e.id), e.name)),
       sites: game.historicalSites.filter((s) => filterFnInner(createHistoricalSiteId(s.id), s.name)),
@@ -1017,13 +1099,14 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
   }, [game, collected, showCollected, showUncollected, filters.searchQuery]);
 
   const totalAll =
-    game.mainQuests.length + game.investigations.length + game.tales.length +
+    game.mainQuests.length + game.investigations.length + game.contracts.length + game.tales.length +
     game.enigmas.length + game.historicalSites.length + game.lostBooks.length +
     game.curios.length + game.weapons.length + game.outfits.length + game.achievements.length;
 
   const completedAll =
     game.mainQuests.filter((q) => collected.has(createQuestId(q.id))).length +
     game.investigations.filter((i) => collected.has(createInvestigationId(i.id))).length +
+    game.contracts.filter((c) => collected.has(createContractId(c.id))).length +
     game.tales.filter((t) => collected.has(createTaleId(t.id))).length +
     game.enigmas.filter((e) => collected.has(createEnigmaId(e.id))).length +
     game.historicalSites.filter((s) => collected.has(createHistoricalSiteId(s.id))).length +
@@ -1078,6 +1161,26 @@ function AllItemsView({ gameId, game, onSelect }: ViewProps) {
               region: inv.region,
             };
           })}
+          onSelect={onSelect}
+        />
+      )}
+
+      {activeSections.has('contracts') && sections.contracts.length > 0 && (
+        <ItemListSection
+          gameId={gameId}
+          label="Bureau Contracts"
+          icon={<Handshake />}
+          iconColor="text-orange-400"
+          totalForSection={game.contracts.length}
+          totalCompleted={game.contracts.filter((c) => collected.has(createContractId(c.id))).length}
+          details={sections.contracts.map((c) => ({
+            collectId: createContractId(c.id),
+            title: c.name,
+            subtitle: `Reward: ${c.reward}`,
+            badges: [{ label: factionLabels[c.faction], color: factionColors[c.faction] }],
+            description: c.description,
+            source: c.reward,
+          }))}
           onSelect={onSelect}
         />
       )}
